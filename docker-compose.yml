@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  backend:
+    image: backend
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend/:/opt/backend/
+    ports:
+      - "8000:8000"
+
+  frontend:
+    image: ./frontend
+    build: ./frontend
+    command: npm start
+    volumes:
+      - ./frontend:/opt/frontend/
+    ports:
+      - "3000:3000"
