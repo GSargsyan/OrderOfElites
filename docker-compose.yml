@@ -1,20 +1,35 @@
 version: '3'
 
 services:
-  backend:
-    image: backend
-    build: ./backend
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./backend/:/opt/backend/
-    ports:
-      - "8000:8000"
-
   frontend:
-    image: ./frontend
+    image: ooe_frontend
+    container_name: ooe_frontend
     build: ./frontend
-    command: npm start
+    command: npm start --prefix app/
     volumes:
       - ./frontend:/opt/frontend/
     ports:
       - "3000:3000"
+
+  backend:
+    image: ooe_backend
+    container_name: ooe_backend
+    build: ./backend
+    command: python app/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend/:/opt/backend/
+      - ./frontend/app/build/static:/opt/static
+    ports:
+      - "8000:8000"
+
+  psql:
+    image: ooe_psql
+    container_name: ooe_psql
+    build: ./psql
+    volumes:
+      - ./psql/pgdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=mysecretpassword
+    command: postgres -c max_connections=300
+    ports:
+      - "5432:5432"

@@ -3,7 +3,6 @@ ENV PYTHONUNBUFFERED 1
 
 WORKDIR /opt/backend/
 COPY ./ ./
-VOLUME ./:./
 
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
