@@ -5,7 +5,7 @@ services:
     image: ooe_frontend
     container_name: ooe_frontend
     build: ./frontend
-    command: npm start --prefix app/
+    command: npm run dev
     volumes:
       - ./frontend:/opt/frontend/
     ports:
@@ -15,10 +15,10 @@ services:
     image: ooe_backend
     container_name: ooe_backend
     build: ./backend
-    command: python app/manage.py runserver 0.0.0.0:8000
+    command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./backend/:/opt/backend/
-      - ./frontend/app/build/static:/opt/static
+      - ./frontend/build/:/opt/static
     ports:
       - "8000:8000"
 
