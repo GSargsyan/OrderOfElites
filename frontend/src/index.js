@@ -1,20 +1,17 @@
-// frontend/src/index.js
-import React from 'react'
-import ReactDOM from 'react-dom'
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import './index.css';
+import App from './App';
+import reportWebVitals from './reportWebVitals';
 
-/*
-// Define the React app
-const App = () => {
-  const [count, setCount] = React.useState(0)
-  const onClick = () => setCount(c => c + 1)
-  return React.createElement('div', null,
-    React.createElement('h1', null, 'The count is ' + count),
-    React.createElement('button', { onClick: onClick }, 'Count'),
-  )
-}
-// Mount the app to the mount point.
-const root = document.getElementById('app')
-ReactDOM.render(React.createElement(App, null, null), root)
-*/
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
 
-alert('test')
+// If you want to start measuring performance in your app, pass a function
+// to log results (for example: reportWebVitals(console.log))
+// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+reportWebVitals();
