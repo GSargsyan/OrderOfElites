@@ -34,15 +34,16 @@ ALLOWED_HOSTS = [
 # Application definition
 
 INSTALLED_APPS = [
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    # 'django.contrib.messages',
+    # 'django.contrib.staticfiles',
 
-    'home',
+    # TODO: should delete one of these
+    'ooe.users',
     'corsheaders',
+    'channels'
 ]
 
 MIDDLEWARE = [
@@ -90,10 +91,16 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'ooe_db',
+        'USER': 'ooe',
+        'PASSWORD': 'ooe_pwd',
+        'HOST': 'ooe_psql',
+        'PORT': '5432',
+
     }
 }
+
 
 
 # Password validation
@@ -114,6 +121,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_USER_MODEL = "users.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/
@@ -155,7 +163,7 @@ LOGGING = {
     "loggers": {
         "django": {
             "handlers": ["file"],
-            "level": "WARNING",
+            "level": "ERROR",
             "propagate": True,
         },
     },

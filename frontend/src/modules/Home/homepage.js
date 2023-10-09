@@ -1,11 +1,13 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import axios from 'axios'
+import React, { useState } from 'react'
 
-import Header from '../Header';
-import Footer from '../Footer';
+import Header from './header'
+import Footer from './footer'
+import { API_URL } from 'modules/Base'
+
 
 function Homepage() {
-    const [isSignup, setIsSignup] = useState(false);
+    const [isSignup, setIsSignup] = useState(false)
 
     return (
         <div>
@@ -17,25 +19,35 @@ function Homepage() {
 
             <Footer />
         </div>
-    );
+    )
 }
 
 function SignupForm({ toggleForm }) {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+    const [signupError, setErrorMsg] = useState('')
+    const [signupSuccess, setSuccessMsg] = useState('')
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        
-		axios.post('http://0.0.0.0:8000/signup/', {
+        e.preventDefault()
+
+		axios.post(`${API_URL}/signup/`, {
 			username: username,
 			password: password,
-		}).then((response) => {
-			console.log(response);
+		}).then(response => {
+            setSuccessMsg('Signup successful! Signing in...')
+            axios.post(`${API_URL}/login/`, {
+                username: username,
+                password: password,
+            }).then(response => {
+                window.location.href = '/dashboard'
+            }).catch(error => {
+                setErrorMsg('Something went wrong')
+            })
 		}).catch(error => {
-            console.log('asdfaaaaaaaaaaaaaaaaaaaaa')
+            setErrorMsg(error.response.data.error)
 		})
-    };
+    }
 
     return (
 		<div style={styles.authContainer}>
@@ -64,20 +76,29 @@ function SignupForm({ toggleForm }) {
 				<button type="submit">Signup</button>
 				<button onClick={toggleForm}>Already have an account</button>
 			</form>
+            <p>{signupError}</p>
+            <p>{signupSuccess}</p>
 		</div>
-    );
+    )
 }
 
 function LoginForm({ toggleForm }) {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [isSignup, setIsSignup] = useState(false);
+    const [username, setUsername] = useState('')
+    const [password, setPassword] = useState('')
+    const [loginError, setLoginError] = useState('')
 
     const handleSubmit = (event) => {
-        event.preventDefault();
-        console.log("Username:", username, "Password:", password);
-    }
+        event.preventDefault()
 
+        axios.post(`${API_URL}/login/`, {
+            username: username,
+            password: password,
+        }).then(response => {
+            window.location.href = '/dashboard'
+        }).catch(error => {
+            setLoginError(error.response.data.error)
+        })
+    }
 
     return (
 		<div style={styles.authContainer}>
@@ -106,8 +127,9 @@ function LoginForm({ toggleForm }) {
 				<button type="submit">Login</button>
                 <button onClick={toggleForm}>Don't have an account?</button>
 			</form>
+            <p>{loginError}</p>
 		</div>
-	);
+	)
 }
 
 const styles = {
@@ -123,4 +145,4 @@ const styles = {
     }
 }
 
-export default Homepage;
+export default Homepage

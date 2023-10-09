@@ -1,6 +1,22 @@
 version: '3'
 
 services:
+  psql:
+    image: ooe_psql
+    container_name: ooe_psql
+    build: ./psql
+    volumes:
+      - ./psql/pgdata:/var/lib/postgresql/data
+    # environment:
+      # POSTGRES_DB: ooe_db
+      # POSTGRES_USER: ooe
+      # POSTGRES_PASSWORD: ooe_pwd
+    command: postgres -c max_connections=300
+    ports:
+      - "5432:5432"
+    networks:
+      - ooe_network
+
   frontend:
     image: ooe_frontend
     container_name: ooe_frontend
@@ -10,6 +26,10 @@ services:
       - ./frontend:/opt/frontend/
     ports:
       - "3000:3000"
+    networks:
+      - ooe_network
+    depends_on:
+      - backend
 
   backend:
     image: ooe_backend
@@ -21,15 +41,44 @@ services:
       # - ./frontend/build/:/opt/static
     ports:
       - "8000:8000"
+    networks:
+      - ooe_network
+    depends_on:
+      - psql
 
-  psql:
-    image: ooe_psql
-    container_name: ooe_psql
-    build: ./psql
-    volumes:
-      - ./psql/pgdata:/var/lib/postgresql/data
+  pgadmin:
+    image: dpage/pgadmin4
     environment:
-      - POSTGRES_PASSWORD=mysecretpassword
-    command: postgres -c max_connections=300
+      PGADMIN_DEFAULT_EMAIL: "admin@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
     ports:
-      - "5432:5432"
+      - "5050:80"
+    networks:
+      - ooe_network
+
+  redis:
+    image: ooe_redis
+    container_name: ooe_redis
+    build: ./redis
+    command: redis-server
+    ports:
+      - "6379:6379"
+    networks:
+      - ooe_network
+
+  nodejs:
+    image: ooe_node
+    container_name: ooe_node
+    build: ./node
+    command: sleep 60
+    volumes:
+      - ./node:/opt/node/
+    ports:
+      - "4000:4000"
+    networks:
+      - ooe_network
+    depends_on:
+      - redis
+
+networks:
+  ooe_network:

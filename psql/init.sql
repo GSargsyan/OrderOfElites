@@ -1,13 +1,3 @@
-CREATE DATABASE ooe;
-
-\c ooe;
-
-CREATE TABLE users (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(50),
-    email VARCHAR(50)
-);
-
-INSERT INTO users (name, email) VALUES
-('John Doe', 'john@example.com'),
-('Jane Doe', 'jane@example.com');
+CREATE USER ooe WITH PASSWORD 'ooe_pwd';
+CREATE DATABASE ooe_db;
+GRANT ALL PRIVILEGES ON DATABASE ooe_db TO ooe;
