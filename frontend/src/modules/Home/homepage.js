@@ -45,7 +45,11 @@ function SignupForm({ toggleForm }) {
                 setErrorMsg('Something went wrong')
             })
 		}).catch(error => {
-            setErrorMsg(error.response.data.error)
+            if (error?.response?.data?.error) {
+                setErrorMsg(error.response.data.error)
+            } else {
+                setErrorMsg('Something went wrong')
+            }
 		})
     }
 
@@ -96,7 +100,11 @@ function LoginForm({ toggleForm }) {
         }).then(response => {
             window.location.href = '/dashboard'
         }).catch(error => {
-            setLoginError(error.response.data.error)
+            if (error?.response?.data?.error) {
+                setLoginError(error.response.data.error)
+            } else {
+                setLoginError('Something went wrong')
+            }
         })
     }
 

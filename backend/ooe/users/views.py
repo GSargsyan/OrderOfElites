@@ -16,6 +16,16 @@ from ooe.users.constants import \
     PASSWORD_LEN_MAX
 
 
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def is_logged_in(request):
+    print(request.user.is_authenticated)
+    if request.user.is_authenticated:
+        return Response({'logged_in': True}, status=200)
+    else:
+        return Response({'logged_in': False}, status=200)
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
@@ -25,10 +35,13 @@ def login_user(request):
 
     if user is not None:
         login(request, user)
-        return Response(status=200)
+        resp = Response(status=200)
     else:
-        return Response({"error": "Incorrect Username, password combination"},
+        resp = Response({"error": "Incorrect Username/Password combination"},
             status=401)
+
+    print(resp.headers)
+    return resp
 
 
 @api_view(['POST'])

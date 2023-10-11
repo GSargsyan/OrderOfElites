@@ -5,7 +5,7 @@ from django.db import models
 class UserManager(BaseUserManager):
     def create_user(self, username, password=None, **extra_fields):
         if not username:
-            raise ValueError("The Email field must be set")
+            raise ValueError("The Username field must be set")
 
         user = self.model(username=username, **extra_fields)
         user.set_password(password)

@@ -7,10 +7,10 @@ services:
     build: ./psql
     volumes:
       - ./psql/pgdata:/var/lib/postgresql/data
-    # environment:
-      # POSTGRES_DB: ooe_db
-      # POSTGRES_USER: ooe
-      # POSTGRES_PASSWORD: ooe_pwd
+    environment:
+      POSTGRES_DB: ooe_db
+      POSTGRES_USER: ooe
+      POSTGRES_PASSWORD: ooe_pwd
     command: postgres -c max_connections=300
     ports:
       - "5432:5432"
@@ -55,6 +55,8 @@ services:
       - "5050:80"
     networks:
       - ooe_network
+    logging:
+        driver: none
 
   redis:
     image: ooe_redis
@@ -66,11 +68,11 @@ services:
     networks:
       - ooe_network
 
-  nodejs:
+  node:
     image: ooe_node
     container_name: ooe_node
     build: ./node
-    command: sleep 60
+    command: npm start
     volumes:
       - ./node:/opt/node/
     ports:

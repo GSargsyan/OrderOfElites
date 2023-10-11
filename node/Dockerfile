@@ -1,7 +1,7 @@
 FROM node:19
 
-# COPY package*.json ./
-WORKDIR /opt/node/
-COPY ./ ./
+WORKDIR /opt/node
+COPY . .
+RUN npm install
 
 EXPOSE 4000
