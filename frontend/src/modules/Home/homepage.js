@@ -1,9 +1,8 @@
-import axios from 'axios'
 import React, { useState } from 'react'
 
 import Header from './header'
 import Footer from './footer'
-import { API_URL } from 'modules/Base'
+import { request } from 'modules/Base'
 
 
 function Homepage() {
@@ -31,26 +30,40 @@ function SignupForm({ toggleForm }) {
     const handleSubmit = async (e) => {
         e.preventDefault()
 
-		axios.post(`${API_URL}/signup/`, {
-			username: username,
-			password: password,
-		}).then(response => {
-            setSuccessMsg('Signup successful! Signing in...')
-            axios.post(`${API_URL}/login/`, {
+        request({
+            'url': 'signup',
+            'method': 'POST',
+            'data': {
                 username: username,
-                password: password,
+                password: password
+            }
+        }).then(response => {
+            setSuccessMsg('Signup successful! Signing in...')
+
+            request({
+                'url': 'login',
+                'method': 'POST',
+                'data': {
+                    username: username,
+                    password: password
+                }
             }).then(response => {
+                localStorage.setItem('token', response.data.token)
                 window.location.href = '/dashboard'
             }).catch(error => {
-                setErrorMsg('Something went wrong')
+                if (error?.response?.data?.error) {
+                    setErrorMsg(error.response.data.error)
+                } else {
+                    setErrorMsg('Something went wrong')
+                }
             })
-		}).catch(error => {
+        }).catch(error => {
             if (error?.response?.data?.error) {
                 setErrorMsg(error.response.data.error)
             } else {
                 setErrorMsg('Something went wrong')
             }
-		})
+        })
     }
 
     return (
@@ -89,21 +102,26 @@ function SignupForm({ toggleForm }) {
 function LoginForm({ toggleForm }) {
     const [username, setUsername] = useState('')
     const [password, setPassword] = useState('')
-    const [loginError, setLoginError] = useState('')
+    const [loginError, setErrorMsg] = useState('')
 
     const handleSubmit = (event) => {
         event.preventDefault()
 
-        axios.post(`${API_URL}/login/`, {
-            username: username,
-            password: password,
+        request({
+            'url': 'login',
+            'method': 'POST',
+            'data': {
+                username: username,
+                password: password
+            }
         }).then(response => {
+            localStorage.setItem('token', response.data.token)
             window.location.href = '/dashboard'
         }).catch(error => {
             if (error?.response?.data?.error) {
-                setLoginError(error.response.data.error)
+                setErrorMsg(error.response.data.error)
             } else {
-                setLoginError('Something went wrong')
+                setErrorMsg('Something went wrong')
             }
         })
     }

@@ -1,30 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import socketIOClient from "socket.io-client";
-import { CHAT_URL } from 'modules/Base'
+import React, { useState, useEffect } from 'react'
+import socketIOClient from "socket.io-client"
+import { CHAT_URL } from 'modules/Base/constants.js'
 
 
 function ChatContainer() {
-    const [socket, setSocket] = useState(null);
-    const [messages, setMessages] = useState([]);
-    const [currentMessage, setCurrentMessage] = useState("");
+    const [socket, setSocket] = useState(null)
+    const [messages, setMessages] = useState([])
+    const [currentMessage, setCurrentMessage] = useState("")
 
     useEffect(() => {
-        const newSocket = socketIOClient(CHAT_URL);
-        setSocket(newSocket);
+        const newSocket = socketIOClient(CHAT_URL)
+        setSocket(newSocket)
 
         newSocket.on("chat_message", data => {
-            setMessages(prev => [...prev, data]);
-        });
+            setMessages(prev => [...prev, data])
+        })
 
-        return () => newSocket.disconnect();
-    }, []);
+        return () => newSocket.disconnect()
+    }, [])
 
     const handleSendMessage = () => {
         if (socket) {
-            socket.emit("send_message", currentMessage);
-            setCurrentMessage("");
+            socket.emit("send_message", currentMessage)
+            setCurrentMessage("")
         }
-    };
+    }
 
     return (
         <div style={styles.chatCont}>
@@ -42,7 +42,7 @@ function ChatContainer() {
                 <button onClick={handleSendMessage}>Send</button>
             </div>
         </div>
-    );
+    )
 }
 
 const styles = {
@@ -56,4 +56,4 @@ const styles = {
 }
 
 
-export default ChatContainer;
+export default ChatContainer
