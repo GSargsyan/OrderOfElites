@@ -1,14 +1,14 @@
 import re
 
+from django.db import transaction
+from django.http import JsonResponse
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.hashers import make_password
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
-
-from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.contrib.auth.hashers import make_password
-from django.contrib.auth import authenticate, login
 
 from ooe.users.models import User
 from ooe.users.constants import \
@@ -20,19 +20,15 @@ from ooe.users.constants import \
     PASSWORD_LEN_MAX
 
 
-# To authorize ------------------------------
-# @authentication_classes([TokenAuthentication])
-# @permission_classes([IsAuthenticated])
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_user(request):
     username = request.data.get("username")
     password = request.data.get("password")
     user = authenticate(request, username=username, password=password)
-    token, created = Token.objects.get_or_create(user=user)
 
     if user is not None:
+        token, created = Token.objects.get_or_create(user=user)
         resp = Response({'token': token.key}, status=200)
     else:
         resp = Response({"error": "Incorrect Username/Password combination"},
@@ -43,6 +39,7 @@ def login_user(request):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
+@transaction.atomic
 def signup_user(request):
     username = request.data.get("username")
     password = request.data.get("password")
@@ -85,5 +82,7 @@ def signup_user(request):
         
     user = User.objects.create(username=username, password=make_password(password))
     Token.objects.create(user=user)
+
+    user.add_default_chat_groups()
 
     return Response(status=201)

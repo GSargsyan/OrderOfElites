@@ -80,6 +80,7 @@ services:
     networks:
       - ooe_network
     depends_on:
+      - psql
       - redis
 
 networks:

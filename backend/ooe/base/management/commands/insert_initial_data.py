@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from ooe.cities.models import City
+from ooe.chat.models import ChatGroup
 
 class Command(BaseCommand):
     help = 'Insert initial data into the database.'
@@ -25,4 +26,10 @@ class Command(BaseCommand):
         for city in cities:
             City.objects.get_or_create(name=city)
 
-        self.stdout.write(self.style.SUCCESS('Successfully inserted initial data'))
+        self.stdout.write(self.style.SUCCESS('Successfully inserted: Cities'))
+
+        for city_name in cities:
+            city = City.objects.get(name=city_name)
+            ChatGroup.objects.get_or_create(name=city.name, city=city)
+
+        self.stdout.write(self.style.SUCCESS('Successfully inserted: ChatGroups'))

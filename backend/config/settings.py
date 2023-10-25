@@ -42,12 +42,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'corsheaders',
+    'rest_framework.authtoken',
+
     'ooe.base',
     'ooe.users',
     'ooe.cities',
     'ooe.chat',
-    'corsheaders',
-    'rest_framework.authtoken',
+    'ooe.dashboard',
 ]
 
 MIDDLEWARE = [
@@ -117,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# AUTH_USER_MODEL = "users.User"
+AUTH_USER_MODEL = "users.User"
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.1/topics/i18n/

@@ -6,8 +6,6 @@ import { isLoggedIn } from './modules/Base'
 
 
 function App() {
-    console.log(isLoggedIn())
-
 	return (
 		<BrowserRouter>
 			<Routes>
