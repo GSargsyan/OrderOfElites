@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
+from ooe.base.utils import authorize
 
 from ooe.users.models import User
 from ooe.users.constants import \
@@ -18,6 +19,16 @@ from ooe.users.constants import \
     PASSWORD_REGEX, \
     PASSWORD_LEN_MIN, \
     PASSWORD_LEN_MAX
+
+
+@api_view(['POST'])
+@authorize
+def get_preview(request):
+    import time
+    time.sleep(1)
+    user = request.user
+
+    return Response(user.get_preview_data(), status=200)
 
 
 @api_view(['POST'])
@@ -83,6 +94,6 @@ def signup_user(request):
     user = User.objects.create(username=username, password=make_password(password))
     Token.objects.create(user=user)
 
-    user.add_default_chat_groups()
+    user.add_default_chat_rooms()
 
     return Response(status=201)

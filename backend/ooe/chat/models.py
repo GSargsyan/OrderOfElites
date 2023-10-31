@@ -1,7 +1,7 @@
 from django.db import models
 
 
-class ChatGroup(models.Model):
+class ChatRoom(models.Model):
     name = models.CharField(max_length=30)
     creator_user = models.ForeignKey('users.User', on_delete=models.CASCADE, null=True)
     city = models.ForeignKey('cities.City', on_delete=models.CASCADE, null=True)
@@ -11,12 +11,12 @@ class ChatGroup(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'ooe_chat_groups'
+        db_table = 'ooe_chat_rooms'
 
 
 class ChatConnection(models.Model):
     user = models.ForeignKey('users.User', related_name='chat_connections', on_delete=models.CASCADE)
-    chat_group = models.ForeignKey('ChatGroup', related_name='chat_connections', on_delete=models.CASCADE)
+    chat_room = models.ForeignKey('ChatRoom', related_name='chat_connections', on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

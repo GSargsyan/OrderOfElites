@@ -31,7 +31,7 @@ function SignupForm({ toggleForm }) {
         e.preventDefault()
 
         request({
-            'url': 'signup',
+            'url': 'users/signup',
             'method': 'POST',
             'data': {
                 username: username,
@@ -41,7 +41,7 @@ function SignupForm({ toggleForm }) {
             setSuccessMsg('Signup successful! Signing in...')
 
             request({
-                'url': 'login',
+                'url': 'users/login',
                 'method': 'POST',
                 'data': {
                     username: username,
@@ -108,7 +108,7 @@ function LoginForm({ toggleForm }) {
         event.preventDefault()
 
         request({
-            'url': 'login',
+            'url': 'users/login',
             'method': 'POST',
             'data': {
                 username: username,

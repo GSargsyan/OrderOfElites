@@ -1,7 +1,7 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 
-from ooe.chat.models import ChatConnection, ChatGroup
+from ooe.chat.models import ChatConnection, ChatRoom
 
 
 class UserManager(BaseUserManager):
@@ -32,7 +32,7 @@ class User(AbstractBaseUser):
     class Meta:
         db_table = 'ooe_users'
 
-    def get_user_dash(self):
+    def get_preview_data(self):
         res = {
             'username': self.username,
             'city': self.city.name,
@@ -41,17 +41,7 @@ class User(AbstractBaseUser):
 
         return res
 
-    def get_chat_groups(self):
-        return [
-            {'id': group.id,
-             'name': group.name
-             } for group in self.chat_connections.all()
-        ]
+    def add_default_chat_rooms(self):
+        chat_rooms = ChatRoom.objects.get(name=self.city.name)
 
-    for x in self.chat_connections.all():
-        print(x.chat_group.name)
-
-    def add_default_chat_groups(self):
-        chat_group = ChatGroup.objects.get(name=self.city.name)
-
-        ChatConnection.objects.create(user=self, chat_group=chat_group)
+        ChatConnection.objects.create(user=self, chat_room=chat_room)

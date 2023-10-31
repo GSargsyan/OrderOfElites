@@ -17,5 +17,7 @@ from django.urls import include, path
 
 urlpatterns = [
     path('', include('ooe.users.urls')),
+    path('', include('ooe.chat.urls')),
     path('', include('ooe.dashboard.urls')),
+    # path('', include('ooe.cities.urls')),
 ]

@@ -15,11 +15,11 @@ function Dashboard() {
 }
 
 function UserPreview() {
-    const [data, setData] = useState(null);
+    const [data, setData] = useState(null)
 
     useEffect(() => {
         request({
-            'url': 'get_dashboard_params',
+            'url': 'users/get_preview',
             'method': 'POST',
         })
         .then(response => {

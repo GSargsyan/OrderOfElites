@@ -29,16 +29,16 @@ const io = socketIo(server, {
     },
 });
 
-// Fetch chat groups and initialize chat rooms
-const initializeChatGroups = async () => {
+// Fetch chat rooms and initialize chat rooms
+const initializeChatRooms = async () => {
     try {
-        const res = await pool.query('SELECT * FROM ooe_chat_groups');
-        for (const group of res.rows) {
-            chatRooms[group.id] = io.of(`/chat-${group.id}`);
-            setupChatRoom(chatRooms[group.id]);
+        const res = await pool.query('SELECT * FROM ooe_chat_rooms');
+        for (const room of res.rows) {
+            chatRooms[room.id] = io.of(`/chat-${room.id}`);
+            setupChatRoom(chatRooms[room.id]);
         }
     } catch (err) {
-        console.error('Error fetching chat groups:', err);
+        console.error('Error fetching chat rooms:', err);
     }
 };
 
@@ -47,12 +47,12 @@ const setupChatRoom = (chatRoom) => {
     chatRoom.on('connection', (socket) => {
         console.log('a user connected to a chat room');
 
-        socket.on('join', async (userId, groupId) => {
-            // Add user to user_chat_groups table
+        socket.on('join', async (userId, roomId) => {
+            // Add user to user_chat_rooms table
             try {
-                await pool.query('INSERT INTO ooe_chat_connections (user_id, group_id) VALUES ($1, $2)', [userId, groupId]);
+                await pool.query('INSERT INTO ooe_chat_connections (user_id, room_id) VALUES ($1, $2)', [userId, roomId]);
             } catch (err) {
-                console.error('Error adding user to chat group:', err);
+                console.error('Error adding user to chat room:', err);
             }
         });
 
@@ -75,5 +75,5 @@ io.on('connection', (socket) => {
 
 server.listen(PORT, async () => {
     console.log(`Server is running on port ${PORT}`);
-    await initializeChatGroups();
+    await initializeChatRooms();
 });
