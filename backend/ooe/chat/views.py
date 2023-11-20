@@ -1,21 +1,41 @@
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.authtoken.models import Token
 
 from ooe.chat.models import ChatConnection
-from ooe.base.utils import authorize
+from ooe.base.utils import auth_by_token
 
 
 @api_view(['POST'])
-@authorize
+@auth_by_token
 def get_user_connections(request):
     import time
     time.sleep(1)
 
     print(request.user.chat_connections.all())
 
-    res = [{'id': conn.chat_room.id,
-           'name': conn.chat_room.name
-           } for conn in request.user.chat_connections.all()
+    res = [{
+        'id': conn.chat_room.id,
+        'name': conn.chat_room.name
+        } for conn in request.user.chat_connections.all()
     ]
 
     return Response(res, status=200)
+
+
+@api_view(['POST'])
+def authenticate_connection(request):
+    room_id = request.data.get("room_id")
+    token = request.data.get("token")
+
+    user_by_token = Token.objects.get(key=token).user
+
+    if user_by_token is None:
+        return Response({"error": "Invalid token"}, status=401)
+
+    user_id = ChatConnection.objects.get(chat_room_id=room_id).user_id
+
+    if user_by_token.id != int(user_id):
+        return Response({"error": "User is not authorized to join this chat"}, status=401)
+
+    return Response({"success": "Token verified"}, status=200)

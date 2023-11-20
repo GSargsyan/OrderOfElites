@@ -10,9 +10,16 @@ function ChatBoard({ chatRoomId, name}) {
     const [currentMessage, setCurrentMessage] = useState("")
 
     useEffect(() => {
-        const newSocket = socketIOClient(CHAT_URL);
-        setSocket(newSocket);
-        newSocket.emit('join_chat', chatRoomId);
+        const token = localStorage.getItem('token');
+        const newSocket = socketIOClient(`${CHAT_URL}/chat-${chatRoomId}`, {
+            query: {
+                token: token,
+                room_id: chatRoomId
+            }
+        })
+
+        setSocket(newSocket)
+        newSocket.emit('join_chat')
 
         newSocket.on("chat_message", data => {
             setMessages(prev => [...prev, data])

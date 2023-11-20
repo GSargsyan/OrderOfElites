@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 
-def authorize(view_func):
+def auth_by_token(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):
         # Get the token from headers (or wherever you store it)

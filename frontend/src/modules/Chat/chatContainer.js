@@ -37,8 +37,6 @@ function ChatContainer() {
     )
 }
 
-// request to get all users
-
 const styles = {
     chatCont: {
         position: 'absolute',
@@ -53,6 +51,5 @@ const styles = {
         padding: '5px'
     }
 }
-
 
 export default ChatContainer

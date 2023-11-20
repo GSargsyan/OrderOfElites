@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
-from ooe.base.utils import authorize
+from ooe.base.utils import auth_by_token
 
 from ooe.users.models import User
 from ooe.users.constants import \
@@ -22,7 +22,7 @@ from ooe.users.constants import \
 
 
 @api_view(['POST'])
-@authorize
+@auth_by_token
 def get_preview(request):
     import time
     time.sleep(1)
