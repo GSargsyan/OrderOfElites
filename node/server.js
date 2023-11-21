@@ -33,13 +33,18 @@ const io = socketIo(server, {
     },
 });
 
-const authConnection = async (token, roomId) => {
-    const response = await axios.post(`${API_URL}/chat/authenticate_connection`, {
+const authConnection = (token, roomId) => {
+    return axios.post(`${API_URL}/chat/authenticate_connection`, {
         room_id: roomId,
         token: token
-    });
-
-    return response.status === 200
+    })
+    .then(response => {
+        return response.status === 200
+    })
+    .catch(error => {
+        console.error("Authorization failed:", error.response.data)
+        return false
+    })
 }
 
 const initializeChatRooms = async () => {

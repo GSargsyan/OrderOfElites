@@ -40,8 +40,8 @@ function ChatContainer() {
 const styles = {
     chatCont: {
         position: 'absolute',
-        top: '30%',
-        width: '30%',
+        top: '250px',
+        width: '25%',
         height: '50%',
         border: '1px solid black'
     },

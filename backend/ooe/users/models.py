@@ -44,4 +44,4 @@ class User(AbstractBaseUser):
     def add_default_chat_rooms(self):
         chat_rooms = ChatRoom.objects.get(name=self.city.name)
 
-        ChatConnection.objects.create(user=self, chat_room=chat_room)
+        ChatConnection.objects.create(user=self, chat_room=chat_rooms)

@@ -28,14 +28,14 @@ def authenticate_connection(request):
     room_id = request.data.get("room_id")
     token = request.data.get("token")
 
-    user_by_token = Token.objects.get(key=token).user
+    user = Token.objects.get(key=token).user
 
-    if user_by_token is None:
+    if user is None:
         return Response({"error": "Invalid token"}, status=401)
 
-    user_id = ChatConnection.objects.get(chat_room_id=room_id).user_id
+    connection = ChatConnection.objects.filter(chat_room__id=room_id, user=user).first()
 
-    if user_by_token.id != int(user_id):
+    if not connection:
         return Response({"error": "User is not authorized to join this chat"}, status=401)
 
     return Response({"success": "Token verified"}, status=200)

@@ -19,7 +19,6 @@ function ChatBoard({ chatRoomId, name}) {
         })
 
         setSocket(newSocket)
-        newSocket.emit('join_chat')
 
         newSocket.on("chat_message", data => {
             setMessages(prev => [...prev, data])

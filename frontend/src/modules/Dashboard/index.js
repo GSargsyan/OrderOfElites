@@ -10,6 +10,7 @@ function Dashboard() {
         <div>
             <ChatContainer />
             <UserPreview />
+            <MenuItems />
         </div>
     )
 }
@@ -45,6 +46,25 @@ function UserPreview() {
     )
 }
 
+function MenuItems() {
+    return (
+        <>
+            <div style={styles.menuItemsCont}>
+                <p>Dashboard</p>
+                <p>Missions</p>
+                <p>Skills</p>
+                <p>Garage</p>
+                <p>Travel</p>
+                <p>Guns</p>
+                <p>Bank</p>
+                <p>Kill</p>
+                <p>Pavilion</p>
+                <p>Grand Council</p>
+            </div>
+        </>
+    )
+}
+
 const styles = {
     previewCont: {
         position: 'absolute',
@@ -53,6 +73,13 @@ const styles = {
         width: '20%',
         minHeight: '150px',
         border: '1px solid black'
+    },
+    menuItemsCont: {
+        border: '1px solid black',
+        float: 'right',
+        top: '40px',
+        marginTop: '250px',
+        padding: '30px',
     }
 }
 
