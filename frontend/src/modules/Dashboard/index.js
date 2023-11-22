@@ -7,11 +7,16 @@ import { request } from 'modules/Base'
 
 function Dashboard() {
     return (
-        <div>
-            <ChatContainer />
-            <UserPreview />
-            <MenuItems />
-        </div>
+        <>
+            <div style={styles.upperDashCont}>
+                <UserPreview />
+            </div>
+            <div style={styles.centerDashCont}>
+                <ChatContainer />
+                <CentralPanel />
+                <MenuItems />
+            </div>
+        </>
     )
 }
 
@@ -31,12 +36,14 @@ function UserPreview() {
 
     return (
         <>
-            <div style={styles.previewCont}>
+            <div className="previewCont" style={styles.previewCont}>
                 {data ? (
                     <>
                     <p>Username: {data.username}</p>
                     <p>City: {data.city}</p>
                     <p>Money: {data.money_cash}</p>
+                    <p>Rank: {data.rank}</p>
+                    <p>Progress: {data.rank_progress}%</p>
                     </>
                 ) : (
                     <p>Loading...</p>
@@ -65,21 +72,42 @@ function MenuItems() {
     )
 }
 
+function CentralPanel() {
+    return (
+        <>
+            <div style={styles.centralPanelCont}>
+            </div>
+        </>
+    )
+}
+
 const styles = {
+
+    upperDashCont: {
+        display: 'flex',
+        justifyContent: 'center',
+    },
+    centerDashCont: {
+        display: 'flex',
+        justifyContent: 'space-between',
+        marginTop: '50px',
+        minHeight: '500px',
+    },
     previewCont: {
-        position: 'absolute',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: '20%',
-        minHeight: '150px',
-        border: '1px solid black'
+        padding: '15px',
+        width: '200px',
+        border: '1px solid black',
     },
     menuItemsCont: {
         border: '1px solid black',
         float: 'right',
-        top: '40px',
-        marginTop: '250px',
         padding: '30px',
+    },
+    centralPanelCont: {
+        border: '1px solid black',
+        top: '40px',
+        padding: '30px',
+        width: '50%',
     }
 }
 

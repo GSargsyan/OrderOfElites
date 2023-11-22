@@ -23,9 +23,9 @@ function ChatContainer() {
     }
 
     return (
-        <div style={styles.chatCont}>
+        <div className="chatCont" style={styles.chatCont}>
             {data.map(chat => (
-                <div key={chat.id} style={styles.chatTab}>
+                <div className="chatTab" key={chat.id} style={styles.chatTab}>
                     <p>{chat.name}</p>
                     <ChatBoard
                         chatRoomId={chat.id}
@@ -39,11 +39,9 @@ function ChatContainer() {
 
 const styles = {
     chatCont: {
-        position: 'absolute',
         top: '250px',
-        width: '25%',
-        height: '50%',
-        border: '1px solid black'
+        width: '20%',
+        border: '1px solid black',
     },
     chatTab: {
         border: '1px solid black',
