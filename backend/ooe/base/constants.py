@@ -30,3 +30,23 @@ RANK_EXPS = {
     29: 589241,
     30: 645240
 }
+
+RANK_REQUIREMENTS = {
+    'stakeout': 1,
+    'recon_op': 2
+}
+
+MISSIONS = {
+    'stakeout': {
+        'name': 'Stakeout',
+        'cooldown': 360, # 6 minutes
+        'exp_reward': 10,
+        'money_reward_range': (500, 1000)
+    },
+    'recon_op': {
+        'name': 'Recon Op',
+        'cooldown': 1200,  # 20 minutes
+        'exp_reward': 20,
+        'money_reward_range': (1000, 3000)
+    }
+}

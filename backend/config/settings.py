@@ -167,15 +167,6 @@ LOGGING = {
     },
 }
 
-# TODO: fixing the auth system
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-    ]
-}
 
 CORS_ALLOWED_ORIGINS = [
     # TODO: change this
@@ -198,3 +189,19 @@ REST_FRAMEWORK = {
 }
 
 APPEND_SLASH = False
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://redis:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# TODO: fixing the auth system
+# SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"

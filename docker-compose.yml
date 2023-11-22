@@ -62,7 +62,9 @@ services:
     image: ooe_redis
     container_name: ooe_redis
     build: ./redis
-    command: redis-server
+    volumes:
+      - ./redis/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
     ports:
       - "6379:6379"
     networks:
