@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'ooe.cities',
     'ooe.chat',
     'ooe.dashboard',
+    'ooe.missions',
 ]
 
 MIDDLEWARE = [
@@ -95,7 +96,6 @@ DATABASES = {
         'PASSWORD': 'ooe_pwd',
         'HOST': 'ooe_psql',
         'PORT': '5432',
-
     }
 }
 
@@ -168,6 +168,7 @@ LOGGING = {
 }
 
 
+# CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
     # TODO: change this
     "http://localhost:3000",

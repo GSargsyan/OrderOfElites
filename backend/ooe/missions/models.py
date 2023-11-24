@@ -1,4 +1,10 @@
-from django.core.cache import cache
+from django.db import models
 
-cache.set('my_key', 'value')  # Set a key with a 5-minute expiry
-print(cache.get('my_key'))  # Get the value back
+
+class MissionLog(models.Model):
+    mission = models.CharField(max_length=30)
+    primary_user = models.ForeignKey('users.User', on_delete=models.CASCADE, related_name='primary_user')
+    reward = models.IntegerField(default=0)
+
+    class Meta:
+        db_table = 'ooe_mission_log'

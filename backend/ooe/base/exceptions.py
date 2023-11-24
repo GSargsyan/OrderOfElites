@@ -1,0 +1,2 @@
+class OOEException(Exception):
+    pass

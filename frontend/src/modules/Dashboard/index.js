@@ -1,8 +1,52 @@
-import axios from 'axios'
+// import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 
 import ChatContainer from 'modules/Chat/chatContainer.js'
+import MissionsTab from 'modules/Missions/missionsTab.js'
 import { request } from 'modules/Base'
+
+const tabComponents = {
+    'dashboard': {
+        'component': <DashboardTab />,
+        'label': 'Dashboard',
+    },
+    'missions': {
+        'component': <MissionsTab />,
+        'label': 'Missions',
+    },
+    'skills': {
+        'component': <DashboardTab />,
+        'label': 'Skills',
+    },
+    'garage': {
+        'component': <DashboardTab />,
+        'label': 'Garage',
+    },
+    'travel': {
+        'component': <DashboardTab />,
+        'label': 'Travel',
+    },
+    'guns': {
+        'component': <DashboardTab />,
+        'label': 'Guns',
+    },
+    'bank': {
+        'component': <DashboardTab />,
+        'label': 'Bank',
+    },
+    'kill': {
+        'component': <DashboardTab />,
+        'label': 'Kill',
+    },
+    'pavilion': {
+        'component': <DashboardTab />,
+        'label': 'Pavilion',
+    },
+    'grand_council': {
+        'component': <DashboardTab />,
+        'label': 'Grand Council',
+    },
+}
 
 
 function Dashboard() {
@@ -13,14 +57,58 @@ function Dashboard() {
             </div>
             <div style={styles.centerDashCont}>
                 <ChatContainer />
-                <CentralPanel />
-                <MenuItems />
+                <MainDashContainer />
+            </div>
+        </>
+    )
+}
+
+function MainDashContainer() {
+    console.log('MainDashContainer rendered')
+    const [activeTab, setActiveTab] = useState('dashboard')
+
+    return (
+        <>
+            <CentralPanel activeTab={activeTab} />
+            <MenuItems onTabChange={setActiveTab} />
+        </>
+    )
+}
+
+function MenuItems({ onTabChange }) {
+    console.log('MenuItems rendered')
+    return (
+        <>
+            <div style={styles.menuItemsCont}>
+                <div className="tab-container">
+                    {Object.keys(tabComponents).map(tabKey => (
+                            <button
+                                className="tabButton"
+                                style={styles.tabButton}
+                                key={tabKey}
+                                onClick={(e) => onTabChange(tabKey)}
+                             >{tabComponents[tabKey].label}
+                            </button>
+                    ))}
+                </div>
+            </div>
+        </>
+    )
+}
+
+function CentralPanel({ activeTab }) {
+    console.log('CentralPanel rendered')
+    return (
+        <>
+            <div key={activeTab} style={styles.centralPanelCont}>
+                 {tabComponents[activeTab].component}
             </div>
         </>
     )
 }
 
 function UserPreview() {
+    console.log('UserPreview rendered')
     const [data, setData] = useState(null)
 
     useEffect(() => {
@@ -53,30 +141,10 @@ function UserPreview() {
     )
 }
 
-function MenuItems() {
+function DashboardTab() {
     return (
         <>
-            <div style={styles.menuItemsCont}>
-                <p>Dashboard</p>
-                <p>Missions</p>
-                <p>Skills</p>
-                <p>Garage</p>
-                <p>Travel</p>
-                <p>Guns</p>
-                <p>Bank</p>
-                <p>Kill</p>
-                <p>Pavilion</p>
-                <p>Grand Council</p>
-            </div>
-        </>
-    )
-}
-
-function CentralPanel() {
-    return (
-        <>
-            <div style={styles.centralPanelCont}>
-            </div>
+            <p>Dashboard tab...</p>
         </>
     )
 }
@@ -108,6 +176,11 @@ const styles = {
         top: '40px',
         padding: '30px',
         width: '50%',
+    },
+    tabButton: {
+        padding: '10px',
+        margin: '10px 0px',
+        display: 'block',
     }
 }
 
