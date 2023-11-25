@@ -22,4 +22,30 @@ export const request = function(options) {
   return client(options)
 }
 
+export const formatMoney = (amount) => {
+    return '$' + amount.toLocaleString('en-US', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    })
+}
+
+export const formatSeconds = (seconds) => {
+    // format seconds to MM:SS
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
+}
+
+export const secondsRemaining = (futureTimestamp) => {
+    const currentTime = Math.floor(Date.now() / 1000); // Current time in seconds
+    let remaining = futureTimestamp - currentTime; // Remaining time in seconds
+
+    if (remaining < 0) {
+        remaining = 0;
+    }
+
+    return remaining;
+}
+
 export const isLoggedIn = () => Boolean(AUTH_TOKEN)

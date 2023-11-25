@@ -4,33 +4,27 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from ooe.base.utils import auth_by_token
-from ooe.missions.controllers import Missions
+from ooe.missions.controllers import Missions, Mission
+from ooe.base.exceptions import OOEException
 
 
 @api_view(['POST'])
 @auth_by_token
 def get_missions_tab_data(request):
-    import time
-    time.sleep(1)
-
+    print(Missions(user=request.user).get_missions_tab_data())
     return Response(Missions(user=request.user).get_missions_tab_data(), status=200)
 
 
 @api_view(['POST'])
 @auth_by_token
 # @transaction.atomic
-def start_mission(request):
-    import time
-    time.sleep(1)
-
-    mission = request.POST.get('mission_name')
+def start_mission(request, mission_name):
     try:
-        Mission(mission, request.user).start()
+        return Response(
+            Mission(mission_name, request.user).start(),
+            status=200)
     except OOEException as e:
         return Response({
             'status': 'error',
             'message': str(e),
         }, status=400)
-
-    return Response(
-        status=200)

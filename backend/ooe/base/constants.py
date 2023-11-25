@@ -40,11 +40,11 @@ MISSIONS = {
     'stakeout': {
         'name': 'Stakeout',
         'cooldown': 360, # 6 minutes
-        'exp_reward': 10,
+        'exp_reward': 100,
         'max_reward_rank': 6,
         'min_reward': 0,
-        'max_reward': 1000,
-        'random_range': 200,
+        'max_reward': 1100,
+        'random_range': 100,
     },
     'recon_op': {
         'name': 'Recon Op',

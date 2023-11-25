@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { request } from 'modules/Base'
+import { request, formatSeconds, secondsRemaining } from 'modules/Base'
 
-function MissionsTab() {
+function MissionsTab({ updateUserData }) {
     console.log('MissionsTab rendered')
-    const [data, setData] = useState(null)
+    const [missionsData, setMissionsData] = useState(null)
+    const [isStakeoutAvailable, setIsStakeoutAvailable] = useState(false)
+    const [isReconOpAvailable, setIsReconOpAvailable] = useState(false)
+    const [stakeoutCdRemaining, setStakeoutCdRemaining] = useState(0)
+    const [reconOpCdRemaining, setReconOpCdRemaining] = useState(0)
+    const [isStakeoutAllowed, setIsStakeoutAllowed] = useState(false)
+    const [isReconOpAllowed, setIsReconOpAllowed] = useState(false)
 
     useEffect(() => {
         request({
@@ -11,27 +17,73 @@ function MissionsTab() {
             'method': 'POST',
         })
         .then(response => {
-            console.log(response.data)
-            setData(response.data)
+            console.log('missions/get_missions_tab_data')
+            setMissionsData(response.data)
+
+            setIsStakeoutAllowed(response.data.stakeout.allowed)
+            setIsReconOpAllowed(response.data.recon_op.allowed)
+
+            setStakeoutCdRemaining(secondsRemaining(response.data.stakeout.cd_remaining))
+            setReconOpCdRemaining(secondsRemaining(response.data.recon_op.cd_remaining))
+
+            setIsStakeoutAvailable(response.data.stakeout.allowed &&
+                secondsRemaining(response.data.stakeout.cd_remaining) <= 0)
+
+            setIsReconOpAvailable(response.data.recon_op.allowed &&
+                secondsRemaining(response.data.recon_op.cd_remaining) <= 0)
+        })
+        .catch(error => {
+            console.error("Error getting missions tab data: ", error)
         })
     }, [])
 
-    if (data === null) {
-        return <div>Loading...</div>
-    }
+    useEffect(() => {
+        console.log(missionsData)
+        if (!missionsData) return
+
+        const interval = setInterval(() => {
+            if (stakeoutCdRemaining > 0) {
+                setStakeoutCdRemaining(cd => {
+                    setIsStakeoutAvailable(isStakeoutAllowed && cd - 1 <= 0)
+                    return cd - 1
+                })
+            }
+
+            if (reconOpCdRemaining > 0) {
+                setReconOpCdRemaining(cd => {
+                    setIsReconOpAvailable(isReconOpAllowed && cd - 1 <= 0)
+                    return cd - 1
+                })
+            }
+        }, 1000)
+
+        return () => clearInterval(interval);
+    }, [stakeoutCdRemaining, reconOpCdRemaining, isReconOpAllowed, isStakeoutAllowed])
 
     const startMission = (missionType) => {
+        console.log(`missions/start/${missionType}`)
         request({
             'url': `missions/start/${missionType}`,
             'method': 'POST',
         })
         .then(response => {
-            console.log("Mission started:", response)
-            this.forceUpdate()
+            updateUserData()
+
+            if (missionType === 'stakeout') {
+                setIsStakeoutAvailable(false)
+                setStakeoutCdRemaining(secondsRemaining(response.data.cd_remaining))
+            } else if (missionType === 'recon_op') {
+                setIsReconOpAvailable(false)
+                setReconOpCdRemaining(secondsRemaining(response.data.cd_remaining))
+            }
         })
         .catch(error => {
             console.error("Error starting mission:", error)
         })
+    }
+
+    if (missionsData === null) {
+        return <div>Loading...</div>
     }
 
     return (
@@ -41,13 +93,13 @@ function MissionsTab() {
 
             <button
                 className="doMissionBtn"
-                disabled={!data.stakeout.allowed || (data.stakeout.cd_remaining && data.stakeout.cd_remaining > 0)}
+                disabled={!isStakeoutAvailable}
                 onClick={() => startMission('stakeout')}
             >
                 Start
             </button>
-            {data.stakeout.cd_remaining && data.stakeout.cd_remaining > 0 &&
-                <span> {data.recon_op.cd_remaining}</span>
+            {stakeoutCdRemaining > 0 &&
+                <span> {formatSeconds(stakeoutCdRemaining)}</span>
             }
         </div>
 
@@ -57,13 +109,13 @@ function MissionsTab() {
 
             <button
                 className="doMissionBtn"
-                disabled={!data.recon_op.allowed || (data.recon_op.cd_remaining && data.recon_op.cd_remaining > 0)}
+                disabled={!isReconOpAvailable}
                 onClick={() => startMission('recon_op')}
             >
                 Start
             </button>
-            {data.recon_op.cd_remaining && data.recon_op.cd_remaining > 0 &&
-                <span> {data.recon_op.cd_remaining}</span>
+            {reconOpCdRemaining > 0 &&
+                <span> {formatSeconds(reconOpCdRemaining)}</span>
             }
         </div>
         </>

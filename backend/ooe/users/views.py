@@ -24,8 +24,6 @@ from ooe.users.constants import \
 @api_view(['POST'])
 @auth_by_token
 def get_preview(request):
-    import time
-    time.sleep(1)
     user = request.user
 
     return Response(user.get_preview_data(), status=200)

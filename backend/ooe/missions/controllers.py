@@ -1,7 +1,10 @@
 import time
+import random
 
 from django.core.cache import cache
+from django.db.models import F
 
+from ooe.users.models import User
 from ooe.base.exceptions import OOEException
 from ooe.base.constants import \
     RANK_REQUIREMENTS, \
@@ -37,8 +40,8 @@ class Mission:
 
     def get_tab_data(self):
         return {
-            'allowed': RANK_REQUIREMENTS[self.name] >= self.user.rank,
-            'cd_remaining': cache.get(f'user_{self.user.id}_{self.name}_cd'),
+            'allowed': self.user.rank >= RANK_REQUIREMENTS[self.name],
+            'cd_remaining': cache.get(f'user_{self.user.id}_{self.name}_cd') or 0,
         }
 
     def generate_reward(self):
@@ -47,12 +50,17 @@ class Mission:
         progress = (exp_passed / abs_exp_diff)
         reward_range_diff = MISSIONS[self.name]['max_reward'] - MISSIONS[self.name]['min_reward']
 
-        reward_range_progress = reward_range_diff * progress
+        reward_range_progress = int(reward_range_diff * progress)
 
-        min_reward = MISSIONS[self.name]['min_reward'] + reward_range_progress
-        max_reward = MISSIONS[self.name]['max_reward']
+        lower_bound_rank = MISSIONS[self.name]['min_reward'] + reward_range_progress
+        lower_bound_max = MISSIONS[self.name]['max_reward'] - MISSIONS[self.name]['random_range']
+        min_reward = min(lower_bound_rank, lower_bound_max)
 
-        max_reward = max(max_reward, min_reward + MISSIONS[self.name]['reward_range'])
+        # $0 reward is not allowed
+        min_reward = max(min_reward, 1)
+        max_reward_mission = MISSIONS[self.name]['max_reward']
+
+        max_reward = min(max_reward_mission, min_reward + MISSIONS[self.name]['random_range'])
 
         return random.randint(min_reward, max_reward)
 
@@ -60,8 +68,18 @@ class Mission:
         self.validate_start()
 
         reward = self.generate_reward()
-        # TODO: continue from here
+        exp_reward = MISSIONS[self.name]['exp_reward']
+        # update experience
+        User.objects.filter(id=self.user.id).update(money_cash=F('money_cash') + reward)
+        self.user.add_exp(exp_reward)
+
+
+        cd = int(time.time()) + MISSIONS[self.name]['cooldown']
 
         cache.set(f'user_{self.user.id}_{self.name}_cd',
-                  int(time.time()) + MISSIONS[self.name]['cooldown'],
-                  timeout=MISSIONS[self.name]['cooldown'])
+            cd,
+            timeout = MISSIONS[self.name]['cooldown'])
+
+        return {'reward': reward,
+                'exp_reward': exp_reward,
+                'cd_remaining': cd}

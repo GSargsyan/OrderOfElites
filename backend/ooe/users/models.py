@@ -1,5 +1,6 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
+from django.db.models import F
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 from ooe.chat.models import ChatConnection, ChatRoom
 from ooe.base.constants import RANK_EXPS
@@ -62,3 +63,13 @@ class User(AbstractBaseUser):
         chat_rooms = ChatRoom.objects.get(name=self.city.name)
 
         ChatConnection.objects.create(user=self, chat_room=chat_rooms)
+
+    def add_exp(self, exp: int):
+        User.objects.filter(id=self.id).update(exp=F('exp') + exp)
+
+        self.refresh_from_db()
+
+        # Update rank if needed
+        if self.exp >= RANK_EXPS[self.rank + 1]:
+            self.rank += 1
+            self.save(update_fields=['rank'])

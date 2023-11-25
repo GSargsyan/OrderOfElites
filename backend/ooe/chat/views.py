@@ -9,11 +9,6 @@ from ooe.base.utils import auth_by_token
 @api_view(['POST'])
 @auth_by_token
 def get_user_connections(request):
-    import time
-    time.sleep(1)
-
-    print(request.user.chat_connections.all())
-
     res = [{
         'id': conn.chat_room.id,
         'name': conn.chat_room.name

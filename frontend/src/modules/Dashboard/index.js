@@ -3,92 +3,100 @@ import React, { useState, useEffect } from 'react'
 
 import ChatContainer from 'modules/Chat/chatContainer.js'
 import MissionsTab from 'modules/Missions/missionsTab.js'
-import { request } from 'modules/Base'
+import { request, formatMoney } from 'modules/Base'
 
 const tabComponents = {
     'dashboard': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Dashboard',
     },
     'missions': {
-        'component': <MissionsTab />,
+        'component': MissionsTab,
         'label': 'Missions',
     },
     'skills': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Skills',
     },
     'garage': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Garage',
     },
     'travel': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Travel',
     },
     'guns': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Guns',
     },
     'bank': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Bank',
     },
     'kill': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Kill',
     },
     'pavilion': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Pavilion',
     },
     'grand_council': {
-        'component': <DashboardTab />,
+        'component': DashboardTab,
         'label': 'Grand Council',
     },
 }
 
-
 function Dashboard() {
+    console.log('Dashboard rendered')
+    const [activeTab, setActiveTab] = useState('dashboard')
+    const [userData, setUserData] = useState(null)
+
+    const updateUserData = () => {
+        request({
+            'url': 'users/get_preview',
+            'method': 'POST',
+        })
+        .then(response => {
+            console.log(response.data)
+            setUserData(response.data)
+        })
+    }
+
+    useEffect(() => {
+        updateUserData()
+    }, [])
+
     return (
         <>
             <div style={styles.upperDashCont}>
-                <UserPreview />
+                <UserPreview userData={userData} />
             </div>
             <div style={styles.centerDashCont}>
                 <ChatContainer />
-                <MainDashContainer />
+                <GameDash activeTab={activeTab} updateUserData={updateUserData} />
+                <MenuItems setActiveTab={setActiveTab} />
             </div>
         </>
     )
 }
 
-function MainDashContainer() {
-    console.log('MainDashContainer rendered')
-    const [activeTab, setActiveTab] = useState('dashboard')
-
-    return (
-        <>
-            <CentralPanel activeTab={activeTab} />
-            <MenuItems onTabChange={setActiveTab} />
-        </>
-    )
-}
-
-function MenuItems({ onTabChange }) {
+function MenuItems({ setActiveTab }) {
     console.log('MenuItems rendered')
+
     return (
         <>
             <div style={styles.menuItemsCont}>
                 <div className="tab-container">
                     {Object.keys(tabComponents).map(tabKey => (
-                            <button
-                                className="tabButton"
-                                style={styles.tabButton}
-                                key={tabKey}
-                                onClick={(e) => onTabChange(tabKey)}
-                             >{tabComponents[tabKey].label}
-                            </button>
+                        <button
+                            className="tabButton"
+                            style={styles.tabButton}
+                            key={tabKey}
+                            onClick={(e) => setActiveTab(tabKey)}
+                         >{tabComponents[tabKey].label}
+                        </button>
                     ))}
                 </div>
             </div>
@@ -96,42 +104,31 @@ function MenuItems({ onTabChange }) {
     )
 }
 
-function CentralPanel({ activeTab }) {
-    console.log('CentralPanel rendered')
+function GameDash({ activeTab, updateUserData }) {
+    console.log('GameDash rendered')
+
     return (
         <>
             <div key={activeTab} style={styles.centralPanelCont}>
-                 {tabComponents[activeTab].component}
+                 {React.createElement(tabComponents[activeTab].component, {updateUserData: updateUserData})}
             </div>
         </>
     )
 }
 
-function UserPreview() {
+function UserPreview({ userData, setUserData}) {
     console.log('UserPreview rendered')
-    const [data, setData] = useState(null)
-
-    useEffect(() => {
-        request({
-            'url': 'users/get_preview',
-            'method': 'POST',
-        })
-        .then(response => {
-            console.log(response.data)
-            setData(response.data)
-        })
-    }, [])
 
     return (
         <>
             <div className="previewCont" style={styles.previewCont}>
-                {data ? (
+                {userData ? (
                     <>
-                    <p>Username: {data.username}</p>
-                    <p>City: {data.city}</p>
-                    <p>Money: {data.money_cash}</p>
-                    <p>Rank: {data.rank}</p>
-                    <p>Progress: {data.rank_progress}%</p>
+                    <p>Username: {userData.username}</p>
+                    <p>City: {userData.city}</p>
+                    <p>Money: {formatMoney(userData.money_cash)}</p>
+                    <p>Rank: {userData.rank}</p>
+                    <p>Progress: {Math.floor(userData.rank_progress)}%</p>
                     </>
                 ) : (
                     <p>Loading...</p>
