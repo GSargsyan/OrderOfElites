@@ -2,8 +2,10 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.authtoken.models import Token
 
-from ooe.chat.models import ChatConnection
 from ooe.base.utils import auth_by_token
+from ooe.chat.models import \
+    ChatConnection, \
+    Conversation
 
 
 @api_view(['POST'])
@@ -16,6 +18,13 @@ def get_user_connections(request):
     ]
 
     return Response(res, status=200)
+
+
+@api_view(['POST'])
+@auth_by_token
+def get_conversations(request):
+    return Response(Conversation.get_conversations(request.user), status=200)
+
 
 
 @api_view(['POST'])
@@ -33,4 +42,5 @@ def authenticate_connection(request):
     if not connection:
         return Response({"error": "User is not authorized to join this chat"}, status=401)
 
-    return Response({"success": "Token verified"}, status=200)
+    return Response({"success": "Token verified",
+                     "username": user.username}, status=200)

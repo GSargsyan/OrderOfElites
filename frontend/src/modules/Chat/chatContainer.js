@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react'
 import socketIOClient from "socket.io-client"
 import { CHAT_URL } from 'modules/Base/constants.js'
 import { request } from 'modules/Base'
-import ChatBoard from 'modules/Chat/chatBoard.js'
+import { ChatBoard, MessagesBoard } from 'modules/Chat/chatBoard.js'
 
 function ChatContainer() {
-    const [data, setData] = useState(null)
+    const [connections, setConnections] = useState(null)
+    const [activeTab, setActiveTab] = useState(0)
 
     useEffect(() => {
         request({
@@ -14,24 +15,59 @@ function ChatContainer() {
         })
         .then(response => {
             console.log(response.data)
-            setData(response.data)
+            setConnections(response.data)
         })
     }, [])
 
-    if (data === null) {
+    if (!connections) {
         return <div>Loading...</div>;
+    }
+
+    const handleTabClick = (index) => {
+        setActiveTab(index)
+        console.log('clicked tab', index)
     }
 
     return (
         <div className="chatCont" style={styles.chatCont}>
-            {data.map(chat => (
-                <div className="chatTab" key={chat.id} style={styles.chatTab}>
-                    <p>{chat.name}</p>
-                    <ChatBoard
-                        chatRoomId={chat.id}
-                        name={chat.name}
-                    />
+            <div className="chatTabCont" style={styles.chatTabCont}>
+                <div
+                    className="chatTab"
+                    onClick={() => handleTabClick(0)}
+                    key={0}
+                    style={activeTab === 0 ? { ...styles.chatTab, ...styles.activeChatTab } : { ...styles.chatTab }}>
+                    <p>Messages</p>
                 </div>
+
+                {connections.map((chat, index) => (
+                    <div
+                        className="chatTab"
+                        key={chat.id}
+                        onClick={() => handleTabClick(index + 1)} // +1 because 0 is reserved for Messages tab
+                        style={activeTab === index + 1 ? { ...styles.chatTab, ...styles.activeChatTab } : { ...styles.chatTab }}>
+                        <p>{chat.name}</p>
+                    </div>
+                ))}
+            </div>
+
+            {activeTab === 0 && (
+                <div className="chatBoardCont" style={styles.chatBoardCont}>
+                    <MessagesBoard />
+                </div>
+            )}
+
+            {connections.map((chat, index) => (
+                activeTab === index + 1 && (
+                    <div
+                        key={chat.id}
+                        className="chatBoardCont"
+                        style={styles.chatBoardCont}>
+                        <ChatBoard
+                            chatRoomId={chat.id}
+                            name={chat.name}
+                        />
+                    </div>
+                )
             ))}
         </div>
     )
@@ -43,10 +79,22 @@ const styles = {
         width: '20%',
         border: '1px solid black',
     },
+    chatBoardCont: {
+        height: '84%',
+        padding: '10px',
+    },
+    chatTabCont: {
+        padding: '5px',
+    },
     chatTab: {
         border: '1px solid black',
-        margin: '5px',
-        padding: '5px'
+        borderTopLeftRadius: '15px',
+        borderTopRightRadius: '15px',
+        padding: '0 10px',
+        display: 'inline-block',
+    },
+    activeChatTab: {
+        fontWeight: 'bold',
     }
 }
 

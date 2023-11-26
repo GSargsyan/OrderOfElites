@@ -23,3 +23,34 @@ class ChatConnection(models.Model):
 
     class Meta:
         db_table = 'ooe_chat_connections'
+
+
+class Conversation(models.Model):
+    user = models.ForeignKey('users.User', related_name='conversations', on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def get_conversations(self, user):
+        conversations = []
+        for conversation in user.conversations.all():
+            last_message = conversation.messages.last()
+            conversations.append({
+                'username': conversation.user.username,
+                'last_message': last_message.message if last_message else '',
+                'created_at': conversation.created_at
+            })
+
+        return conversations
+
+    class Meta:
+        db_table = 'ooe_conversations'
+
+
+class Message(models.Model):
+    conversation = models.ForeignKey('Conversation', related_name='messages', on_delete=models.CASCADE)
+    user = models.ForeignKey('users.User', related_name='messages', on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'ooe_messages'

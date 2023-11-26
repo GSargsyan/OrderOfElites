@@ -33,17 +33,17 @@ const io = socketIo(server, {
     },
 });
 
-const authConnection = (token, roomId) => {
+const authConnection = async (token, roomId) => {
     return axios.post(`${API_URL}/chat/authenticate_connection`, {
         room_id: roomId,
         token: token
     })
     .then(response => {
-        return response.status === 200
+        return response.data.username
     })
     .catch(error => {
         console.error("Authorization failed:", error.response.data)
-        return false
+        return null
     })
 }
 
@@ -67,8 +67,9 @@ const setupChatRoom = (chatRoom) => {
         // BEGIN authorize user
         const roomId = socket.handshake.query.room_id;
         const token = socket.handshake.query.token;
+        const username = await authConnection(token, roomId)
 
-        if (!roomId || !token || !authConnection(token, roomId)) {
+        if (!username) {
             console.log('user not authorized to join chat room');
             socket.disconnect();
             return;
@@ -76,7 +77,10 @@ const setupChatRoom = (chatRoom) => {
         // END authorize user
 
         socket.on('send_message', (msg) => {
-            chatRoom.emit('chat_message', msg);
+            chatRoom.emit('chat_message', {
+                'username': username,
+                'message': msg,
+            });
         });
 
         socket.on('disconnect', () => {
