@@ -11,7 +11,6 @@ from ooe.base.constants import \
     MISSIONS, \
     RANK_EXPS
 
-### cache.set('my_key', 'value')  # Set a key with a 5-minute expiry
 
 class Missions:
     def __init__(self, user: object):
@@ -65,6 +64,7 @@ class Mission:
         return random.randint(min_reward, max_reward)
 
     def start(self):
+        # TODO: log missions in mission log
         self.validate_start()
 
         reward = self.generate_reward()

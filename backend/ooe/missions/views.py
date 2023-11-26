@@ -11,7 +11,6 @@ from ooe.base.exceptions import OOEException
 @api_view(['POST'])
 @auth_by_token
 def get_missions_tab_data(request):
-    print(Missions(user=request.user).get_missions_tab_data())
     return Response(Missions(user=request.user).get_missions_tab_data(), status=200)
 
 

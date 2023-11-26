@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 
 import ChatContainer from 'modules/Chat/chatContainer.js'
 import MissionsTab from 'modules/Missions/missionsTab.js'
+import SkillsTab from 'modules/Skills/skillsTab.js'
 import { request, formatMoney } from 'modules/Base'
 
 const tabComponents = {
@@ -15,7 +16,7 @@ const tabComponents = {
         'label': 'Missions',
     },
     'skills': {
-        'component': DashboardTab,
+        'component': SkillsTab,
         'label': 'Skills',
     },
     'garage': {
@@ -124,11 +125,16 @@ function UserPreview({ userData, setUserData}) {
             <div className="previewCont" style={styles.previewCont}>
                 {userData ? (
                     <>
-                    <p>Username: {userData.username}</p>
-                    <p>City: {userData.city}</p>
-                    <p>Money: {formatMoney(userData.money_cash)}</p>
-                    <p>Rank: {userData.rank}</p>
-                    <p>Progress: {Math.floor(userData.rank_progress)}%</p>
+                    <span style={styles.previewElem}>Username: {userData.username}</span>
+
+                    <span style={styles.previewElem}>City: {userData.city}</span>
+                    <span style={styles.previewElem}>Money: {formatMoney(userData.money_cash)}</span>
+                    <span style={styles.previewElem}>Rank: {userData.rank}</span>
+                    <span style={styles.previewElem}>Progress: {Math.floor(userData.rank_progress)}%</span>
+                    <span style={styles.previewElem}>Attack: {userData.attack_points}</span>
+                    <span style={styles.previewElem}>Defense: {userData.defense_points}</span>
+                    <span style={styles.previewElem}>Driving: {userData.driving_points}</span>
+                    <span style={styles.previewElem}>Commendations: {userData.commendations}</span>
                     </>
                 ) : (
                     <p>Loading...</p>
@@ -159,9 +165,20 @@ const styles = {
         minHeight: '500px',
     },
     previewCont: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '10px', // Note: 'gap' might not be supported in some older browsers for flexbox
+
         padding: '15px',
-        width: '200px',
+        width: '300px',
         border: '1px solid black',
+    },
+    previewElem: {
+        flex: '1 1 calc(100% / 3)',
+        padding: '5px',
+        border: '1px solid #ccc',
+        borderRadius: '5px',
+        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
     },
     menuItemsCont: {
         border: '1px solid black',

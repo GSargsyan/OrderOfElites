@@ -11,7 +11,9 @@ from rest_framework.permissions import AllowAny
 from rest_framework.authtoken.models import Token
 from ooe.base.utils import auth_by_token
 
+from ooe.base.exceptions import OOEException
 from ooe.users.models import User
+from ooe.users.controllers import SkillsController
 from ooe.users.constants import \
     USERNAME_REGEX, \
     USERNAME_LEN_MAX, \
@@ -27,6 +29,27 @@ def get_preview(request):
     user = request.user
 
     return Response(user.get_preview_data(), status=200)
+
+
+@api_view(['POST'])
+@auth_by_token
+def get_skills_tab_data(request):
+    return Response(SkillsController(request.user).get_skills_tab_data(), status=200)
+
+
+@api_view(['POST'])
+@auth_by_token
+@transaction.atomic
+def start_skill_practice(request, skill_name):
+    try:
+        return Response(
+            SkillsController(request.user).start_practice(skill_name),
+            status=200)
+    except OOEException as e:
+        return Response({
+            'status': 'error',
+            'message': str(e),
+        }, status=400)
 
 
 @api_view(['POST'])

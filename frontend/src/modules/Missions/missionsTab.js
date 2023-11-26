@@ -41,7 +41,10 @@ function MissionsTab({ updateUserData }) {
         console.log(missionsData)
         if (!missionsData) return
 
+
         const interval = setInterval(() => {
+            console.log(stakeoutCdRemaining)
+
             if (stakeoutCdRemaining > 0) {
                 setStakeoutCdRemaining(cd => {
                     setIsStakeoutAvailable(isStakeoutAllowed && cd - 1 <= 0)

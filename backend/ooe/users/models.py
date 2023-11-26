@@ -28,6 +28,10 @@ class User(AbstractBaseUser):
     city = models.ForeignKey('cities.City', on_delete=models.CASCADE, default=1)
     exp = models.IntegerField(default=0)
     rank = models.IntegerField(default=1)
+    attack_points = models.IntegerField(default=0)
+    defense_points = models.IntegerField(default=0)
+    driving_points = models.IntegerField(default=0)
+    commendations = models.IntegerField(default=0)
 
     objects = UserManager()
 
@@ -54,7 +58,11 @@ class User(AbstractBaseUser):
             'city': self.city.name,
             'money_cash': self.money_cash,
             'rank': self.rank,
-            'rank_progress': self.get_rank_progress()
+            'rank_progress': self.get_rank_progress(),
+            'attack_points': self.attack_points,
+            'defense_points': self.defense_points,
+            'driving_points': self.driving_points,
+            'commendations': self.commendations,
         }
 
         return res
