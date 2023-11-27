@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { request, formatSeconds, secondsRemaining } from 'modules/Base'
 
-function MissionsTab({ updateUserData }) {
+function MissionsTab({ updateUserPreviewData }) {
     console.log('MissionsTab rendered')
     const [missionsData, setMissionsData] = useState(null)
     const [isStakeoutAvailable, setIsStakeoutAvailable] = useState(false)
@@ -70,7 +70,7 @@ function MissionsTab({ updateUserData }) {
             'method': 'POST',
         })
         .then(response => {
-            updateUserData()
+            updateUserPreviewData()
 
             if (missionType === 'stakeout') {
                 setIsStakeoutAvailable(false)

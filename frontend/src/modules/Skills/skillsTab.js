@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { request, formatSeconds, secondsRemaining } from 'modules/Base'
 
-function SkillsTab({ updateUserData }) {
+function SkillsTab({ updateUserPreviewData }) {
     console.log('SkillsTab rendered')
 
     const [skillsData, setSkillsData] = useState(null)
@@ -73,7 +73,7 @@ function SkillsTab({ updateUserData }) {
             'method': 'POST',
         })
         .then(response => {
-            updateUserData()
+            updateUserPreviewData()
 
             setSkillsData(data => {
                 return {

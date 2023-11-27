@@ -1,89 +1,93 @@
 // import axios from 'axios'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, memo } from 'react'
 
 import ChatContainer from 'modules/Chat/chatContainer.js'
 import MissionsTab from 'modules/Missions/missionsTab.js'
 import SkillsTab from 'modules/Skills/skillsTab.js'
+import NetworkingTab from 'modules/Networking/networkingTab.js'
+import UserProfileModal from 'modules/Dashboard/userProfile.js'
 import { request, formatMoney } from 'modules/Base'
 
-const tabComponents = {
-    'dashboard': {
-        'component': DashboardTab,
-        'label': 'Dashboard',
-    },
-    'missions': {
-        'component': MissionsTab,
-        'label': 'Missions',
-    },
-    'skills': {
-        'component': SkillsTab,
-        'label': 'Skills',
-    },
-    'garage': {
-        'component': DashboardTab,
-        'label': 'Garage',
-    },
-    'travel': {
-        'component': DashboardTab,
-        'label': 'Travel',
-    },
-    'guns': {
-        'component': DashboardTab,
-        'label': 'Guns',
-    },
-    'bank': {
-        'component': DashboardTab,
-        'label': 'Bank',
-    },
-    'kill': {
-        'component': DashboardTab,
-        'label': 'Kill',
-    },
-    'pavilion': {
-        'component': DashboardTab,
-        'label': 'Pavilion',
-    },
-    'grand_council': {
-        'component': DashboardTab,
-        'label': 'Grand Council',
-    },
-}
+
 
 function Dashboard() {
     console.log('Dashboard rendered')
     const [activeTab, setActiveTab] = useState('dashboard')
-    const [userData, setUserData] = useState(null)
+    const [userPreviewData, setUserPreviewData] = useState(null)
+    const [userProfileData, setUserProfileData] = useState(null)
+    const [showUserProfileModal, setShowUserProfileModal] = useState(false)
 
-    const updateUserData = () => {
+    const updateUserPreviewData = () => {
         request({
             'url': 'users/get_preview',
             'method': 'POST',
         })
         .then(response => {
             console.log(response.data)
-            setUserData(response.data)
+            setUserPreviewData(response.data)
         })
     }
 
+    const tabComponents = {
+        'dashboard': {
+            'component': DashboardTab,
+            'label': 'Dashboard',
+            'props': {}
+        },
+        'missions': {
+            'component': MissionsTab,
+            'label': 'Missions',
+            'props': {
+                'updateUserPreviewData': updateUserPreviewData
+            }
+        },
+        'skills': {
+            'component': SkillsTab,
+            'label': 'Skills',
+            'props': {
+                'updateUserPreviewData': updateUserPreviewData
+            }
+        },
+        'networking': {
+            'component': NetworkingTab,
+            'label': 'Networking',
+            'props': {
+                'setUserProfileData': setUserProfileData,
+                'setShowUserProfileModal': setShowUserProfileModal,
+            }
+        }
+    }
+
     useEffect(() => {
-        updateUserData()
+        updateUserPreviewData()
     }, [])
 
     return (
         <>
             <div style={styles.upperDashCont}>
-                <UserPreview userData={userData} />
+                <UserPreview userPreviewData={userPreviewData} />
             </div>
             <div style={styles.centerDashCont}>
                 <ChatContainer />
-                <GameDash activeTab={activeTab} updateUserData={updateUserData} />
-                <MenuItems setActiveTab={setActiveTab} />
+                <GameDash
+                    tabComponents={tabComponents}
+                    activeTab={activeTab}
+                    updateUserPreviewData={updateUserPreviewData}
+                    setUserProfileData={setUserProfileData}
+                    />
+                <MenuItems tabComponents={tabComponents} setActiveTab={setActiveTab} />
             </div>
+
+            {showUserProfileModal && (
+                <div style={styles.userProfileCont}>
+                    <UserProfileModal userProfileData={userProfileData} onClose={() => setShowUserProfileModal(false)} />
+                </div>
+            )}
         </>
     )
 }
 
-function MenuItems({ setActiveTab }) {
+function MenuItems({ tabComponents, setActiveTab }) {
     console.log('MenuItems rendered')
 
     return (
@@ -105,36 +109,37 @@ function MenuItems({ setActiveTab }) {
     )
 }
 
-function GameDash({ activeTab, updateUserData }) {
+function GameDash({ tabComponents, activeTab, updateUserPreviewData, setUserProfileData, setShowUserProfileModal }) {
     console.log('GameDash rendered')
 
     return (
         <>
             <div key={activeTab} style={styles.centralPanelCont}>
-                 {React.createElement(tabComponents[activeTab].component, {updateUserData: updateUserData})}
+                 {React.createElement(tabComponents[activeTab].component,
+                    tabComponents[activeTab].props)}
             </div>
         </>
     )
 }
 
-function UserPreview({ userData, setUserData}) {
+const UserPreview = memo(({ userPreviewData }) => {
     console.log('UserPreview rendered')
 
     return (
         <>
             <div className="previewCont" style={styles.previewCont}>
-                {userData ? (
+                {userPreviewData ? (
                     <>
-                    <span style={styles.previewElem}>Username: {userData.username}</span>
+                    <span style={styles.previewElem}>Username: {userPreviewData.username}</span>
 
-                    <span style={styles.previewElem}>City: {userData.city}</span>
-                    <span style={styles.previewElem}>Money: {formatMoney(userData.money_cash)}</span>
-                    <span style={styles.previewElem}>Rank: {userData.rank}</span>
-                    <span style={styles.previewElem}>Progress: {Math.floor(userData.rank_progress)}%</span>
-                    <span style={styles.previewElem}>Attack: {userData.attack_points}</span>
-                    <span style={styles.previewElem}>Defense: {userData.defense_points}</span>
-                    <span style={styles.previewElem}>Driving: {userData.driving_points}</span>
-                    <span style={styles.previewElem}>Commendations: {userData.commendations}</span>
+                    <span style={styles.previewElem}>City: {userPreviewData.city}</span>
+                    <span style={styles.previewElem}>Money: {formatMoney(userPreviewData.money_cash)}</span>
+                    <span style={styles.previewElem}>Rank: {userPreviewData.rank}</span>
+                    <span style={styles.previewElem}>Progress: {Math.floor(userPreviewData.rank_progress)}%</span>
+                    <span style={styles.previewElem}>Attack: {userPreviewData.attack_points}</span>
+                    <span style={styles.previewElem}>Defense: {userPreviewData.defense_points}</span>
+                    <span style={styles.previewElem}>Driving: {userPreviewData.driving_points}</span>
+                    <span style={styles.previewElem}>Commendations: {userPreviewData.commendations}</span>
                     </>
                 ) : (
                     <p>Loading...</p>
@@ -142,9 +147,11 @@ function UserPreview({ userData, setUserData}) {
             </div>
         </>
     )
-}
+})
 
 function DashboardTab() {
+    console.log('DashboardTab rendered')
+
     return (
         <>
             <p>Dashboard tab...</p>
@@ -153,7 +160,6 @@ function DashboardTab() {
 }
 
 const styles = {
-
     upperDashCont: {
         display: 'flex',
         justifyContent: 'center',

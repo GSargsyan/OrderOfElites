@@ -55,13 +55,7 @@ class User(AbstractBaseUser):
     def get_preview_data(self):
         res = {
             'username': self.username,
-            'city': self.city.name,
-            'money_cash': self.money_cash,
             'rank': self.rank,
-            'rank_progress': self.get_rank_progress(),
-            'attack_points': self.attack_points,
-            'defense_points': self.defense_points,
-            'driving_points': self.driving_points,
             'commendations': self.commendations,
         }
 
@@ -81,3 +75,18 @@ class User(AbstractBaseUser):
         if self.exp >= RANK_EXPS[self.rank + 1]:
             self.rank += 1
             self.save(update_fields=['rank'])
+
+    def get_profile_data(self):
+        res = {
+            'username': self.username,
+            'city': self.city.name,
+            'money_cash': self.money_cash,
+            'rank': self.rank,
+            'rank_progress': self.get_rank_progress(),
+            'attack_points': self.attack_points,
+            'defense_points': self.defense_points,
+            'driving_points': self.driving_points,
+            'commendations': self.commendations,
+        }
+
+        return res

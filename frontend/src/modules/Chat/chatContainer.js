@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import socketIOClient from "socket.io-client"
 import { CHAT_URL } from 'modules/Base/constants.js'
 import { request } from 'modules/Base'
 import { ChatBoard, MessagesBoard } from 'modules/Chat/chatBoard.js'
 
-function ChatContainer() {
+const ChatContainer = memo(() => {
+    console.log('ChatContainer rendered')
     const [connections, setConnections] = useState(null)
     const [activeTab, setActiveTab] = useState(0)
 
@@ -71,7 +72,7 @@ function ChatContainer() {
             ))}
         </div>
     )
-}
+})
 
 const styles = {
     chatCont: {

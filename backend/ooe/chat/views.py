@@ -23,7 +23,7 @@ def get_user_connections(request):
 @api_view(['POST'])
 @auth_by_token
 def get_conversations(request):
-    return Response(Conversation.get_conversations(request.user), status=200)
+    return Response(Conversation().get_conversations(request.user), status=200)
 
 
 

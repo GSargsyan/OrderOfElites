@@ -39,6 +39,20 @@ def get_skills_tab_data(request):
 
 @api_view(['POST'])
 @auth_by_token
+def find_by_username(request):
+    username = request.data.get("username")
+
+    if not username:
+        return Response({"error": "Username is required"}, status=400)
+
+    try:
+        return Response(User.objects.get(username=username).get_profile_data(), status=200)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=404)
+
+
+@api_view(['POST'])
+@auth_by_token
 @transaction.atomic
 def start_skill_practice(request, skill_name):
     try:

@@ -5,6 +5,7 @@ import { request } from 'modules/Base'
 
 
 export function ChatBoard({ chatRoomId, name}) {
+    console.log('ChatBoard rendered')
     const [socket, setSocket] = useState(null)
     const [messages, setMessages] = useState([])
     const [currentMessage, setCurrentMessage] = useState("")
