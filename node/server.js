@@ -3,23 +3,25 @@ const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
 const axios = require('axios');
-const { Pool } = require('pg');
-
 const app = express();
 const server = http.createServer(app);
 const PORT = 4000;
-const chatRooms = {};
 
-// TODO: Create special user for node server with READONLY access
-const pool = new Pool({
-    user: 'ooe',
-    host: 'ooe_psql',
-    database: 'ooe_db',
-    password: 'ooe_pwd',
-    port: 5432,
-});
+const { sequelize, ChatRoom } = require('./modules/models.js')
+
+async function initDb() {
+    try {
+        await sequelize.authenticate();
+        await sequelize.sync();
+
+        console.log("Connected to DB !!!")
+    } catch (error) {
+        console.error('Unable to connect to the database:', error)
+    }
+}
 
 const API_URL = 'http://backend:8000/api'
+const rooms = {};
 
 app.use(cors());
 app.get('/', (req, res) => {
@@ -47,21 +49,21 @@ const authConnection = async (token, roomId) => {
     })
 }
 
-const initializeChatRooms = async () => {
+const initChatRooms = async () => {
     try {
-        const res = await pool.query('SELECT * FROM ooe_chat_rooms');
+        const res = await ChatRoom.findAll();
 
-        for (const room of res.rows) {
-            chatRooms[room.id] = io.of(`/chat-${room.id}`);
-            setupChatRoom(chatRooms[room.id]);
-        }
+        res.forEach(room => {
+            rooms[room.id] = io.of(`/chat-${room.id}`)
+            setupChatRoom(rooms[room.id])
+        })
     } catch (err) {
         console.error('Error fetching chat rooms:', err);
     }
 };
 
-const setupChatRoom = (chatRoom) => {
-    chatRoom.on('connection', async (socket) => {
+const setupChatRoom = (room) => {
+    room.on('connection', async (socket) => {
         console.log('a user connected to a chat room');
 
         // BEGIN authorize user
@@ -77,7 +79,7 @@ const setupChatRoom = (chatRoom) => {
         // END authorize user
 
         socket.on('send_message', (msg) => {
-            chatRoom.emit('chat_message', {
+            room.emit('chat_message', {
                 'username': username,
                 'message': msg,
             });
@@ -98,6 +100,8 @@ io.on('connection', (socket) => {
 });
 
 server.listen(PORT, async () => {
+    await initDb()
+    await initChatRooms()
+
     console.log('Chat server is running!');
-    await initializeChatRooms();
 });

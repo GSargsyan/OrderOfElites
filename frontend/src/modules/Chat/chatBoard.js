@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import socketIOClient from "socket.io-client"
 import { CHAT_URL } from 'modules/Base/constants.js'
 import { request } from 'modules/Base'
 
 
-export function ChatBoard({ chatRoomId, name}) {
+export function ChatBoard({ chatRoomId, name }) {
     console.log('ChatBoard rendered')
     const [socket, setSocket] = useState(null)
     const [messages, setMessages] = useState([])
     const [currentMessage, setCurrentMessage] = useState("")
+    const chatInput = useRef(null)
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -47,6 +48,7 @@ export function ChatBoard({ chatRoomId, name}) {
             </div>
             <div className="chatInput">
                 <input
+                    ref={chatInput}
                     className="chatInputField"
                     style={styles.chatInputField}
                     value={currentMessage}
@@ -60,12 +62,14 @@ export function ChatBoard({ chatRoomId, name}) {
     )
 }
 
-export function MessagesBoard() {
+export function MessagesBoard({ messageUser }) {
+    console.log('MessagesBoard rendered')
     const [conversations, setConversations] = useState([])
+    const [selectedUserMessages, setSelectedUserMessages] = useState([])
 
     useEffect(() => {
         request({
-            'url': 'chat/get_conversations',
+            'url': 'chat/get_dm_conversations',
             'method': 'POST',
         })
         .then(response => {
@@ -74,17 +78,43 @@ export function MessagesBoard() {
         })
     }, [])
 
-    return (
-        <div className="chatBoard" style={styles.chatBoard}>
-            <div className="conversationsCont" style={styles.conversationsCont}>
-                {conversations.map(conversation => (
-                    <div className="conversation" key={conversation.username} style={styles.conversationUser}>
-                        <b>{conversation.username}</b>: {conversation.last_message}
-                    </div>
-                ))}
+    useEffect(() => {
+        if (messageUser === null) {
+            return
+        }
+
+        request({
+            'url': 'chat/get_dm_messages',
+            'method': 'POST',
+            'data': {
+                'username': messageUser,
+            }
+        })
+        .then(response => {
+            console.log(response.data)
+            setSelectedUserMessages(response.data)
+        })
+    }, [messageUser]);
+
+    if (messageUser) {
+        // Render messages for the selected user
+        return (
+            <ChatBoard chatRoomId={messageUser} name={messageUser} />
+        )
+    } else {
+        // Render the default view (list of conversations)
+        return (
+            <div className="chatBoard" style={styles.chatBoard}>
+                <div className="conversationsCont" style={styles.conversationsCont}>
+                    {conversations.map(conversation => (
+                        <div className="conversation" key={conversation.username} style={styles.conversationUser}>
+                            <b>{conversation.username}</b>: {conversation.last_message}
+                        </div>
+                    ))}
+                </div>
             </div>
-        </div>
-    )
+        )
+    }
 }
 
 const styles = {

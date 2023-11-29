@@ -17,6 +17,10 @@ function Dashboard() {
     const [userProfileData, setUserProfileData] = useState(null)
     const [showUserProfileModal, setShowUserProfileModal] = useState(false)
 
+    // chat states
+    const [messageUser, setMessageUser] = useState(null)
+    const [focusChatInput, setFocusChatInput] = useState(false)
+
     const updateUserPreviewData = () => {
         request({
             'url': 'users/get_preview',
@@ -68,7 +72,7 @@ function Dashboard() {
                 <UserPreview userPreviewData={userPreviewData} />
             </div>
             <div style={styles.centerDashCont}>
-                <ChatContainer />
+                <ChatContainer messageUser={messageUser} />
                 <GameDash
                     tabComponents={tabComponents}
                     activeTab={activeTab}
@@ -80,7 +84,14 @@ function Dashboard() {
 
             {showUserProfileModal && (
                 <div style={styles.userProfileCont}>
-                    <UserProfileModal userProfileData={userProfileData} onClose={() => setShowUserProfileModal(false)} />
+                    <UserProfileModal
+                        userProfileData={userProfileData}
+                        onClose={() => setShowUserProfileModal(false)}
+                        onMessageClick={(messageUsername) => {
+                            setMessageUser(messageUsername)
+                            setShowUserProfileModal(false)
+                        }}
+                    />
                 </div>
             )}
         </>
@@ -109,7 +120,13 @@ function MenuItems({ tabComponents, setActiveTab }) {
     )
 }
 
-function GameDash({ tabComponents, activeTab, updateUserPreviewData, setUserProfileData, setShowUserProfileModal }) {
+function GameDash({
+    tabComponents,
+    activeTab,
+    updateUserPreviewData,
+    setUserProfileData,
+    setShowUserProfileModal
+    }) {
     console.log('GameDash rendered')
 
     return (

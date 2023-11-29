@@ -4,23 +4,39 @@ import { CHAT_URL } from 'modules/Base/constants.js'
 import { request } from 'modules/Base'
 import { ChatBoard, MessagesBoard } from 'modules/Chat/chatBoard.js'
 
-const ChatContainer = memo(() => {
+const ChatContainer = memo(({ messageUser }) => {
     console.log('ChatContainer rendered')
-    const [connections, setConnections] = useState(null)
+    const [rooms, setRooms] = useState(null)
     const [activeTab, setActiveTab] = useState(0)
 
     useEffect(() => {
+        if (messageUser !== null) {
+            setActiveTab(0)
+        }
+
         request({
-            'url': 'chat/get_user_connections',
+            'url': 'chat/get_user_rooms',
             'method': 'POST',
         })
         .then(response => {
             console.log(response.data)
-            setConnections(response.data)
+            setRooms(response.data)
         })
     }, [])
 
-    if (!connections) {
+    useEffect(() => {
+        if (messageUser === null) {
+            return
+        }
+
+        setActiveTab(0)
+
+        console.log('------------------------------')
+        console.log('activeTab', activeTab)
+        console.log('------------------------------')
+    }, [messageUser])
+
+    if (!rooms) {
         return <div>Loading...</div>;
     }
 
@@ -40,7 +56,7 @@ const ChatContainer = memo(() => {
                     <p>Messages</p>
                 </div>
 
-                {connections.map((chat, index) => (
+                {rooms.map((chat, index) => (
                     <div
                         className="chatTab"
                         key={chat.id}
@@ -53,11 +69,11 @@ const ChatContainer = memo(() => {
 
             {activeTab === 0 && (
                 <div className="chatBoardCont" style={styles.chatBoardCont}>
-                    <MessagesBoard />
+                    <MessagesBoard messageUser={messageUser} />
                 </div>
             )}
 
-            {connections.map((chat, index) => (
+            {rooms.map((chat, index) => (
                 activeTab === index + 1 && (
                     <div
                         key={chat.id}

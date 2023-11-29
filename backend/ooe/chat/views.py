@@ -4,27 +4,37 @@ from rest_framework.authtoken.models import Token
 
 from ooe.base.utils import auth_by_token
 from ooe.chat.models import \
-    ChatConnection, \
-    Conversation
+    ChatRoom, \
+    Message
+from ooe.users.models import User
 
 
 @api_view(['POST'])
 @auth_by_token
-def get_user_connections(request):
+def get_user_rooms(request):
     res = [{
-        'id': conn.chat_room.id,
-        'name': conn.chat_room.name
-        } for conn in request.user.chat_connections.all()
-    ]
+        'id': room.id,
+        'name': room.name,
+    } for room in ChatRoom.objects.filter(users=request.user).exclude(chat_type ='direct')]
 
     return Response(res, status=200)
 
 
 @api_view(['POST'])
 @auth_by_token
-def get_conversations(request):
-    return Response(Conversation().get_conversations(request.user), status=200)
+def get_dm_conversations(request):
+    return Response(ChatRoom.get_dm_conversations(request.user.id), status=200)
 
+
+@api_view(['POST'])
+@auth_by_token
+def get_dm_messages(request):
+    requester = request.user
+
+    conv_username = request.data.get("username")
+    conv_user = User.objects.get(username=conv_username)
+
+    return Response(Message.get_dm_messages(requester, conv_user), status=200)
 
 
 @api_view(['POST'])
@@ -37,9 +47,7 @@ def authenticate_connection(request):
     if user is None:
         return Response({"error": "Invalid token"}, status=401)
 
-    connection = ChatConnection.objects.filter(chat_room__id=room_id, user=user).first()
-
-    if not connection:
+    if not ChatRoom.objects.filter(id=room_id, users=user).exists():
         return Response({"error": "User is not authorized to join this chat"}, status=401)
 
     return Response({"success": "Token verified",

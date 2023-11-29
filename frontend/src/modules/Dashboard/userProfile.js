@@ -3,17 +3,17 @@ import React, { useState, useEffect } from 'react'
 import { formatMoney } from 'modules/Base'
 
 
-function UserProfileModal({ userProfileData, onClose }) {
+function UserProfileModal({ userProfileData, onClose, onMessageClick }) {
     console.log('UserProfileModal rendered')
     console.log(userProfileData)
 
     const handleBackdropClick = () => {
-        onClose(); // Call the function to close the modal
-    };
+        onClose()
+    }
 
     const handleModalClick = (e) => {
-        e.stopPropagation(); // Prevent clicks inside the modal from closing it
-    };
+        e.stopPropagation()
+    }
 
     return (
         <>
@@ -26,7 +26,7 @@ function UserProfileModal({ userProfileData, onClose }) {
                     </div>
 
                     <button onClick={onClose}>Close</button>
-                    <button>Message</button>
+                    <button onClick={() => { onMessageClick(userProfileData.username) }}>Message</button>
                 </div>
             </div>
         </>

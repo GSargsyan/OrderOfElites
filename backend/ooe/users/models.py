@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import F
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
-from ooe.chat.models import ChatConnection, ChatRoom
+from ooe.chat.models import ChatRoom
 from ooe.base.constants import RANK_EXPS
 
 
@@ -55,16 +55,22 @@ class User(AbstractBaseUser):
     def get_preview_data(self):
         res = {
             'username': self.username,
+            'city': self.city.name,
+            'money_cash': self.money_cash,
             'rank': self.rank,
+            'rank_progress': self.get_rank_progress(),
+            'attack_points': self.attack_points,
+            'defense_points': self.defense_points,
+            'driving_points': self.driving_points,
             'commendations': self.commendations,
         }
 
         return res
 
     def add_default_chat_rooms(self):
-        chat_rooms = ChatRoom.objects.get(name=self.city.name)
+        chat_room = ChatRoom.objects.get(name=self.city.name)
 
-        ChatConnection.objects.create(user=self, chat_room=chat_rooms)
+        chat_room.users.add(self)
 
     def add_exp(self, exp: int):
         User.objects.filter(id=self.id).update(exp=F('exp') + exp)
@@ -79,13 +85,7 @@ class User(AbstractBaseUser):
     def get_profile_data(self):
         res = {
             'username': self.username,
-            'city': self.city.name,
-            'money_cash': self.money_cash,
             'rank': self.rank,
-            'rank_progress': self.get_rank_progress(),
-            'attack_points': self.attack_points,
-            'defense_points': self.defense_points,
-            'driving_points': self.driving_points,
             'commendations': self.commendations,
         }
 
