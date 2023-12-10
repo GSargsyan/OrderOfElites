@@ -20,5 +20,6 @@ urlpatterns = [
     path('', include('ooe.chat.urls')),
     path('', include('ooe.dashboard.urls')),
     path('', include('ooe.missions.urls')),
+    path('', include('ooe.items.urls')),
     # path('', include('ooe.cities.urls')),
 ]

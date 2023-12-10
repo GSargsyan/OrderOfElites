@@ -4,14 +4,16 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
 from ooe.base.utils import auth_by_token
-from ooe.missions.controllers import Missions, Mission
 from ooe.base.exceptions import OOEException
+from ooe.missions.controllers import MissionsController, Mission
 
 
 @api_view(['POST'])
 @auth_by_token
 def get_missions_tab_data(request):
-    return Response(Missions(user=request.user).get_missions_tab_data(), status=200)
+    return Response(
+        MissionsController(user=request.user).get_missions_tab_data(),
+        status=200)
 
 
 @api_view(['POST'])

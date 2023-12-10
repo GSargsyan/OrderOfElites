@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -51,6 +52,7 @@ INSTALLED_APPS = [
     'ooe.chat',
     'ooe.dashboard',
     'ooe.missions',
+    'ooe.items',
 ]
 
 MIDDLEWARE = [
@@ -148,6 +150,12 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOG_FILE_PATH = "/opt/backend/var/error.log"
+os.makedirs(os.path.dirname(LOG_FILE_PATH), exist_ok=True)
+if not os.path.isfile(LOG_FILE_PATH):
+    with open(LOG_FILE_PATH, 'a'):
+        pass
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
@@ -155,7 +163,7 @@ LOGGING = {
         "file": {
             "level": "WARNING",
             "class": "logging.FileHandler",
-            "filename": "/opt/backend/var/error.log",
+            "filename": LOG_FILE_PATH,
         },
     },
     "loggers": {

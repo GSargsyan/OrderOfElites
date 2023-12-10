@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { request, formatSeconds, secondsRemaining } from 'modules/Base'
+import { UserPreviewCtx } from 'modules/Dashboard'
 
-function MissionsTab({ updateUserPreviewData }) {
+function MissionsTab() {
     console.log('MissionsTab rendered')
     const [missionsData, setMissionsData] = useState(null)
     const [isStakeoutAvailable, setIsStakeoutAvailable] = useState(false)
@@ -10,6 +11,8 @@ function MissionsTab({ updateUserPreviewData }) {
     const [reconOpCdRemaining, setReconOpCdRemaining] = useState(0)
     const [isStakeoutAllowed, setIsStakeoutAllowed] = useState(false)
     const [isReconOpAllowed, setIsReconOpAllowed] = useState(false)
+
+    const { userPreviewData, updateUserPreviewData } = useContext(UserPreviewCtx)
 
     useEffect(() => {
         request({

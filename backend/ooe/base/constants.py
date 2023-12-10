@@ -48,24 +48,14 @@ MISSIONS = {
     },
     'recon_op': {
         'name': 'Recon Op',
-        'cooldown': 1200,  # 20 minutes
+        'cooldown': 1, # 1200,  # 20 minutes
         'exp_reward': 20,
         'max_reward_rank': 10,
-        'min_reward': 1000,
-        'max_reward': 5000,
+        'min_reward': 100000,
+        'max_reward': 500000,
         'random_range': 500,
     }
 }
-
-'''
-Training	Cooldown	Exp	Price	Points gains
-Shooting	3m	3	$0	1
-Racing	3m	3	$0	1
-Defense	3m	3	$0	1
-Pro Shooting	20m	10	$10,000	10
-Pro Racing	20m	10	$5,000	10
-Pro Defense	20m	10	$2,000	10
-'''
 
 SKILLS = {
     'attack_free': {
@@ -112,4 +102,4 @@ SKILLS = {
     },
 }
 
-
+ITEM_SELL_PERCENT = .75

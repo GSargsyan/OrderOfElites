@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { request, formatSeconds, secondsRemaining } from 'modules/Base'
+import { UserPreviewCtx } from 'modules/Dashboard'
 
-function SkillsTab({ updateUserPreviewData }) {
+function SkillsTab() {
     console.log('SkillsTab rendered')
 
     const [skillsData, setSkillsData] = useState(null)
+    const { userPreviewData, updateUserPreviewData } = useContext(UserPreviewCtx)
 
     useEffect(() => {
         request({

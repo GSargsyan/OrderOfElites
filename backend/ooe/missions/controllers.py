@@ -12,7 +12,7 @@ from ooe.base.constants import \
     RANK_EXPS
 
 
-class Missions:
+class MissionsController:
     def __init__(self, user: object):
         self.user = user
 

@@ -1,14 +1,16 @@
 // import axios from 'axios'
-import React, { useState, useEffect, memo } from 'react'
+import React, { createContext, useState, useEffect, memo } from 'react'
 
 import ChatContainer from 'modules/Chat/chatContainer.js'
 import MissionsTab from 'modules/Missions/missionsTab.js'
 import SkillsTab from 'modules/Skills/skillsTab.js'
+import ItemsTab from 'modules/Items/itemsTab.js'
 import NetworkingTab from 'modules/Networking/networkingTab.js'
 import UserProfileModal from 'modules/Dashboard/userProfile.js'
 import { request, formatMoney } from 'modules/Base'
 
 
+export const UserPreviewCtx = createContext()
 
 function Dashboard() {
     console.log('Dashboard rendered')
@@ -41,16 +43,17 @@ function Dashboard() {
         'missions': {
             'component': MissionsTab,
             'label': 'Missions',
-            'props': {
-                'updateUserPreviewData': updateUserPreviewData
-            }
+            'props': {}
         },
         'skills': {
             'component': SkillsTab,
             'label': 'Skills',
-            'props': {
-                'updateUserPreviewData': updateUserPreviewData
-            }
+            'props': {}
+        },
+        'items': {
+            'component': ItemsTab,
+            'label': 'Items',
+            'props': {}
         },
         'networking': {
             'component': NetworkingTab,
@@ -59,7 +62,7 @@ function Dashboard() {
                 'setUserProfileData': setUserProfileData,
                 'setShowUserProfileModal': setShowUserProfileModal,
             }
-        }
+        },
     }
 
     useEffect(() => {
@@ -71,29 +74,31 @@ function Dashboard() {
             <div style={styles.upperDashCont}>
                 <UserPreview userPreviewData={userPreviewData} />
             </div>
-            <div style={styles.centerDashCont}>
-                <ChatContainer messageUser={messageUser} />
-                <GameDash
-                    tabComponents={tabComponents}
-                    activeTab={activeTab}
-                    updateUserPreviewData={updateUserPreviewData}
-                    setUserProfileData={setUserProfileData}
-                    />
-                <MenuItems tabComponents={tabComponents} setActiveTab={setActiveTab} />
-            </div>
 
-            {showUserProfileModal && (
-                <div style={styles.userProfileCont}>
-                    <UserProfileModal
-                        userProfileData={userProfileData}
-                        onClose={() => setShowUserProfileModal(false)}
-                        onMessageClick={(messageUsername) => {
-                            setMessageUser(messageUsername)
-                            setShowUserProfileModal(false)
-                        }}
-                    />
+            <UserPreviewCtx.Provider value={{ userPreviewData, updateUserPreviewData }}>
+                <div style={styles.centerDashCont}>
+                    <ChatContainer messageUser={messageUser} />
+                    <GameDash
+                        tabComponents={tabComponents}
+                        activeTab={activeTab}
+                        setUserProfileData={setUserProfileData}
+                        />
+                    <MenuItems tabComponents={tabComponents} setActiveTab={setActiveTab} />
                 </div>
-            )}
+
+                {showUserProfileModal && (
+                    <div style={styles.userProfileCont}>
+                        <UserProfileModal
+                            userProfileData={userProfileData}
+                            onClose={() => setShowUserProfileModal(false)}
+                            onMessageClick={(messageUsername) => {
+                                setMessageUser(messageUsername)
+                                setShowUserProfileModal(false)
+                            }}
+                        />
+                    </div>
+                )}
+            </UserPreviewCtx.Provider>
         </>
     )
 }
@@ -123,7 +128,6 @@ function MenuItems({ tabComponents, setActiveTab }) {
 function GameDash({
     tabComponents,
     activeTab,
-    updateUserPreviewData,
     setUserProfileData,
     setShowUserProfileModal
     }) {
