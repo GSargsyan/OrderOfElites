@@ -30,10 +30,6 @@ const ChatContainer = memo(({ messageUser }) => {
         }
 
         setActiveTab(0)
-
-        console.log('------------------------------')
-        console.log('activeTab', activeTab)
-        console.log('------------------------------')
     }, [messageUser])
 
     if (!rooms) {
@@ -95,6 +91,7 @@ const styles = {
         top: '250px',
         width: '20%',
         border: '1px solid black',
+        maxHeight: '500px',
     },
     chatBoardCont: {
         height: '84%',

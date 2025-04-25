@@ -8,7 +8,7 @@ from ooe.users.models import User
 from ooe.base.exceptions import OOEException
 from ooe.items.constants import \
     HOUSES, \
-    SELL_PERCENT
+    HOUSE_SELL_PERCENT
 
 
 class ItemsController:
@@ -24,7 +24,6 @@ class ItemsController:
 
         for house in user_houses:
             owns_in_cities[house.house].append(house.city.name)
-
 
         return {
             key: {
@@ -47,8 +46,8 @@ class ItemsController:
         if user.money_cash < HOUSES[house_name]['price']:
             raise OOEException('Not enough money')
 
-        if user.houses.filter(house=house_name, city=user.city).exists():
-            raise OOEException('Already owns this house in the current city')
+        if user.houses.filter(city=user.city).exists():
+            raise OOEException('Already owns a house in the current city')
 
         user.money_cash = F('money_cash') - HOUSES[house_name]['price']
         user.save()
@@ -71,7 +70,7 @@ class ItemsController:
         if not user.houses.filter(house=house_name, city=user.city).exists():
             raise OOEException('Does not own this house in the current city')
 
-        user.money_cash = F('money_cash') + HOUSES[house_name]['price'] * SELL_PERCENT
+        user.money_cash = F('money_cash') + HOUSES[house_name]['price'] * HOUSE_SELL_PERCENT
         user.save()
 
         user.houses.filter(house=house_name, city=user.city).delete()

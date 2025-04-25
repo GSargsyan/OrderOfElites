@@ -71,12 +71,18 @@ function Dashboard() {
 
     return (
         <>
-            <div style={styles.upperDashCont}>
+            <div
+                className="upperDashCont"
+                style={styles.upperDashCont}
+            >
                 <UserPreview userPreviewData={userPreviewData} />
             </div>
 
             <UserPreviewCtx.Provider value={{ userPreviewData, updateUserPreviewData }}>
-                <div style={styles.centerDashCont}>
+                <div
+                    className="centerDashCont"
+                    style={styles.centerDashCont}
+                >
                     <ChatContainer messageUser={messageUser} />
                     <GameDash
                         tabComponents={tabComponents}
@@ -87,7 +93,9 @@ function Dashboard() {
                 </div>
 
                 {showUserProfileModal && (
-                    <div style={styles.userProfileCont}>
+                    <div
+                        className='userProfileCont'
+                        style={styles.userProfileCont}>
                         <UserProfileModal
                             userProfileData={userProfileData}
                             onClose={() => setShowUserProfileModal(false)}
@@ -108,7 +116,9 @@ function MenuItems({ tabComponents, setActiveTab }) {
 
     return (
         <>
-            <div style={styles.menuItemsCont}>
+            <div
+                className="menuItemsCont"
+                style={styles.menuItemsCont}>
                 <div className="tab-container">
                     {Object.keys(tabComponents).map(tabKey => (
                         <button
@@ -135,7 +145,11 @@ function GameDash({
 
     return (
         <>
-            <div key={activeTab} style={styles.centralPanelCont}>
+            <div
+                key={activeTab}
+                className='centralPanelCont'
+                style={styles.centralPanelCont}
+            >
                  {React.createElement(tabComponents[activeTab].component,
                     tabComponents[activeTab].props)}
             </div>
@@ -148,7 +162,10 @@ const UserPreview = memo(({ userPreviewData }) => {
 
     return (
         <>
-            <div className="previewCont" style={styles.previewCont}>
+            <div
+                className="previewCont"
+                style={styles.previewCont}
+            >
                 {userPreviewData ? (
                     <>
                     <span style={styles.previewElem}>Username: {userPreviewData.username}</span>
@@ -189,6 +206,7 @@ const styles = {
         display: 'flex',
         justifyContent: 'space-between',
         marginTop: '50px',
+        marginBottom: '150px',
         minHeight: '500px',
     },
     previewCont: {
@@ -211,6 +229,7 @@ const styles = {
         border: '1px solid black',
         float: 'right',
         padding: '30px',
+        maxHeight: '500px',
     },
     centralPanelCont: {
         border: '1px solid black',
