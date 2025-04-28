@@ -2,14 +2,15 @@
 
 Order of Elites is an online text-based MMORPG game. The virtual world is an imitation of the John Wick universe. Players are elite assassins, living by strict rules, can earn money through missions, can attempt to kill each other, can chat together, earn honor points, rank up, create or join Syndicates, travel to different cities, etc..  
 
-## General
+## Terms
 
 - Players are called **Elites**.
 - The safehouse is called **Pavilion**.
 - The head of the Pavilion in each city is called the **Chairman of the Pavilion**.
 - The ruling body of the Elites is the **Grand Council**, which consists of 5 members, rotated each month.
 - The **Order of Elites** is a set of rules written by the Grand Council and is enforced by the Chairmans of the Pavilion.
-- If a player or a Syndicate breaks any rule of the Order of Elites, they are at the mercy of the Chairmans of the Pavilion or the Grand Council members, to be **Blacklisted** or tagged as **Persona non-grata**.
+- Groups of Elites with common objective and shared resources are called **Syndicates**
+- The Chairmans of the Pavilions and the Grand Council members can **Blacklist** other Elites or tag them as **Persona non-grata**
 
 ## Grand Council
 
