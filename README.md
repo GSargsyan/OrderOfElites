@@ -1,6 +1,6 @@
-# Order of Elites
+# Order of Elites [Link](https://orderofelites.com:3000)
 
-Order of Elites is an online text-based MMORPG game. The virtual world is a John Wick inspired universe. Players are elite assassins, living by strict rules, can earn money through missions, can kill each other (the other player has to re-register again if killed), can chat together, can DM each other, etc.  
+Order of Elites is an online text-based MMORPG game. The virtual world is an imitation John Wick universe. Players are elite assassins, living by strict rules, can earn money through missions, can attempt to kill each other, can chat together, earn honor points, rank up, create or join Syndicates, travel to different cities, etc..  
 
 ## General
 
