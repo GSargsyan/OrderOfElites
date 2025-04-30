@@ -11,6 +11,7 @@ services:
       - ./nginx/certbot/conf:/etc/letsencrypt
     ports:
       - "80:80"
+      - "443:443"
     networks:
       - ooe_network
     depends_on:
@@ -40,8 +41,10 @@ services:
     # this overrides the installed node_modules
     # volumes:
     #   - ./frontend:/opt/frontend/
-    ports:
-      - "3000:3000"
+
+    # no need to expose the frontend port in prod
+    # ports:
+    #   - "3000:3000"
     networks:
       - ooe_network
     depends_on:
