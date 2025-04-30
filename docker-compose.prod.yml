@@ -1,0 +1,106 @@
+version: '3'
+
+services:
+  nginx:
+    image: ooe_nginx
+    container_name: ooe_nginx
+    build: ./nginx
+    volumes:
+      - ./nginx/conf.d:/etc/nginx/conf.d
+      - ./nginx/certbot/www:/var/www/certbot
+      - ./nginx/certbot/conf:/etc/letsencrypt
+    ports:
+      - "80:80"
+    networks:
+      - ooe_network
+    depends_on:
+      - frontend
+
+  psql:
+    image: ooe_psql
+    container_name: ooe_psql
+    build: ./psql
+    volumes:
+      - ./psql/pgdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: ooe_db
+      POSTGRES_USER: ooe
+      POSTGRES_PASSWORD: ooe_pwd
+    command: postgres -c max_connections=300
+    ports:
+      - "5432:5432"
+    networks:
+      - ooe_network
+
+  frontend:
+    image: ooe_frontend
+    container_name: ooe_frontend
+    build: ./frontend
+    command: npm start
+    # this overrides the installed node_modules
+    # volumes:
+    #   - ./frontend:/opt/frontend/
+    ports:
+      - "3000:3000"
+    networks:
+      - ooe_network
+    depends_on:
+      - backend
+
+  backend:
+    image: ooe_backend
+    container_name: ooe_backend
+    build: ./backend
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./backend/:/opt/backend/
+      - /opt/frontend/node_modules
+    ports:
+      - "8000:8000"
+    networks:
+      - ooe_network
+    depends_on:
+      - psql
+
+  pgadmin:
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@gmail.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "5050:80"
+    networks:
+      - ooe_network
+    logging:
+        driver: none
+
+  redis:
+    image: ooe_redis
+    container_name: ooe_redis
+    build: ./redis
+    volumes:
+      - ./redis/data:/data
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    ports:
+      - "6379:6379"
+    networks:
+      - ooe_network
+
+  node:
+    image: ooe_node
+    container_name: ooe_node
+    build: ./node
+    command: npm start
+    volumes:
+      - ./node:/opt/node/
+      - /opt/node/node_modules
+    ports:
+      - "4000:4000"
+    networks:
+      - ooe_network
+    depends_on:
+      - psql
+      - redis
+
+networks:
+  ooe_network:
