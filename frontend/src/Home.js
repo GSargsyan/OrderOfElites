@@ -6,7 +6,6 @@ function Home() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        // Here you can handle the signup logic, like sending data to a backend
         console.log("Username:", username, "Password:", password);
     }
 

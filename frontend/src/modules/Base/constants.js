@@ -1,2 +1,2 @@
-export const API_URL = 'http://0.0.0.0:8000/api/'
-export const CHAT_URL = 'http://0.0.0.0:4000'
+export const API_URL = process.env.REACT_APP_API_URL;
+export const CHAT_URL = process.env.REACT_APP_CHAT_URL;

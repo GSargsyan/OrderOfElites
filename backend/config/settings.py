@@ -27,6 +27,8 @@ SECRET_KEY = 'django-insecure-(41p2@)jz^ngjnrg&d!3z)!z+wny+=be1hz=3p3la96lpm=c@t
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'orderofelites.com',
+    'www.orderofelites.com',
     'backend',
     'localhost',
     '0.0.0.0:8000',
@@ -178,16 +180,19 @@ LOGGING = {
 
 # CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOWED_ORIGINS = [
-    # TODO: change this
     "http://localhost:3000",
     "http://localhost:4000",
     "http://localhost:8000",
+    "http://0.0.0.0:3000",
+    "http://0.0.0.0:4000",
+    "http://0.0.0.0:8000",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
-    # TODO: change this
     'http://localhost:3000',
-    'http://localhost:4000'
+    'http://localhost:4000',
+    'http://0.0.0.0:3000',
+    'http://0.0.0.0:4000'
 ]
 # CSRF_USE_SESSIONS = True
 
