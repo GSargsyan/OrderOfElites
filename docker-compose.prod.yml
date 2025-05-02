@@ -15,8 +15,6 @@ services:
       - "443:443"
     networks:
       - ooe_network
-    depends_on:
-      - frontend
 
   psql:
     image: ooe_psql
@@ -33,17 +31,6 @@ services:
       - "5432:5432"
     networks:
       - ooe_network
-
-  frontend:
-    image: ooe_frontend
-    container_name: ooe_frontend
-    build: ./frontend
-    volumes:
-    - ./frontend/build:/opt/frontend/build
-    networks:
-      - ooe_network
-    depends_on:
-      - backend
 
   backend:
     image: ooe_backend

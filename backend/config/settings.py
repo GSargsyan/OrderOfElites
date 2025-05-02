@@ -186,13 +186,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://0.0.0.0:3000",
     "http://0.0.0.0:4000",
     "http://0.0.0.0:8000",
+    "https://orderofelites.com",
+    "https://www.orderofelites.com",
 ]
 CORS_ALLOW_CREDENTIALS = True
 CSRF_TRUSTED_ORIGINS = [
     'http://localhost:3000',
     'http://localhost:4000',
     'http://0.0.0.0:3000',
-    'http://0.0.0.0:4000'
+    'http://0.0.0.0:4000',
+    'https://orderofelites.com',
+    'https://www.orderofelites.com'
 ]
 # CSRF_USE_SESSIONS = True
 

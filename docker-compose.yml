@@ -16,6 +16,11 @@ services:
       - "5432:5432"
     networks:
       - ooe_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ooe -d ooe_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   frontend:
     image: ooe_frontend
@@ -44,7 +49,8 @@ services:
     networks:
       - ooe_network
     depends_on:
-      - psql
+      psql:
+        condition: service_healthy
 
   pgadmin:
     image: dpage/pgadmin4
@@ -83,8 +89,8 @@ services:
     networks:
       - ooe_network
     depends_on:
-      - psql
-      - redis
+      psql:
+        condition: service_healthy
 
 networks:
   ooe_network:
