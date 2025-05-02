@@ -8,7 +8,6 @@ function Header() {
 				<li style={styles.menuItem}>About</li>
 				<li style={styles.menuItem}>Wiki</li>
 				<li style={styles.menuItem}>Contact</li>
-				<li style={styles.menuItem}>Signup</li>
 			</ul>
 		</nav>
     </header>

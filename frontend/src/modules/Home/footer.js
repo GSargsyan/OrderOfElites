@@ -1,7 +1,7 @@
 function Footer() {
   return (
     <footer style={styles.footer}>
-      <p>Copyright © 2023 Order of Elites</p>
+      <p>© 2025 Order of Elites</p>
     </footer>
   );
 }
