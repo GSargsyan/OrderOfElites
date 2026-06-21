@@ -89,46 +89,60 @@ function MissionsTab() {
     }
 
     if (missionsData === null) {
-        return <div>Loading...</div>
+        return <div className="loading-text">LOADING MISSIONS...</div>
     }
 
     return (
-        <>
-        <div className="missionSection" style={styles.missionSection}> <h3>Stakeout</h3>
-            <p>Keep your eyes peeled and monitor the target's activity. Gather crucial information and earn your reward.</p>
+        <div className="missions-grid">
+            {/* Stakeout Mission Card */}
+            <div className="mission-card">
+                <div className="mission-card-header">
+                    <h3>Stakeout</h3>
+                    {stakeoutCdRemaining > 0 && (
+                        <div className="mission-timer">
+                            <span className="timer-icon">⏱</span>
+                            {formatSeconds(stakeoutCdRemaining)}
+                        </div>
+                    )}
+                </div>
+                <p>
+                    Keep your eyes peeled and monitor the target's activity.
+                    Gather crucial information and earn your reward.
+                </p>
+                <button
+                    className="btn-mission-start"
+                    disabled={!isStakeoutAvailable}
+                    onClick={() => startMission('stakeout')}
+                >
+                    Start
+                </button>
+            </div>
 
-            <button
-                className="doMissionBtn"
-                disabled={!isStakeoutAvailable}
-                onClick={() => startMission('stakeout')}
-            >
-                Start
-            </button>
-            {stakeoutCdRemaining > 0 &&
-                <span> {formatSeconds(stakeoutCdRemaining)}</span>
-            }
+            {/* Recon Op Mission Card */}
+            <div className="mission-card">
+                <div className="mission-card-header">
+                    <h3>Recon Op</h3>
+                    {reconOpCdRemaining > 0 && (
+                        <div className="mission-timer">
+                            <span className="timer-icon">⏱</span>
+                            {formatSeconds(reconOpCdRemaining)}
+                        </div>
+                    )}
+                </div>
+                <p>
+                    Go undercover, gather intelligence from strategic points.
+                    Stay undetected and relay the information.
+                </p>
+                <button
+                    className="btn-mission-start"
+                    disabled={!isReconOpAvailable}
+                    onClick={() => startMission('recon_op')}
+                >
+                    Start
+                </button>
+            </div>
         </div>
-
-        <div className="missionSection" style={styles.missionSection}>
-            <h3>Recon Op</h3>
-            <p>Go undercover, gather intelligence from strategic points. Stay undetected and relay the information.</p>
-
-            <button
-                className="doMissionBtn"
-                disabled={!isReconOpAvailable}
-                onClick={() => startMission('recon_op')}
-            >
-                Start
-            </button>
-            {reconOpCdRemaining > 0 &&
-                <span> {formatSeconds(reconOpCdRemaining)}</span>
-            }
-        </div>
-        </>
     )
-}
-
-const styles = {
 }
 
 export default MissionsTab

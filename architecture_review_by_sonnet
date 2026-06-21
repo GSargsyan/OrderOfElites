@@ -1,0 +1,175 @@
+# Order of Elites — Architecture Review
+
+## What You Have (The Big Picture)
+
+```
+Browser (React :3000)
+    │
+    ├──── REST calls (axios) ────────► Django DRF (:8000)
+    │                                       │
+    └──── WebSocket (socket.io) ────► Node/Express (:4000)
+                                            │
+                                    calls Django API to auth sockets
+                                            │
+                                ┌──────────┴──────────┐
+                                ▼                     ▼
+                           PostgreSQL             Redis (cache +
+                           (:5432)                sessions)
+                                │
+                           pgAdmin (:5050)
+
+Production: Nginx reverse-proxies everything → serves React build
+```
+
+All services live in Docker containers on a shared `ooe_network`.
+
+---
+
+## Verdict on the Stack: **Keep It, With Targeted Fixes**
+
+**React + Django REST + Node/Socket.IO + PostgreSQL + Redis + Docker + Nginx** is actually a well-reasoned choice for this project. Here's why:
+
+| Concern | Assessment |
+|---|---|
+| Is React overkill? | No — a game dashboard with real-time updates, many dynamic UI components, and planned monetization *needs* a reactive frontend. |
+| Is Django the right backend? | Yes — DRF is battle-tested for REST APIs, Django's ORM + migrations are perfect for a complex relational model (30 ranks, missions, syndicates, etc.), and built-in auth/token management saves time. |
+| Should Node exist separately? | **Yes, this is the right call.** Real-time chat over WebSockets (socket.io) would be awkward in Django (you'd need Django Channels + ASGI). Keeping it separate is clean. |
+| Is PostgreSQL right? | Yes — the game has a very relational data model (users, cities, syndicates, missions, items, chat rooms). Postgres is the right DB. |
+| Is Redis needed? | Yes — cooldown timers, session storage, and cache are all natural Redis use-cases here. |
+| Is Docker the right deployment? | Yes — multi-service project, real domain, SSL. Docker Compose is appropriate. |
+
+**You're on the right path. This stack is solid.**
+
+---
+
+## What's Working Well ✅
+
+1. **Clean service separation** — Django handles REST, Node handles WebSockets. These concerns are correctly separated.
+2. **Auth delegation** — Node calls Django's `/api/chat/authenticate_connection` before accepting a WebSocket. This is the correct pattern — you have a single source of auth truth.
+3. **Token-based auth** — DRF `TokenAuthentication` is simple and appropriate for a game where browser clients just need a persistent token after login.
+4. **Django app structure** — Breaking `ooe/` into `users`, `chat`, `cities`, `dashboard`, `missions`, `items` is excellent. Each domain is self-contained with its own models, views, urls, controllers.
+5. **Redis for caching/sessions** — Using `django_redis` for both cache and session backend is smart for handling cooldown timers.
+6. **Nginx in prod** — Serving the React build statically through Nginx and proxying API calls is the correct production setup.
+7. **Docker Compose healthchecks** — psql has a proper `pg_isready` healthcheck and `depends_on` is wired up correctly.
+
+---
+
+## Issues and Bugs Found 🚨
+
+### 🔴 Critical
+
+**1. Secret key is hardcoded and `DEBUG=True` is in the committed file**
+- [settings.py](file:///c:/Users/gsarg/Documents/OrderOfElites/backend/config/settings.py#L24) — The Django `SECRET_KEY` is a real insecure key committed to git.
+- [settings.py](file:///c:/Users/gsarg/Documents/OrderOfElites/backend/config/settings.py#L27) — `DEBUG = True` is hardcoded in the same file used for both dev and prod.
+- **Fix:** Use `python-decouple` or `os.environ.get()`. Have a `.env` for dev, inject env vars in prod.
+
+**2. DB credentials hardcoded in two places**
+- [settings.py](file:///c:/Users/gsarg/Documents/OrderOfElites/backend/config/settings.py#L95) and [node/modules/models.js](file:///c:/Users/gsarg/Documents/OrderOfElites/node/modules/models.js#L3) both have `ooe_pwd` in plaintext.
+- **Fix:** Use Docker Compose environment variables or a secrets file (not committed to git).
+
+**3. Production still runs Django dev server**
+- [docker-compose.prod.yml](file:///c:/Users/gsarg/Documents/OrderOfElites/docker-compose.prod.yml#L44) — `command: python manage.py runserver 0.0.0.0:8000` — this is Django's **development** server. It is single-threaded, not designed for production load, and will break under concurrent users.
+- **Fix:** Use **Gunicorn** — `gunicorn config.wsgi:application --bind 0.0.0.0:8000 --workers 4`
+
+**4. pgAdmin is exposed in production with weak credentials**
+- [docker-compose.prod.yml](file:///c:/Users/gsarg/Documents/OrderOfElites/docker-compose.prod.yml#L56) — pgAdmin with `admin@gmail.com / admin` is running in production. Your DB is one Google search away from being wiped.
+- **Fix:** Remove pgAdmin from `docker-compose.prod.yml` entirely.
+
+### 🟡 Important
+
+**5. Node directly queries the same DB as Django**
+- [node/modules/models.js](file:///c:/Users/gsarg/Documents/OrderOfElites/node/modules/models.js) — Node uses Sequelize to query `ooe_chat_rooms` directly from PostgreSQL.
+- This creates a **dual-writer problem** — if Django's migration changes the `chat_rooms` table schema, Node's Sequelize model silently breaks.
+- **Fix:** Node should only read chat rooms via Django's API (it already calls `authenticate_connection` via HTTP). Fetch room list via an API call instead of a direct DB query. This keeps Django as the single DB owner.
+
+**6. `react-scripts` (Create React App) is end-of-life**
+- [package.json](file:///c:/Users/gsarg/Documents/OrderOfElites/frontend/package.json#L13) — CRA is no longer maintained. It has known security vulnerabilities, slow build times, and no active fixes.
+- **Fix:** Migrate to **Vite** (`npm create vite@latest`). It's a 1–2 hour migration, dramatically faster dev server, and actively maintained.
+
+**7. Socket.IO CORS is hardcoded to `localhost:3000`**
+- [node/server.js](file:///c:/Users/gsarg/Documents/OrderOfElites/node/server.js#L33) — `origin: "http://localhost:3000"`. In production this will reject all real browser connections.
+- **Fix:** Read the origin from an environment variable: `origin: process.env.CORS_ORIGIN || "http://localhost:3000"`
+
+**8. Chat rooms are only loaded once at server startup**
+- [node/server.js](file:///c:/Users/gsarg/Documents/OrderOfElites/node/server.js#L52) — `initChatRooms()` runs once. If a new Syndicate is created (which creates a new chat room in Django), the Node server won't know about it until restart.
+- **Fix:** Either dynamically create namespaces when a socket tries to connect to an unknown room, or use a single namespace with room-based `socket.join(roomId)` instead of per-room namespaces.
+
+**9. Missing `rest_framework` in `INSTALLED_APPS`**
+- [settings.py](file:///c:/Users/gsarg/Documents/OrderOfElites/backend/config/settings.py#L41) — `rest_framework` is missing from `INSTALLED_APPS` (only `rest_framework.authtoken` is listed). This might work by accident but is incorrect and could cause issues.
+- **Fix:** Add `'rest_framework'` to `INSTALLED_APPS`.
+
+### 🟢 Minor / Nice-to-Have
+
+**10. No rate limiting anywhere**
+- A game where players can send money, assassinate, and train on cooldowns needs server-side rate limiting. Currently the cooldown logic lives only in the DB/business logic layer.
+- **Fix:** Add `django-ratelimit` or handle via Redis on critical endpoints.
+
+**11. Node has no production process manager**
+- [node/package.json](file:///c:/Users/gsarg/Documents/OrderOfElites/node/package.json#L6) — `"start": "node server.js"`. If the server crashes, it stays down.
+- **Fix:** Use `pm2` or just rely on Docker's `restart: unless-stopped` policy (add it to docker-compose).
+
+**12. `docker-compose.yml` version is deprecated**
+- `version: '3'` in Compose files is deprecated in Docker Compose v2+. Remove the `version` line entirely.
+
+---
+
+## Directory Structure Assessment
+
+```
+OrderOfElites/
+├── backend/          ✅ Django project with per-domain app modules
+│   └── ooe/
+│       ├── base/     ✅ Shared utils, exceptions
+│       ├── users/    ✅ Auth, profiles, skills
+│       ├── chat/     ✅ Chat rooms, messages
+│       ├── cities/   ✅ City logic
+│       ├── dashboard/
+│       ├── items/    ✅ Weapons, cars, houses
+│       └── missions/
+├── frontend/         ✅ React app, well-modularized
+│   └── src/modules/
+│       ├── Base/     ✅ Shared utilities
+│       ├── Chat/
+│       ├── Dashboard/
+│       └── ...
+├── node/             ✅ WebSocket server, correctly isolated
+├── nginx/            ✅ Reverse proxy config
+├── psql/             ✅ Custom Postgres image
+├── redis/            ✅ Redis config
+├── docker-compose.yml      ✅ Dev
+└── docker-compose.prod.yml ✅ Prod (but has issues noted above)
+```
+
+The directory structure is **clean and well-organized**. No structural changes needed.
+
+---
+
+## Should You Change the Stack?
+
+**No. Here's the final take:**
+
+| Question | Answer |
+|---|---|
+| Should I ditch React? | No. It's the right choice for a game with many dynamic views. |
+| Should I use Next.js instead? | Not necessarily. Next.js adds SSR complexity you don't need — the game is behind login, so SEO isn't important. Stick with CRA/Vite (SPA). |
+| Should I ditch Django for FastAPI? | No. Django's ORM, migrations, and built-in admin are very valuable here. FastAPI would make you rebuild a lot of that. |
+| Should I ditch Node? | No. The Django→Node auth delegation pattern you've built is correct and clean. |
+| Should I use GraphQL? | Not for now. REST is simpler and fine for this use case. |
+| Should I use TypeScript? | For a learning project doubling as a portfolio, **yes — eventually**. It will dramatically catch bugs. Not urgent for now. |
+
+---
+
+## Priority Action List
+
+| Priority | Fix |
+|---|---|
+| 🔴 1 | Move `SECRET_KEY`, `DEBUG`, and DB passwords to env vars / `.env` |
+| 🔴 2 | Use Gunicorn in prod instead of `manage.py runserver` |
+| 🔴 3 | Remove pgAdmin from `docker-compose.prod.yml` |
+| 🟡 4 | Make Node fetch chat rooms via Django API, not direct DB query |
+| 🟡 5 | Migrate frontend from CRA to **Vite** |
+| 🟡 6 | Make Socket.IO CORS origin configurable via env var |
+| 🟡 7 | Fix dynamic chat room registration (don't only load at startup) |
+| 🟡 8 | Add `'rest_framework'` to `INSTALLED_APPS` |
+| 🟢 9 | Add `restart: unless-stopped` to Node and Django in docker-compose |
+| 🟢 10 | Add server-side rate limiting on game-action endpoints |

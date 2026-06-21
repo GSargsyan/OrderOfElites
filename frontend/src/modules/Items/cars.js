@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useContext } from 'react'
 import { request, formatMoney } from 'modules/Base'
 import { UserPreviewCtx } from 'modules/Dashboard'
@@ -67,70 +66,46 @@ function Cars() {
     }
 
     if (cars === null) {
-        return <div>Loading...</div>
+        return <div className="loading-text">LOADING...</div>
     }
 
     return (
-        <>
-            <div>
-                {Object.keys(cars).map(carKey => (
-                    <React.Fragment key={carKey}>
-                    <h2>{cars[carKey].name}</h2>
-                    <div
-                        key={carKey}
-                        className="carCont"
-                        style={styles.carCont}
-                    >
-                        <img
-                            className="carImage"
-                            style={styles.carImage}
-                            src={`/images/${carKey}.png`}
-                            alt={`${carKey}`} />
-                        <div
-                            className="carInfoCont"
-                            style={styles.carInfoCont}
-                        >
-                            <div
-                                className="carCountries"
-                                style={styles.carCountries}
-                            >
-                                <span>Owned in cities: </span>
-                                {cars[carKey].owns_in_cities.length === 0 ? (
-                                    <span>None</span>
-                                    ) : (
-                                    <span>{cars[carKey].owns_in_cities.join(', ')}</span>
-                                    )
-                                }
-                            </div>
-                            <p>Price: {formatMoney(cars[carKey].price)}</p>
-                            <p>Defense: {cars[carKey].defense_multiplier}x</p>
-                            <p>Maintenance Cost: {formatMoney(cars[carKey].maintenance_cost)}</p>
-
-                            {cars[carKey].owns_in_current_city ? (
-                                <button onClick={() => sellCar(carKey)}>Sell</button>
+        <div>
+            {Object.keys(cars).map(carKey => (
+                <div className="item-card" key={carKey}>
+                    <img
+                        className="item-image"
+                        src={`/images/${carKey}.png`}
+                        alt={cars[carKey].name}
+                    />
+                    <div className="item-info">
+                        <h2>{cars[carKey].name}</h2>
+                        <div className="item-owned-cities">
+                            <span>Owned in cities: </span>
+                            {cars[carKey].owns_in_cities.length === 0 ? (
+                                <span>None</span>
                             ) : (
-                                <button onClick={() => buyCar(carKey)}>Buy</button>
+                                <span>{cars[carKey].owns_in_cities.join(', ')}</span>
                             )}
                         </div>
-                    </div>
-                    </React.Fragment>
-                ))}
-            </div>
-        </>
-    )
-}
+                        <p>Price: <strong>{formatMoney(cars[carKey].price)}</strong></p>
+                        <p>Defense: {cars[carKey].defense_multiplier}x</p>
+                        <p>Maintenance Cost: {formatMoney(cars[carKey].maintenance_cost)}</p>
 
-const styles = {
-    carCont: {
-        display: 'flex',
-    },
-    carInfoCont: {
-        margin: '0px 40px',
-    },
-    carImage: {
-        width: '200px',
-        height: '200px',
-    }
+                        {cars[carKey].owns_in_current_city ? (
+                            <button
+                                className="btn-sell"
+                                onClick={() => sellCar(carKey)}>Sell</button>
+                        ) : (
+                            <button
+                                className="btn-buy"
+                                onClick={() => buyCar(carKey)}>Buy</button>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
 }
 
 export default Cars

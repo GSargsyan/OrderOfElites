@@ -33,7 +33,11 @@ const ChatContainer = memo(({ messageUser }) => {
     }, [messageUser])
 
     if (!rooms) {
-        return <div>Loading...</div>;
+        return (
+            <div className="chat-panel glass-panel" style={{ padding: '20px' }}>
+                <p className="loading-text">LOADING...</p>
+            </div>
+        )
     }
 
     const handleTabClick = (index) => {
@@ -42,74 +46,44 @@ const ChatContainer = memo(({ messageUser }) => {
     }
 
     return (
-        <div className="chatCont" style={styles.chatCont}>
-            <div className="chatTabCont" style={styles.chatTabCont}>
+        <div className="chat-panel">
+            <div className="chat-tab-bar">
                 <div
-                    className="chatTab"
+                    className={`chat-tab ${activeTab === 0 ? 'active' : ''}`}
                     onClick={() => handleTabClick(0)}
                     key={0}
-                    style={activeTab === 0 ? { ...styles.chatTab, ...styles.activeChatTab } : { ...styles.chatTab }}>
-                    <p>Messages</p>
+                >
+                    Messages
                 </div>
 
                 {rooms.map((chat, index) => (
                     <div
-                        className="chatTab"
+                        className={`chat-tab ${activeTab === index + 1 ? 'active' : ''}`}
                         key={chat.id}
-                        onClick={() => handleTabClick(index + 1)} // +1 because 0 is reserved for Messages tab
-                        style={activeTab === index + 1 ? { ...styles.chatTab, ...styles.activeChatTab } : { ...styles.chatTab }}>
-                        <p>{chat.name}</p>
+                        onClick={() => handleTabClick(index + 1)}
+                    >
+                        {chat.name}
                     </div>
                 ))}
             </div>
 
-            {activeTab === 0 && (
-                <div className="chatBoardCont" style={styles.chatBoardCont}>
+            <div className="chat-body">
+                {activeTab === 0 && (
                     <MessagesBoard messageUser={messageUser} />
-                </div>
-            )}
+                )}
 
-            {rooms.map((chat, index) => (
-                activeTab === index + 1 && (
-                    <div
-                        key={chat.id}
-                        className="chatBoardCont"
-                        style={styles.chatBoardCont}>
+                {rooms.map((chat, index) => (
+                    activeTab === index + 1 && (
                         <ChatBoard
+                            key={chat.id}
                             chatRoomId={chat.id}
                             name={chat.name}
                         />
-                    </div>
-                )
-            ))}
+                    )
+                ))}
+            </div>
         </div>
     )
 })
-
-const styles = {
-    chatCont: {
-        top: '250px',
-        width: '20%',
-        border: '1px solid black',
-        maxHeight: '500px',
-    },
-    chatBoardCont: {
-        height: '84%',
-        padding: '10px',
-    },
-    chatTabCont: {
-        padding: '5px',
-    },
-    chatTab: {
-        border: '1px solid black',
-        borderTopLeftRadius: '15px',
-        borderTopRightRadius: '15px',
-        padding: '0 10px',
-        display: 'inline-block',
-    },
-    activeChatTab: {
-        fontWeight: 'bold',
-    }
-}
 
 export default ChatContainer

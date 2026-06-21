@@ -25,7 +25,7 @@ export function ChatBoard({ chatRoomId, name }) {
         newSocket.on("chat_message", new_msg => {
             console.log('received message:', new_msg);
             setMessages(prev => [...prev,
-                <div key={prev.length}>
+                <div className="chat-message" key={prev.length}>
                     <b>{new_msg.username}</b>: {new_msg.message}
                 </div>
             ])
@@ -41,24 +41,32 @@ export function ChatBoard({ chatRoomId, name }) {
         }
     }
 
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            handleSendMessage()
+        }
+    }
+
     return (
-        <div className="chatBoard" style={styles.chatBoard}>
-            <div className="messagesCont" style={styles.messagesCont}>
+        <>
+            <div className="chat-messages-area">
                 {messages}
             </div>
-            <div className="chatInput">
+            <div className="chat-input-area">
                 <input
                     ref={chatInput}
-                    className="chatInputField"
-                    style={styles.chatInputField}
+                    className="chat-input-field"
                     value={currentMessage}
                     onChange={(e) => setCurrentMessage(e.target.value)}
+                    onKeyDown={handleKeyDown}
                     placeholder="Type your message..."
                 />
-                <button className="sendMsgBtn" style={styles.sendMsgBtn}
-                    onClick={handleSendMessage}>Send</button>
+                <button
+                    className="chat-send-btn"
+                    onClick={handleSendMessage}
+                >Send</button>
             </div>
-        </div>
+        </>
     )
 }
 
@@ -104,35 +112,13 @@ export function MessagesBoard({ messageUser }) {
     } else {
         // Render the default view (list of conversations)
         return (
-            <div className="chatBoard" style={styles.chatBoard}>
-                <div className="conversationsCont" style={styles.conversationsCont}>
-                    {conversations.map(conversation => (
-                        <div className="conversation" key={conversation.username} style={styles.conversationUser}>
-                            <b>{conversation.username}</b>: {conversation.last_message}
-                        </div>
-                    ))}
-                </div>
+            <div className="chat-messages-area">
+                {conversations.map(conversation => (
+                    <div className="conversation-item" key={conversation.username}>
+                        <b>{conversation.username}</b>: {conversation.last_message}
+                    </div>
+                ))}
             </div>
         )
-    }
-}
-
-const styles = {
-    chatBoard: {
-        border: '1px solid black',
-        height: '100%',
-    },
-    messagesCont: {
-        padding: '5px',
-        height: '90%',
-        overflow: 'scroll'
-    },
-    sendMsgBtn: {
-        marginLeft: '10px',
-        width: '15%',
-    },
-    chatInputField: {
-        marginLeft: '10px',
-        width: '70%',
     }
 }

@@ -8,6 +8,7 @@ import ItemsTab from 'modules/Items/itemsTab.js'
 import NetworkingTab from 'modules/Networking/networkingTab.js'
 import UserProfileModal from 'modules/Dashboard/userProfile.js'
 import { request, formatMoney } from 'modules/Base'
+import 'styles/dashboard.css'
 
 
 export const UserPreviewCtx = createContext()
@@ -70,68 +71,65 @@ function Dashboard() {
     }, [])
 
     return (
-        <>
-            <div
-                className="upperDashCont"
-                style={styles.upperDashCont}
-            >
+        <div className="dashboard-wrapper">
+            {/* ── Header Bar ─────────────────────────── */}
+            <div className="header-bar">
+                <h1 className="game-title">
+                    Order <span className="accent">of</span> Elites
+                </h1>
+
                 <UserPreview userPreviewData={userPreviewData} />
+
+                <ServerClock />
             </div>
 
+            {/* ── Center Layout ──────────────────────── */}
             <UserPreviewCtx.Provider value={{ userPreviewData, updateUserPreviewData }}>
-                <div
-                    className="centerDashCont"
-                    style={styles.centerDashCont}
-                >
+                <div className="center-layout">
                     <ChatContainer messageUser={messageUser} />
+
                     <GameDash
                         tabComponents={tabComponents}
                         activeTab={activeTab}
                         setUserProfileData={setUserProfileData}
-                        />
-                    <MenuItems tabComponents={tabComponents} setActiveTab={setActiveTab} />
+                    />
+
+                    <MenuItems
+                        tabComponents={tabComponents}
+                        activeTab={activeTab}
+                        setActiveTab={setActiveTab}
+                    />
                 </div>
 
                 {showUserProfileModal && (
-                    <div
-                        className='userProfileCont'
-                        style={styles.userProfileCont}>
-                        <UserProfileModal
-                            userProfileData={userProfileData}
-                            onClose={() => setShowUserProfileModal(false)}
-                            onMessageClick={(messageUsername) => {
-                                setMessageUser(messageUsername)
-                                setShowUserProfileModal(false)
-                            }}
-                        />
-                    </div>
+                    <UserProfileModal
+                        userProfileData={userProfileData}
+                        onClose={() => setShowUserProfileModal(false)}
+                        onMessageClick={(messageUsername) => {
+                            setMessageUser(messageUsername)
+                            setShowUserProfileModal(false)
+                        }}
+                    />
                 )}
             </UserPreviewCtx.Provider>
-        </>
+        </div>
     )
 }
 
-function MenuItems({ tabComponents, setActiveTab }) {
+function MenuItems({ tabComponents, activeTab, setActiveTab }) {
     console.log('MenuItems rendered')
 
     return (
-        <>
-            <div
-                className="menuItemsCont"
-                style={styles.menuItemsCont}>
-                <div className="tab-container">
-                    {Object.keys(tabComponents).map(tabKey => (
-                        <button
-                            className="tabButton"
-                            style={styles.tabButton}
-                            key={tabKey}
-                            onClick={(e) => setActiveTab(tabKey)}
-                         >{tabComponents[tabKey].label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-        </>
+        <div className="menu-panel glass-panel">
+            {Object.keys(tabComponents).map(tabKey => (
+                <button
+                    className={`menu-btn ${activeTab === tabKey ? 'active' : ''}`}
+                    key={tabKey}
+                    onClick={(e) => setActiveTab(tabKey)}
+                >{tabComponents[tabKey].label}
+                </button>
+            ))}
+        </div>
     )
 }
 
@@ -144,16 +142,13 @@ function GameDash({
     console.log('GameDash rendered')
 
     return (
-        <>
-            <div
-                key={activeTab}
-                className='centralPanelCont'
-                style={styles.centralPanelCont}
-            >
-                 {React.createElement(tabComponents[activeTab].component,
-                    tabComponents[activeTab].props)}
-            </div>
-        </>
+        <div
+            key={activeTab}
+            className='central-panel glass-panel'
+        >
+             {React.createElement(tabComponents[activeTab].component,
+                tabComponents[activeTab].props)}
+        </div>
     )
 }
 
@@ -161,87 +156,110 @@ const UserPreview = memo(({ userPreviewData }) => {
     console.log('UserPreview rendered')
 
     return (
-        <>
-            <div
-                className="previewCont"
-                style={styles.previewCont}
-            >
-                {userPreviewData ? (
-                    <>
-                    <span style={styles.previewElem}>Username: {userPreviewData.username}</span>
+        <div className="user-preview-bar glass-panel">
+            {userPreviewData ? (
+                <>
+                    <div className="user-preview-stats">
+                        <span className="stat-item">
+                            <span className="stat-label">Username:</span>
+                            <span className="stat-value">{userPreviewData.username}</span>
+                        </span>
+                        <span className="stat-sep">|</span>
+                        <span className="stat-item">
+                            <span className="stat-label">City:</span>
+                            <span className="stat-value city">{userPreviewData.city}</span>
+                        </span>
+                        <span className="stat-sep">|</span>
+                        <span className="stat-item">
+                            <span className="stat-label">Money:</span>
+                            <span className="stat-value money">{formatMoney(userPreviewData.money_cash)}</span>
+                        </span>
+                        <span className="stat-sep">|</span>
+                        <span className="stat-item">
+                            <span className="stat-label">Rank:</span>
+                            <span className="stat-value">{userPreviewData.rank}</span>
+                        </span>
+                    </div>
 
-                    <span style={styles.previewElem}>City: {userPreviewData.city}</span>
-                    <span style={styles.previewElem}>Money: {formatMoney(userPreviewData.money_cash)}</span>
-                    <span style={styles.previewElem}>Rank: {userPreviewData.rank}</span>
-                    <span style={styles.previewElem}>Progress: {Math.floor(userPreviewData.rank_progress)}%</span>
-                    <span style={styles.previewElem}>Attack: {userPreviewData.attack_points}</span>
-                    <span style={styles.previewElem}>Defense: {userPreviewData.defense_points}</span>
-                    <span style={styles.previewElem}>Driving: {userPreviewData.driving_points}</span>
-                    <span style={styles.previewElem}>Commendations: {userPreviewData.commendations}</span>
-                    </>
-                ) : (
-                    <p>Loading...</p>
-                )}
-            </div>
-        </>
+                    <div className="progress-bar-track">
+                        <div
+                            className="progress-bar-fill"
+                            style={{ width: `${Math.floor(userPreviewData.rank_progress)}%` }}
+                        />
+                    </div>
+
+                    <div className="user-preview-stats" style={{ marginTop: '6px' }}>
+                        <span className="stat-item">
+                            <span className="stat-label">Progress:</span>
+                            <span className="stat-value progress">
+                                {Math.floor(userPreviewData.rank_progress)}%
+                            </span>
+                        </span>
+                        <span className="stat-sep">|</span>
+                        <span className="stat-item">
+                            <span className="stat-label">Attack:</span>
+                            <span className="stat-value">{userPreviewData.attack_points}</span>
+                        </span>
+                        <span className="stat-sep">|</span>
+                        <span className="stat-item">
+                            <span className="stat-label">Defense:</span>
+                            <span className="stat-value">{userPreviewData.defense_points}</span>
+                        </span>
+                        <span className="stat-sep">|</span>
+                        <span className="stat-item">
+                            <span className="stat-label">Driving:</span>
+                            <span className="stat-value">{userPreviewData.driving_points}</span>
+                        </span>
+                        <span className="stat-sep">|</span>
+                        <span className="stat-item">
+                            <span className="stat-label">Commendations:</span>
+                            <span className="stat-value">{userPreviewData.commendations}</span>
+                        </span>
+                    </div>
+                </>
+            ) : (
+                <p className="loading-text">LOADING...</p>
+            )}
+        </div>
     )
 })
+
+function ServerClock() {
+    const [time, setTime] = useState('')
+
+    useEffect(() => {
+        const tick = () => {
+            const now = new Date()
+            const h = String(now.getUTCHours()).padStart(2, '0')
+            const m = String(now.getUTCMinutes()).padStart(2, '0')
+            const s = String(now.getUTCSeconds()).padStart(2, '0')
+            setTime(`${h}:${m}:${s}`)
+        }
+        tick()
+        const interval = setInterval(tick, 1000)
+        return () => clearInterval(interval)
+    }, [])
+
+    return (
+        <div className="server-clock">
+            {time}
+            <span className="clock-label">UTC</span>
+        </div>
+    )
+}
 
 function DashboardTab() {
     console.log('DashboardTab rendered')
 
     return (
-        <>
-            <p>Dashboard tab...</p>
-        </>
+        <div className="dashboard-welcome">
+            <h2>WELCOME, OPERATIVE</h2>
+            <p>
+                The Continental awaits your next move.
+                Select a section from the menu to begin operations.
+            </p>
+        </div>
     )
-}
-
-const styles = {
-    upperDashCont: {
-        display: 'flex',
-        justifyContent: 'center',
-    },
-    centerDashCont: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        marginTop: '50px',
-        marginBottom: '150px',
-        minHeight: '500px',
-    },
-    previewCont: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        gap: '10px', // Note: 'gap' might not be supported in some older browsers for flexbox
-
-        padding: '15px',
-        width: '300px',
-        border: '1px solid black',
-    },
-    previewElem: {
-        flex: '1 1 calc(100% / 3)',
-        padding: '5px',
-        border: '1px solid #ccc',
-        borderRadius: '5px',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-    },
-    menuItemsCont: {
-        border: '1px solid black',
-        float: 'right',
-        padding: '30px',
-        maxHeight: '500px',
-    },
-    centralPanelCont: {
-        border: '1px solid black',
-        top: '40px',
-        padding: '30px',
-        width: '50%',
-    },
-    tabButton: {
-        padding: '10px',
-        margin: '10px 0px',
-        display: 'block',
-    }
 }
 
 export default Dashboard

@@ -12,7 +12,7 @@ const { sequelize, ChatRoom } = require('./modules/models.js')
 async function initDb() {
     try {
         await sequelize.authenticate();
-        await sequelize.sync();
+        // Tables are managed by Django migrations, so we disable sequelize.sync()
 
         console.log("Connected to DB !!!")
     } catch (error) {

@@ -1,0 +1,19 @@
+The project is a text-based MMORPG game. Inspired by John Wick universe.
+Players are elite assassins, living by strict rules, can earn money through missions,
+can attempt to kill each other, can chat together, earn honor points, rank up, create
+or join Syndicates, travel to different cities, etc.. the players
+The design should (probably) be dark, a bit neon-ish lighting, luxury and assassin-style.
+I'm thinking call of duty black ops design mixed with John Wick movie inspired design
+could be fit, but I'm not sure. One thing I'm sure is that the website should look modern
+not old style game, like current big titled text-based games, that don't change 
+designs because graphics is not important and people are already used to old UI.
+
+
+
+Key Design Features
+Glassmorphism panels — Semi-transparent backgrounds with backdrop-filter: blur(16px) and subtle border glow on hover
+Neon accents — Cyan glow on interactive elements via box-shadow and text-shadow
+Full-bleed background — AI-generated Continental office scene, fixed with vignette overlay
+Micro-animations — Fade-in, slide-up for modals; pulse for loading states; smooth hover transitions on all interactive elements
+Progress bar — Animated rank progress with glowing dot indicator
+Server clock — Live UTC clock in Orbitron font with cyan glow

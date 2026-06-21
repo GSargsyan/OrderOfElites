@@ -91,92 +91,93 @@ function SkillsTab() {
     }
 
     if (skillsData === null) {
-        return <div>Loading...</div>
+        return <div className="loading-text">LOADING SKILLS...</div>
     }
 
     return (
-        <>
-        <div className="skillsCont" style={styles.skillsSection}>
-            <div className="skillSection">
+        <div className="skills-container">
+            <div className="skill-section">
                 <h3>Attack</h3>
-                <button
-                    className="practiceFreeBtn"
-                    disabled={!skillsData.attack_free_available}
-                    onClick={() => startPractice('attack_free')}
-                >
-                    Free training
-                </button>
-                {skillsData.attack_free_cd > 0 &&
-                    <span> {formatSeconds(skillsData.attack_free_cd)}</span>
-                }
+                <div className="skill-actions">
+                    <button
+                        className="btn-skill free"
+                        disabled={!skillsData.attack_free_available}
+                        onClick={() => startPractice('attack_free')}
+                    >
+                        Free Training
+                    </button>
+                    {skillsData.attack_free_cd > 0 &&
+                        <span className="skill-timer">{formatSeconds(skillsData.attack_free_cd)}</span>
+                    }
 
-                <button
-                    className="practiceProBtn"
-                    disabled={!skillsData.attack_pro_available}
-                    onClick={() => startPractice('attack_pro')}
-                >
-                    Pro training
-                </button>
-                {skillsData.attack_pro_cd > 0 &&
-                    <span> {formatSeconds(skillsData.attack_pro_cd)}</span>
-                }
+                    <button
+                        className="btn-skill pro"
+                        disabled={!skillsData.attack_pro_available}
+                        onClick={() => startPractice('attack_pro')}
+                    >
+                        Pro Training
+                    </button>
+                    {skillsData.attack_pro_cd > 0 &&
+                        <span className="skill-timer">{formatSeconds(skillsData.attack_pro_cd)}</span>
+                    }
+                </div>
             </div>
 
-            <div className="skillSection">
+            <div className="skill-section">
                 <h3>Defense</h3>
-                <button
-                    className="practiceFreeBtn"
-                    disabled={!skillsData.defense_free_available}
-                    onClick={() => startPractice('defense_free')}
-                >
-                    Free training
-                </button>
-                {skillsData.defense_free_cd > 0 &&
-                    <span> {formatSeconds(skillsData.defense_free_cd)}</span>
-                }
+                <div className="skill-actions">
+                    <button
+                        className="btn-skill free"
+                        disabled={!skillsData.defense_free_available}
+                        onClick={() => startPractice('defense_free')}
+                    >
+                        Free Training
+                    </button>
+                    {skillsData.defense_free_cd > 0 &&
+                        <span className="skill-timer">{formatSeconds(skillsData.defense_free_cd)}</span>
+                    }
 
-                <button
-                    className="practiceProBtn"
-                    disabled={!skillsData.defense_pro_available}
-                    onClick={() => startPractice('defense_pro')}
-                >
-                    Pro training
-                </button>
-                {skillsData.defense_pro_cd > 0 &&
-                    <span> {formatSeconds(skillsData.defense_pro_cd)}</span>
-                }
+                    <button
+                        className="btn-skill pro"
+                        disabled={!skillsData.defense_pro_available}
+                        onClick={() => startPractice('defense_pro')}
+                    >
+                        Pro Training
+                    </button>
+                    {skillsData.defense_pro_cd > 0 &&
+                        <span className="skill-timer">{formatSeconds(skillsData.defense_pro_cd)}</span>
+                    }
+                </div>
             </div>
 
-            <div className="skillSection">
+            <div className="skill-section">
                 <h3>Driving</h3>
-                <button
-                    className="practiceFreeBtn"
-                    disabled={!skillsData.driving_free_available}
-                    onClick={() => startPractice('driving_free')}
-                >
-                    Free training
-                </button>
-                {skillsData.driving_free_cd > 0 &&
-                    <span> {formatSeconds(skillsData.driving_free_cd)}</span>
-                }
+                <div className="skill-actions">
+                    <button
+                        className="btn-skill free"
+                        disabled={!skillsData.driving_free_available}
+                        onClick={() => startPractice('driving_free')}
+                    >
+                        Free Training
+                    </button>
+                    {skillsData.driving_free_cd > 0 &&
+                        <span className="skill-timer">{formatSeconds(skillsData.driving_free_cd)}</span>
+                    }
 
-                <button
-                    className="practiceProBtn"
-                    disabled={!skillsData.driving_pro_available}
-                    onClick={() => startPractice('driving_pro')}
-                >
-                    Pro training
-                </button>
-                {skillsData.driving_pro_cd > 0 &&
-                    <span> {formatSeconds(skillsData.driving_pro_cd)}</span>
-                }
+                    <button
+                        className="btn-skill pro"
+                        disabled={!skillsData.driving_pro_available}
+                        onClick={() => startPractice('driving_pro')}
+                    >
+                        Pro Training
+                    </button>
+                    {skillsData.driving_pro_cd > 0 &&
+                        <span className="skill-timer">{formatSeconds(skillsData.driving_pro_cd)}</span>
+                    }
+                </div>
             </div>
         </div>
-        </>
     )
-}
-
-const styles = {
 }
 
 export default SkillsTab

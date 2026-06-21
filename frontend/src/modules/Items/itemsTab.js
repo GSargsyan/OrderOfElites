@@ -14,25 +14,22 @@ function ItemsTab() {
 
     return (
         <>
-            <div style={styles.itemTabsCont}>
+            <div className="items-sub-tabs">
                 <button
-                    className={`itemTab ${activeTab === 'houses' ? 'activeItemsTab' : ''}`}
+                    className={`items-sub-tab ${activeTab === 'houses' ? 'active' : ''}`}
                     onClick={() => handleTabChange('houses')}
-                    style={{ ...styles.itemTab, ...(activeTab === 'houses' ? styles.activeItemsTab : {}) }}
                 >
                     Houses
                 </button>
                 <button
-                    className={`itemTab ${activeTab === 'cars' ? 'activeItemsTab' : ''}`}
+                    className={`items-sub-tab ${activeTab === 'cars' ? 'active' : ''}`}
                     onClick={() => handleTabChange('cars')}
-                    style={{ ...styles.itemTab, ...(activeTab === 'cars' ? styles.activeItemsTab : {}) }}
                 >
                     Cars
                 </button>
                 <button
-                    className={`itemTab ${activeTab === 'weapons' ? 'activeItemsTab' : ''}`}
+                    className={`items-sub-tab ${activeTab === 'weapons' ? 'active' : ''}`}
                     onClick={() => handleTabChange('weapons')}
-                    style={{ ...styles.itemTab, ...(activeTab === 'weapons' ? styles.activeItemsTab : {}) }}
                 >
                     Weapons
                 </button>
@@ -43,26 +40,6 @@ function ItemsTab() {
             {activeTab === 'weapons' && <Weapons />}
         </>
     )
-}
-
-const styles = {
-    itemTabsCont: {
-        display: 'flex',
-        justifyContent: 'flex-start',
-    },
-    itemTab: {
-        padding: '10px 20px',
-        margin: '0 10px',
-        border: 'none',
-        borderRadius: '5px',
-        backgroundColor: '#e0e0e0',
-        color: '#333',
-        cursor: 'pointer',
-    },
-    activeItemsTab: {
-        backgroundColor: '#333',
-        color: '#fff',
-    },
 }
 
 export default ItemsTab

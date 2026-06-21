@@ -3,13 +3,14 @@ import React, { useState } from 'react'
 import Header from './header'
 import Footer from './footer'
 import { request } from 'modules/Base'
+import 'styles/dashboard.css'
 
 
 function Homepage() {
     const [isSignup, setIsSignup] = useState(false)
 
     return (
-        <div>
+        <div className="homepage-wrapper">
             <Header />
 
             {isSignup ?
@@ -67,35 +68,39 @@ function SignupForm({ toggleForm }) {
     }
 
     return (
-		<div style={styles.authContainer}>
-			<h2>Signup</h2>
-			<form onSubmit={handleSubmit}>
-				<div className="form-group" style={styles.formGroup}>
-					<label htmlFor="username">Username:</label>
-					<input
-						type="text"
-						id="username"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-						required
-					/>
-				</div>
-				<div className="form-group">
-					<label htmlFor="password">Password:</label>
-					<input
-						type="password"
-						id="password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						required
-					/>
-				</div>
-				<button type="submit">Signup</button>
-				<button onClick={toggleForm}>Already have an account</button>
-			</form>
-            <p>{signupError}</p>
-            <p>{signupSuccess}</p>
-		</div>
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2>Create Account</h2>
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <div className="auth-form-group">
+                        <label htmlFor="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="auth-form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button className="btn-auth-submit" type="submit">Signup</button>
+                    <button className="btn-auth-toggle" type="button" onClick={toggleForm}>
+                        Already have an account?
+                    </button>
+                </form>
+                {signupError && <p className="auth-error">{signupError}</p>}
+                {signupSuccess && <p className="auth-success">{signupSuccess}</p>}
+            </div>
+        </div>
     )
 }
 
@@ -127,48 +132,39 @@ function LoginForm({ toggleForm }) {
     }
 
     return (
-		<div style={styles.authContainer}>
-			<h2>Login</h2>
-			<form onSubmit={handleSubmit}>
-				<div className="form-group" style={styles.formGroup}>
-					<label htmlFor="username">Username:</label>
-					<input
-						type="text"
-						id="username"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-						required
-					/>
-				</div>
-				<div className="form-group">
-					<label htmlFor="password">Password:</label>
-					<input
-						type="password"
-						id="password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						required
-					/>
-				</div>
-				<button type="submit">Login</button>
-                <button onClick={toggleForm}>Don't have an account?</button>
-			</form>
-            <p>{loginError}</p>
-		</div>
-	)
-}
-
-const styles = {
-    authContainer: {
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh'
-    },
-    formGroup: {
-        marginBottom: '15px'
-    }
+        <div className="auth-container">
+            <div className="auth-card">
+                <h2>Login</h2>
+                <form className="auth-form" onSubmit={handleSubmit}>
+                    <div className="auth-form-group">
+                        <label htmlFor="username">Username</label>
+                        <input
+                            type="text"
+                            id="username"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <div className="auth-form-group">
+                        <label htmlFor="password">Password</label>
+                        <input
+                            type="password"
+                            id="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            required
+                        />
+                    </div>
+                    <button className="btn-auth-submit" type="submit">Login</button>
+                    <button className="btn-auth-toggle" type="button" onClick={toggleForm}>
+                        Don't have an account?
+                    </button>
+                </form>
+                {loginError && <p className="auth-error">{loginError}</p>}
+            </div>
+        </div>
+    )
 }
 
 export default Homepage

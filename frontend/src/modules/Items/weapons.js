@@ -66,70 +66,46 @@ function Weapons() {
     }
 
     if (weapons === null) {
-        return <div>Loading...</div>
+        return <div className="loading-text">LOADING...</div>
     }
 
     return (
-        <>
-            <div>
-                {Object.keys(weapons).map(weaponKey => (
-                    <React.Fragment key={weaponKey}>
-                    <h2>{weapons[weaponKey].name}</h2>
-                    <div
-                        key={weaponKey}
-                        className="weaponCont"
-                        style={styles.weaponCont}
-                    >
-                        <img
-                            className="weaponImage"
-                            style={styles.weaponImage}
-                            src={`/images/${weaponKey}.png`}
-                            alt={`${weaponKey}`} />
-                        <div
-                            className="weaponInfoCont"
-                            style={styles.weaponInfoCont}
-                        >
-                            <div
-                                className="weaponCountries"
-                                style={styles.weaponCountries}
-                            >
-                                <span>Owned in cities: </span>
-                                {weapons[weaponKey].owns_in_cities.length === 0 ? (
-                                    <span>None</span>
-                                    ) : (
-                                    <span>{weapons[weaponKey].owns_in_cities.join(', ')}</span>
-                                    )
-                                }
-                            </div>
-                            <p>Price: {formatMoney(weapons[weaponKey].price)}</p>
-                            <p>Defense: {weapons[weaponKey].defense_multiplier}x</p>
-                            <p>Maintenance Cost: {formatMoney(weapons[weaponKey].maintenance_cost)}</p>
-
-                            {weapons[weaponKey].owns_in_current_city ? (
-                                <button onClick={() => sellWeapon(weaponKey)}>Sell</button>
+        <div>
+            {Object.keys(weapons).map(weaponKey => (
+                <div className="item-card" key={weaponKey}>
+                    <img
+                        className="item-image"
+                        src={`/images/${weaponKey}.png`}
+                        alt={weapons[weaponKey].name}
+                    />
+                    <div className="item-info">
+                        <h2>{weapons[weaponKey].name}</h2>
+                        <div className="item-owned-cities">
+                            <span>Owned in cities: </span>
+                            {weapons[weaponKey].owns_in_cities.length === 0 ? (
+                                <span>None</span>
                             ) : (
-                                <button onClick={() => buyWeapon(weaponKey)}>Buy</button>
+                                <span>{weapons[weaponKey].owns_in_cities.join(', ')}</span>
                             )}
                         </div>
-                    </div>
-                    </React.Fragment>
-                ))}
-            </div>
-        </>
-    )
-}
+                        <p>Price: <strong>{formatMoney(weapons[weaponKey].price)}</strong></p>
+                        <p>Defense: {weapons[weaponKey].defense_multiplier}x</p>
+                        <p>Maintenance Cost: {formatMoney(weapons[weaponKey].maintenance_cost)}</p>
 
-const styles = {
-    weaponCont: {
-        display: 'flex',
-    },
-    weaponInfoCont: {
-        margin: '0px 40px',
-    },
-    weaponImage: {
-        width: '200px',
-        height: '200px',
-    }
+                        {weapons[weaponKey].owns_in_current_city ? (
+                            <button
+                                className="btn-sell"
+                                onClick={() => sellWeapon(weaponKey)}>Sell</button>
+                        ) : (
+                            <button
+                                className="btn-buy"
+                                onClick={() => buyWeapon(weaponKey)}>Buy</button>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
 }
 
 export default Weapons

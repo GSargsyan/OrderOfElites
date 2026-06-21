@@ -66,91 +66,46 @@ function Houses() {
     }
 
     if (houses === null) {
-        return <div>Loading...</div>
+        return <div className="loading-text">LOADING...</div>
     }
 
     return (
-        
-        <>
-            <div>
-                {Object.keys(houses).map(houseKey => (
-                    <React.Fragment key={houseKey}>
-                    <h2>{houses[houseKey].name}</h2>
-                    <div
-                        key={houseKey}
-                        className="houseCont"
-                        style={styles.houseCont}
-                    >
-                        <img
-                            className="houseImage"
-                            style={styles.houseImage}
-                            src={`/images/${houseKey}.png`}
-                            alt={`${houseKey}`} />
-                        <div
-                            className="houseInfoCont"
-                            style={styles.houseInfoCont}
-                        >
-                            <div
-                                className="houseCountries"
-                                style={styles.houseCountries}
-                            >
-                                <span>Owned in cities: </span>
-                                {houses[houseKey].owns_in_cities.length === 0 ? (
-                                    <span>None</span>
-                                    ) : (
-                                    <span>{houses[houseKey].owns_in_cities.join(', ')}</span>
-                                    )
-                                }
-                            </div>
-                            <p>Price: {formatMoney(houses[houseKey].price)}</p>
-                            <p>Defense: {houses[houseKey].defense_multiplier}x</p>
-                            <p>Maintenance Cost: {formatMoney(houses[houseKey].maintenance_cost)}</p>
-
-                            {houses[houseKey].owns_in_current_city ? (
-                                <button
-                                    style={styles.sellButton}
-                                    onClick={() => sellHouse(houseKey)}>Sell</button>
+        <div>
+            {Object.keys(houses).map(houseKey => (
+                <div className="item-card" key={houseKey}>
+                    <img
+                        className="item-image"
+                        src={`/images/${houseKey}.png`}
+                        alt={houses[houseKey].name}
+                    />
+                    <div className="item-info">
+                        <h2>{houses[houseKey].name}</h2>
+                        <div className="item-owned-cities">
+                            <span>Owned in cities: </span>
+                            {houses[houseKey].owns_in_cities.length === 0 ? (
+                                <span>None</span>
                             ) : (
-                                <button
-                                    style={styles.buyButton}
-                                    onClick={() => buyHouse(houseKey)}>Buy</button>
+                                <span>{houses[houseKey].owns_in_cities.join(', ')}</span>
                             )}
                         </div>
-                    </div>
-                    </React.Fragment>
-                ))}
-            </div>
-        </>
-    )
-}
+                        <p>Price: <strong>{formatMoney(houses[houseKey].price)}</strong></p>
+                        <p>Defense: {houses[houseKey].defense_multiplier}x</p>
+                        <p>Maintenance Cost: {formatMoney(houses[houseKey].maintenance_cost)}</p>
 
-const styles = {
-    houseCont: {
-        display: 'flex',
-    },
-    houseInfoCont: {
-        margin: '0px 40px',
-    },
-    houseImage: {
-        width: '200px',
-        height: '200px',
-    },
-    sellButton: {
-        backgroundColor: '#CF4C4C',
-        color: '#FFFFFF',
-        padding: '10px 20px',
-        borderRadius: '5px',
-        border: 'none',
-        cursor: 'pointer',
-    },
-    buyButton: {
-        backgroundColor: '#4D8E4D',
-        color: '#FFFFFF',
-        padding: '10px 20px',
-        borderRadius: '5px',
-        border: 'none',
-        cursor: 'pointer',
-    }
+                        {houses[houseKey].owns_in_current_city ? (
+                            <button
+                                className="btn-sell"
+                                onClick={() => sellHouse(houseKey)}>Sell</button>
+                        ) : (
+                            <button
+                                className="btn-buy"
+                                onClick={() => buyHouse(houseKey)}>Buy</button>
+                        )}
+                    </div>
+                </div>
+            ))}
+        </div>
+    )
 }
 
 export default Houses

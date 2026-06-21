@@ -29,29 +29,22 @@ function NetworkingTab({ setUserProfileData, setShowUserProfileModal }) {
     };
 
     return (
-        <>
-        <form className="userSearchCont" style={styles.userSearchCont} onSubmit={findUser}>
+        <form className="search-form" onSubmit={findUser}>
             <h3>Search an Elite</h3>
             <label htmlFor="userSearchInput">Username:</label>
             <input
                 id="userSearchInput"
-                className="userSearchInput"
-                style={styles.userSearchInput}
+                className="search-input"
                 placeholder="Type the username"
                 value={searchedUsername}
                 onChange={(e) => setSearchedUsername(e.target.value)}
             />
             <button
                 type="submit"
-                className="userSearchBtn"
-                style={styles.userSearchBtn}
+                className="btn-search"
             >Search</button>
         </form>
-        </>
     )
-}
-
-const styles = {
 }
 
 export default NetworkingTab
