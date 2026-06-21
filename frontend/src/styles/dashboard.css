@@ -8,37 +8,37 @@
 /* ── CSS Custom Properties ──────────────────────────────── */
 :root {
   /* Core palette */
-  --bg-deep:        #0a0c10;
-  --bg-panel:       rgba(10, 14, 22, 0.72);
+  --bg-deep: #0a0c10;
+  --bg-panel: rgba(10, 14, 22, 0.72);
   --bg-panel-hover: rgba(16, 22, 36, 0.85);
-  --bg-card:        rgba(12, 18, 30, 0.80);
+  --bg-card: rgba(12, 18, 30, 0.80);
 
   /* Glass */
-  --glass-border:   rgba(100, 180, 255, 0.12);
-  --glass-shine:    rgba(100, 180, 255, 0.04);
+  --glass-border: rgba(100, 180, 255, 0.12);
+  --glass-shine: rgba(100, 180, 255, 0.04);
 
   /* Accent colours */
-  --accent-cyan:    #4fc3f7;
-  --accent-cyan-dim:#2a7ea8;
-  --accent-gold:    #d4a84b;
-  --accent-gold-dim:#8a6a2e;
-  --accent-green:   #66bb6a;
-  --accent-red:     #ef5350;
+  --accent-cyan: #4fc3f7;
+  --accent-cyan-dim: #2a7ea8;
+  --accent-gold: #d4a84b;
+  --accent-gold-dim: #8a6a2e;
+  --accent-green: #66bb6a;
+  --accent-red: #ef5350;
   --accent-magenta: #e040a0;
 
   /* Text */
-  --text-primary:   #e0e6f0;
+  --text-primary: #e0e6f0;
   --text-secondary: #8899aa;
-  --text-muted:     #556677;
+  --text-muted: #556677;
 
   /* Glow */
-  --glow-cyan:      0 0 20px rgba(79, 195, 247, 0.25);
-  --glow-gold:      0 0 15px rgba(212, 168, 75, 0.2);
+  --glow-cyan: 0 0 20px rgba(79, 195, 247, 0.25);
+  --glow-gold: 0 0 15px rgba(212, 168, 75, 0.2);
 
   /* Typography */
-  --font-display:   'Orbitron', sans-serif;
-  --font-ui:        'Rajdhani', sans-serif;
-  --font-body:      'Inter', sans-serif;
+  --font-display: 'Orbitron', sans-serif;
+  --font-ui: 'Rajdhani', sans-serif;
+  --font-body: 'Inter', sans-serif;
 
   /* Radii */
   --radius-sm: 4px;
@@ -48,13 +48,15 @@
 
   /* Transitions */
   --transition-fast: 150ms ease;
-  --transition-med:  250ms ease;
+  --transition-med: 250ms ease;
   --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 
 /* ── Reset & Global ─────────────────────────────────────── */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
@@ -109,8 +111,8 @@ button {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.7) 100%),
-    linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 15%, transparent 85%, rgba(0,0,0,0.5) 100%);
+    radial-gradient(ellipse at center, transparent 30%, rgba(0, 0, 0, 0.7) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.3) 0%, transparent 15%, transparent 85%, rgba(0, 0, 0, 0.5) 100%);
   z-index: 0;
   pointer-events: none;
 }
@@ -144,9 +146,9 @@ button {
 .header-bar {
   position: relative;
   z-index: 10;
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   padding: 16px 28px;
   gap: 20px;
 }
@@ -163,6 +165,8 @@ button {
     0 0 60px rgba(79, 195, 247, 0.1);
   white-space: nowrap;
   flex-shrink: 0;
+  grid-column: 1;
+  justify-self: start;
 }
 
 .game-title .accent {
@@ -179,11 +183,21 @@ button {
   text-shadow: var(--glow-cyan);
   flex-shrink: 0;
   white-space: nowrap;
+  grid-column: 3;
+  justify-self: end;
+  display: flex;
+  align-items: baseline;
+}
+
+.server-clock .clock-time {
+  display: inline-block;
+  width: 140px;
+  text-align: left;
 }
 
 .server-clock .clock-label {
-  font-size: 0.65rem;
-  letter-spacing: 2px;
+  font-size: 0.55rem;
+  letter-spacing: 1px;
   color: var(--text-secondary);
   margin-left: 6px;
   vertical-align: super;
@@ -194,7 +208,9 @@ button {
    USER PREVIEW BAR
    ═══════════════════════════════════════════════════════════ */
 .user-preview-bar {
-  flex: 1;
+  grid-column: 2;
+  justify-self: center;
+  width: 100%;
   max-width: 700px;
   padding: 12px 20px;
 }
@@ -228,12 +244,12 @@ button {
 }
 
 .stat-item .stat-value.money {
-  color: var(--accent-gold);
-  text-shadow: var(--glow-gold);
+  color: var(--accent-green);
+  text-shadow: 0 0 15px rgba(102, 187, 106, 0.35);
 }
 
 .stat-item .stat-value.progress {
-  color: var(--accent-green);
+  color: var(--text-primary);
 }
 
 .stat-item .stat-value.city {
@@ -251,7 +267,7 @@ button {
 .progress-bar-track {
   margin-top: 8px;
   height: 4px;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.06);
   border-radius: 2px;
   overflow: hidden;
   position: relative;
@@ -372,17 +388,19 @@ button {
   flex-direction: column;
   gap: 6px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(79,195,247,0.2) transparent;
+  scrollbar-color: rgba(79, 195, 247, 0.2) transparent;
 }
 
 .chat-messages-area::-webkit-scrollbar {
   width: 4px;
 }
+
 .chat-messages-area::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .chat-messages-area::-webkit-scrollbar-thumb {
-  background: rgba(79,195,247,0.2);
+  background: rgba(79, 195, 247, 0.2);
   border-radius: 2px;
 }
 
@@ -401,7 +419,7 @@ button {
 
 .conversation-item {
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   cursor: pointer;
   transition: background var(--transition-fast);
   font-size: 0.82rem;
@@ -421,8 +439,8 @@ button {
   display: flex;
   padding: 8px;
   gap: 6px;
-  border-top: 1px solid rgba(255,255,255,0.05);
-  background: rgba(0,0,0,0.2);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(0, 0, 0, 0.2);
 }
 
 .chat-input-field {
@@ -564,11 +582,13 @@ button {
   font-size: 0.85rem;
   color: var(--accent-gold);
   text-shadow: var(--glow-gold);
+  width: 75px;
+  justify-content: flex-start;
 }
 
 .mission-timer .timer-icon {
   font-size: 0.9rem;
-  opacity: 0.8;
+  opacity: 1.0;
 }
 
 .mission-card p {
@@ -602,7 +622,7 @@ button {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(79,195,247,0.1), rgba(79,195,247,0.02));
+  background: linear-gradient(135deg, rgba(79, 195, 247, 0.1), rgba(79, 195, 247, 0.02));
   opacity: 0;
   transition: opacity var(--transition-fast);
 }
@@ -826,8 +846,13 @@ button {
    KEYFRAMES
    ═══════════════════════════════════════════════════════════ */
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
@@ -835,6 +860,7 @@ button {
     opacity: 0;
     transform: translateY(20px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -842,13 +868,25 @@ button {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.4; }
-  50%      { opacity: 1; }
+
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+
+  50% {
+    opacity: 1;
+  }
 }
 
 @keyframes scanLine {
-  0%   { transform: translateY(-100%); }
-  100% { transform: translateY(100vh); }
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100vh);
+  }
 }
 
 
@@ -934,6 +972,9 @@ button {
   font-size: 0.82rem;
   color: var(--accent-gold);
   text-shadow: var(--glow-gold);
+  display: inline-block;
+  width: 50px;
+  text-align: left;
 }
 
 
@@ -1317,13 +1358,16 @@ button {
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(79,195,247,0.15);
+  background: rgba(79, 195, 247, 0.15);
   border-radius: 3px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(79,195,247,0.3);
+  background: rgba(79, 195, 247, 0.3);
 }

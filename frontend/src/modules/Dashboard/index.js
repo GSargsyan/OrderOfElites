@@ -14,7 +14,6 @@ import 'styles/dashboard.css'
 export const UserPreviewCtx = createContext()
 
 function Dashboard() {
-    console.log('Dashboard rendered')
     const [activeTab, setActiveTab] = useState('dashboard')
     const [userPreviewData, setUserPreviewData] = useState(null)
     const [userProfileData, setUserProfileData] = useState(null)
@@ -29,10 +28,10 @@ function Dashboard() {
             'url': 'users/get_preview',
             'method': 'POST',
         })
-        .then(response => {
-            console.log(response.data)
-            setUserPreviewData(response.data)
-        })
+            .then(response => {
+                console.log(response.data)
+                setUserPreviewData(response.data)
+            })
     }
 
     const tabComponents = {
@@ -138,7 +137,7 @@ function GameDash({
     activeTab,
     setUserProfileData,
     setShowUserProfileModal
-    }) {
+}) {
     console.log('GameDash rendered')
 
     return (
@@ -146,7 +145,7 @@ function GameDash({
             key={activeTab}
             className='central-panel glass-panel'
         >
-             {React.createElement(tabComponents[activeTab].component,
+            {React.createElement(tabComponents[activeTab].component,
                 tabComponents[activeTab].props)}
         </div>
     )
@@ -226,14 +225,27 @@ const UserPreview = memo(({ userPreviewData }) => {
 
 function ServerClock() {
     const [time, setTime] = useState('')
+    const [tzLabel, setTzLabel] = useState('UTC')
 
     useEffect(() => {
         const tick = () => {
             const now = new Date()
-            const h = String(now.getUTCHours()).padStart(2, '0')
-            const m = String(now.getUTCMinutes()).padStart(2, '0')
-            const s = String(now.getUTCSeconds()).padStart(2, '0')
+            const h = String(now.getHours()).padStart(2, '0')
+            const m = String(now.getMinutes()).padStart(2, '0')
+            const s = String(now.getSeconds()).padStart(2, '0')
             setTime(`${h}:${m}:${s}`)
+
+            const offsetMinutes = -now.getTimezoneOffset()
+            const offsetHours = offsetMinutes / 60
+            const sign = offsetHours >= 0 ? '+' : '-'
+            const absOffsetHours = Math.abs(offsetHours)
+            const integerHours = Math.floor(absOffsetHours)
+            const fractionMinutes = (absOffsetHours - integerHours) * 60
+            let offsetString = `UTC${sign}${integerHours}`
+            if (fractionMinutes > 0) {
+                offsetString += `:${String(fractionMinutes).padStart(2, '0')}`
+            }
+            setTzLabel(offsetString)
         }
         tick()
         const interval = setInterval(tick, 1000)
@@ -242,8 +254,8 @@ function ServerClock() {
 
     return (
         <div className="server-clock">
-            {time}
-            <span className="clock-label">UTC</span>
+            <span className="clock-time">{time}</span>
+            <span className="clock-label">{tzLabel}</span>
         </div>
     )
 }
