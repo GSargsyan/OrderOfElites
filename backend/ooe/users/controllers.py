@@ -1,12 +1,11 @@
 import time
-import random
 
 from django.core.cache import cache
 from django.db.models import F
 
 from ooe.users.models import User
 from ooe.base.exceptions import OOEException
-from ooe.base.constants import SKILLS
+from ooe.base.constants import SKILLS, SKILL_COOLDOWNS
 
 
 class SkillsController:
@@ -27,7 +26,9 @@ class SkillsController:
         }
 
     def validate_practice(self, skill_name: str):
-        cd_remaining = cache.get(f'user_{self.user.id}_{skill_name}_cd')
+        is_free = skill_name.endswith('_free')
+
+        cd_remaining = cache.get(f'user_{self.user.id}_training_{"free" if is_free else "pro"}_cd')
         skill = SKILLS[skill_name]
 
         if skill['price'] > self.user.money_cash:
@@ -37,6 +38,8 @@ class SkillsController:
             raise OOEException('Skill training is on cooldown')
 
     def start_practice(self, skill_name: str):
+        is_free = skill_name.endswith('_free')
+
         self.validate_practice(skill_name)
 
         skill = SKILLS[skill_name]
@@ -53,9 +56,9 @@ class SkillsController:
 
         self.user.add_exp(skill['exp_reward'])
 
-        cd = int(time.time()) + skill['cooldown']
+        cd = int(time.time()) + SKILL_COOLDOWNS["free" if is_free else "pro"]
 
-        cache.set(f'user_{self.user.id}_{skill_name}_cd',
+        cache.set(f'user_{self.user.id}_training_{"free" if is_free else "pro"}_cd',
             cd,
             timeout = skill['cooldown'])
 

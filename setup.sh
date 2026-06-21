@@ -6,3 +6,6 @@ docker run -it -p 3000:3000 -v /srv/OrderOfElites/frontend:/opt/frontend fronten
 
 docker build -t ooe_psql ./psql/
 docker run -it -p 5432:5432 -v /srv/OrderOfElites/psql:/opt/psql psql /bin/bash
+
+# 
+# python manage.py insert_initial_data

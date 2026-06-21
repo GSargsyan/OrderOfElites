@@ -57,45 +57,44 @@ MISSIONS = {
     }
 }
 
+SKILL_COOLDOWNS = {
+    'free': 180,
+    'pro': 1200,
+}
+
 SKILLS = {
     'attack_free': {
         'users_field': 'attack_points',
-        'cooldown': 180,
         'exp_reward': 3,
         'points': 1,
         'price': 0,
     },
     'attack_pro': {
         'users_field': 'attack_points',
-        'cooldown': 1200,
         'exp_reward': 10,
         'points': 10,
         'price': 10000,
     },
     'defense_free': {
         'users_field': 'defense_points',
-        'cooldown': 180,
         'exp_reward': 3,
         'points': 1,
         'price': 0,
     },
     'defense_pro': {
         'users_field': 'defense_points',
-        'cooldown': 1200,
         'exp_reward': 10,
         'points': 10,
         'price': 2000,
     },
     'driving_free': {
         'users_field': 'driving_points',
-        'cooldown': 180,
         'exp_reward': 3,
         'points': 1,
         'price': 0,
     },
     'driving_pro': {
         'users_field': 'driving_points',
-        'cooldown': 1200,
         'exp_reward': 10,
         'points': 10,
         'price': 5000,
