@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'ooe.dashboard',
     'ooe.missions',
     'ooe.items',
-    'ooe.businesses',
     'ooe.black_market',
     'django_celery_beat',
 ]
