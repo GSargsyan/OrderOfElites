@@ -273,7 +273,7 @@ function DashboardTab() {
         <div className="dashboard-welcome">
             <h2>WELCOME, OPERATIVE</h2>
             <p>
-                The Continental awaits your next move.
+                The Citadel awaits your next move.
                 Select a section from the menu to begin operations.
             </p>
         </div>
