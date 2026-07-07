@@ -92,5 +92,31 @@ services:
       psql:
         condition: service_healthy
 
+  celery_worker:
+    image: ooe_backend
+    container_name: ooe_celery_worker
+    command: celery -A config worker -l info
+    volumes:
+      - ./backend/:/opt/backend/
+    working_dir: /opt/backend
+    networks:
+      - ooe_network
+    depends_on:
+      - backend
+      - redis
+
+  celery_beat:
+    image: ooe_backend
+    container_name: ooe_celery_beat
+    command: celery -A config beat -l info
+    volumes:
+      - ./backend/:/opt/backend/
+    working_dir: /opt/backend
+    networks:
+      - ooe_network
+    depends_on:
+      - backend
+      - redis
+
 networks:
   ooe_network:

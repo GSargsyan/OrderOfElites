@@ -235,7 +235,7 @@ button {
 
 .stat-item .stat-label {
   color: var(--text-muted);
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .stat-item .stat-value {

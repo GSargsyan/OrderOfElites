@@ -55,6 +55,9 @@ INSTALLED_APPS = [
     'ooe.dashboard',
     'ooe.missions',
     'ooe.items',
+    'ooe.businesses',
+    'ooe.black_market',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -223,3 +226,26 @@ CACHES = {
 
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "default"
+
+# ── Celery Configuration ──────────────────────────────────────
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'
+
+CELERY_BEAT_SCHEDULE = {
+    'process-production': {
+        'task': 'ooe.black_market.tasks.process_production',
+        'schedule': 10.0,  # every 10 seconds
+    },
+    'update-prices': {
+        'task': 'ooe.black_market.tasks.update_prices',
+        'schedule': 60.0,  # every 60 seconds
+    },
+    'cleanup-sale-records': {
+        'task': 'ooe.black_market.tasks.cleanup_sale_records',
+        'schedule': 600.0,  # every 10 minutes
+    },
+}

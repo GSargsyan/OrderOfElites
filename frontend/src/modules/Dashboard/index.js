@@ -4,6 +4,7 @@ import React, { createContext, useState, useEffect, memo } from 'react'
 import ChatContainer from 'modules/Chat/chatContainer.js'
 import MissionsTab from 'modules/Missions/missionsTab.js'
 import SkillsTab from 'modules/Skills/skillsTab.js'
+import BlackMarketTab from 'modules/BlackMarket/blackMarketTab.js'
 import ItemsTab from 'modules/Items/itemsTab.js'
 import NetworkingTab from 'modules/Networking/networkingTab.js'
 import UserProfileModal from 'modules/Dashboard/userProfile.js'
@@ -48,6 +49,11 @@ function Dashboard() {
         'skills': {
             'component': SkillsTab,
             'label': 'Skills',
+            'props': {}
+        },
+        'black_market': {
+            'component': BlackMarketTab,
+            'label': 'Black Market',
             'props': {}
         },
         'items': {
@@ -175,8 +181,8 @@ const UserPreview = memo(({ userPreviewData }) => {
                         </span>
                         <span className="stat-sep">|</span>
                         <span className="stat-item">
-                            <span className="stat-label">Rank:</span>
-                            <span className="stat-value">{userPreviewData.rank}</span>
+                            <span className="stat-label">Commendations:</span>
+                            <span className="stat-value">{userPreviewData.commendations}</span>
                         </span>
                     </div>
 
@@ -188,6 +194,10 @@ const UserPreview = memo(({ userPreviewData }) => {
                     </div>
 
                     <div className="user-preview-stats" style={{ marginTop: '6px' }}>
+                        <span className="stat-item">
+                            <span className="stat-label">Rank:</span>
+                            <span className="stat-value">{userPreviewData.rank}</span>
+                        </span>
                         <span className="stat-item">
                             <span className="stat-label">Progress:</span>
                             <span className="stat-value progress">
@@ -210,10 +220,6 @@ const UserPreview = memo(({ userPreviewData }) => {
                             <span className="stat-value">{userPreviewData.driving_points}</span>
                         </span>
                         <span className="stat-sep">|</span>
-                        <span className="stat-item">
-                            <span className="stat-label">Commendations:</span>
-                            <span className="stat-value">{userPreviewData.commendations}</span>
-                        </span>
                     </div>
                 </>
             ) : (

@@ -9,18 +9,10 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         # Insert Cities
         cities = [
-            'Abu Dhabi',
-            'Hong Kong',
-            'Jakarta',
-            'London',
+            'New York',
             'Mexico City',
             'Moscow',
-            'New York',
-            'Paris',
-            'Rio de Janeiro',
-            'Rome',
-            'Sydney',
-            'Tokyo',
+            'Rome'
         ]
 
         for city in cities:

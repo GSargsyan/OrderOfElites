@@ -40,7 +40,7 @@ MISSIONS = {
     'stakeout': {
         'name': 'Stakeout',
         'cooldown': 360, # 6 minutes
-        'exp_reward': 100,
+        'exp_reward': 10,
         'max_reward_rank': 6,
         'min_reward': 0,
         'max_reward': 1100,
@@ -48,18 +48,18 @@ MISSIONS = {
     },
     'recon_op': {
         'name': 'Recon Op',
-        'cooldown': 1, # 1200,  # 20 minutes
+        'cooldown': 1200,  # 20 minutes
         'exp_reward': 20,
         'max_reward_rank': 10,
-        'min_reward': 100000,
-        'max_reward': 500000,
+        'min_reward': 10000,
+        'max_reward': 20000,
         'random_range': 500,
     }
 }
 
 SKILL_COOLDOWNS = {
-    'free': 180,
-    'pro': 1200,
+    'free': 180,  # 3 minutes
+    'pro': 1200,  # 20 minutes
 }
 
 SKILLS = {
