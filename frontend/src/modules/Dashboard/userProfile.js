@@ -22,7 +22,7 @@ function UserProfileModal({ userProfileData, onClose, onMessageClick }) {
                 <div>
                     <p><strong>Username:</strong> {userProfileData.username}</p>
                     <p><strong>Rank:</strong> {userProfileData.rank}</p>
-                    <p><strong>Commendations:</strong> {userProfileData.commendations}</p>
+
                 </div>
 
                 <div className="profile-modal-actions">

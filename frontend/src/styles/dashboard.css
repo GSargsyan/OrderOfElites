@@ -215,13 +215,98 @@ button {
   padding: 12px 20px;
 }
 
+/* ── Top row: username · city · money ── */
+.user-preview-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.user-preview-username {
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+}
+
+.user-preview-city {
+  color: var(--accent-cyan);
+  letter-spacing: 1.5px;
+  font-size: 0.82rem;
+  font-weight: 500;
+}
+
+.user-preview-money {
+  color: #ffffff;
+  font-size: 18px;
+  margin-left: auto;
+}
+
+.animated-money-container {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-width: 50px;
+}
+
+.money-diffs-container {
+  position: absolute;
+  right: 100%;
+  margin-right: 8px;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.money-diff {
+  font-size: 14px;
+  white-space: nowrap;
+  animation: fadeUpOut 2s forwards;
+  opacity: 0;
+}
+
+.diff-positive {
+  color: #4ade80;
+  /* Green */
+}
+
+.diff-negative {
+  color: #f87171;
+  /* Red */
+}
+
+@keyframes fadeUpOut {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  80% {
+    opacity: 1;
+    transform: translateY(-5px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-15px);
+  }
+}
+
+/* ── Stats row ── */
 .user-preview-stats {
   display: flex;
   flex-wrap: wrap;
   gap: 6px 16px;
   align-items: center;
   font-family: var(--font-ui);
-  font-size: 0.88rem;
+  font-size: 0.82rem;
   font-weight: 500;
   color: var(--text-secondary);
 }
@@ -229,13 +314,15 @@ button {
 .stat-item {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   white-space: nowrap;
 }
 
 .stat-item .stat-label {
   color: var(--text-muted);
   font-weight: 500;
+  letter-spacing: 1px;
+  font-size: 0.78rem;
 }
 
 .stat-item .stat-value {
@@ -243,17 +330,11 @@ button {
   font-weight: 600;
 }
 
-.stat-item .stat-value.money {
-  color: var(--accent-green);
-  text-shadow: 0 0 15px rgba(102, 187, 106, 0.35);
-}
-
-.stat-item .stat-value.progress {
-  color: var(--text-primary);
-}
-
-.stat-item .stat-value.city {
-  color: var(--accent-cyan);
+.stat-progress {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 400;
+  opacity: 0.7;
 }
 
 /* Separator pipe */

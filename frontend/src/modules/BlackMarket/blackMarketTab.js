@@ -4,40 +4,73 @@ import { UserPreviewCtx } from 'modules/Dashboard'
 
 
 /**
- * Smooth counter component.
- * Takes a server-synced value and a rate_per_second,
- * interpolates at ~50ms intervals so the number appears
- * to change continuously regardless of backend tick interval.
+ * Smooth counter component using requestAnimationFrame.
+ * Anchors to server values on each poll, interpolates between polls
+ * using the provided rate. Uses exponential lerp (~300ms) to smoothly
+ * converge to the server value, preventing visible jumps on re-sync.
+ * Auto-pauses when tab is hidden (rAF behavior).
  */
 function SmoothCounter({ value, ratePerSecond, isMoney = false, decimals = 2 }) {
-    const [displayValue, setDisplayValue] = useState(value)
+    const displayRef = useRef(value)
+    const anchorRef = useRef({ value, time: performance.now() })
     const rateRef = useRef(ratePerSecond)
-    const intervalRef = useRef(null)
+    const lastFrameRef = useRef(null)
+    const rafRef = useRef(null)
+    const [rendered, setRendered] = useState(value)
 
-    // Resync when server value arrives
+    // ~300ms to cover 95% of the gap between display and target
+    const LERP_SPEED = 10
+
+    // When new server value arrives, update the anchor point
     useEffect(() => {
-        setDisplayValue(value)
+        anchorRef.current = { value, time: performance.now() }
     }, [value])
 
-    // Update rate ref without resetting interval
+    // Update rate without resetting the animation loop
     useEffect(() => {
         rateRef.current = ratePerSecond
     }, [ratePerSecond])
 
-    // Smooth interpolation loop: 50ms ticks (~20 FPS)
+    // requestAnimationFrame interpolation loop
     useEffect(() => {
-        intervalRef.current = setInterval(() => {
-            if (rateRef.current > 0) {
-                setDisplayValue(prev => prev + rateRef.current * 0.05)
-            }
-        }, 50)
+        const tick = (timestamp) => {
+            if (lastFrameRef.current !== null) {
+                const dtSec = (timestamp - lastFrameRef.current) / 1000
 
-        return () => clearInterval(intervalRef.current)
-    }, [])
+                // If tab was hidden (large dt gap), skip this frame
+                // and let the visibility handler fetch fresh data
+                if (dtSec > 1) {
+                    lastFrameRef.current = timestamp
+                    rafRef.current = requestAnimationFrame(tick)
+                    return
+                }
+
+                // Target = anchor value + rate × elapsed since anchor
+                const anchor = anchorRef.current
+                const elapsedSec = (timestamp - anchor.time) / 1000
+                const target = anchor.value + rateRef.current * elapsedSec
+
+                // Exponential lerp toward target (~300ms convergence)
+                const diff = target - displayRef.current
+                const lerpFactor = 1 - Math.exp(-LERP_SPEED * dtSec)
+                displayRef.current += diff * lerpFactor
+
+                // Quantities can't go negative
+                if (displayRef.current < 0) displayRef.current = 0
+
+                setRendered(displayRef.current)
+            }
+            lastFrameRef.current = timestamp
+            rafRef.current = requestAnimationFrame(tick)
+        }
+
+        rafRef.current = requestAnimationFrame(tick)
+        return () => cancelAnimationFrame(rafRef.current)
+    }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
     const formatted = isMoney
-        ? formatMoney(Math.floor(displayValue))
-        : displayValue.toFixed(decimals)
+        ? formatMoney(Math.floor(rendered))
+        : rendered.toFixed(decimals)
 
     return <span>{formatted}</span>
 }
@@ -111,7 +144,12 @@ function DrugRow({ drugType, drugData, onRefresh }) {
                 {/* Precursor */}
                 <div style={{ textAlign: 'center', minWidth: '100px' }}>
                     <div><strong>{drugData.precursor_name}</strong></div>
-                    <div>{drugData.precursor_qty.toFixed(2)} kg</div>
+                    <div>
+                        <SmoothCounter
+                            value={drugData.precursor_qty}
+                            ratePerSecond={drugData.precursor_rate_per_second}
+                        />{' '}kg
+                    </div>
                     <div style={{ fontSize: '0.85em', color: '#aaa' }}>
                         ${drugData.precursor_price}/kg
                     </div>
@@ -139,13 +177,13 @@ function DrugRow({ drugType, drugData, onRefresh }) {
                                 {step.is_money_step ? (
                                     <SmoothCounter
                                         value={step.output_qty}
-                                        ratePerSecond={step.rate_per_second}
+                                        ratePerSecond={step.net_output_rate}
                                         isMoney={true}
                                     />
                                 ) : (
                                     <SmoothCounter
                                         value={step.output_qty}
-                                        ratePerSecond={step.rate_per_second}
+                                        ratePerSecond={step.net_output_rate}
                                     />
                                 )}
                                 {step.is_money_step
@@ -171,7 +209,7 @@ function DrugRow({ drugType, drugData, onRefresh }) {
                             value={drugData.pending_money}
                             ratePerSecond={
                                 drugData.steps.length > 0
-                                    ? drugData.steps[drugData.steps.length - 1].rate_per_second
+                                    ? drugData.steps[drugData.steps.length - 1].net_output_rate
                                     : 0
                             }
                             isMoney={true}
@@ -199,8 +237,26 @@ function BlackMarketTab() {
         .catch(err => console.error('Black Market tab data error:', err))
     }, [])
 
+    // Fetch on mount
     useEffect(() => {
         fetchData()
+    }, [fetchData])
+
+    // Poll every 10s to re-sync with server truth
+    useEffect(() => {
+        const interval = setInterval(fetchData, 10000)
+        return () => clearInterval(interval)
+    }, [fetchData])
+
+    // Re-fetch immediately when tab becomes visible (after being hidden)
+    useEffect(() => {
+        const handleVisibility = () => {
+            if (document.visibilityState === 'visible') {
+                fetchData()
+            }
+        }
+        document.addEventListener('visibilitychange', handleVisibility)
+        return () => document.removeEventListener('visibilitychange', handleVisibility)
     }, [fetchData])
 
     if (tabData === null) {

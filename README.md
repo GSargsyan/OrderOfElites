@@ -111,7 +111,7 @@ Server clock — Live UTC clock in Orbitron font with cyan glow
 When a player registers in the game, they start with:
 - **$0** money
 - **0 Elite coins**
-- **0 commendation points**
+
 - **0 shooting skills**
 - **0 driving skills**
 - **0 protection skills**

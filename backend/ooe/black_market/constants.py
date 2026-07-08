@@ -2,7 +2,7 @@
 PROFESSIONALS_BASE_COUNT = 10       # Max professionals at Rank 1
 PROFESSIONALS_PER_RANK = 5          # Additional slots per rank above 1
 PROFESSIONALS_MAX = 160             # Hard cap regardless of rank
-TRAINING_TIME_MINUTES = 60          # Minutes to train a new professional
+TRAINING_TIME_MINUTES = 0.1  # testing at 0.1 # 60          # Minutes to train a new professional
 
 # ── Rank Requirements ─────────────────────────────────────────
 RANK_REQUIREMENTS = {

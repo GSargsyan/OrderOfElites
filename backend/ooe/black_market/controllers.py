@@ -96,6 +96,7 @@ class BlackMarketController:
                 'training_count': training_count,
                 'output_qty': float(current_qty),
                 'rate_per_second': float(produce_rate_per_sec),
+                'consume_rate_per_second': float(consume_rate_per_sec),
                 'is_money_step': False,
             }
         else:
@@ -114,6 +115,7 @@ class BlackMarketController:
                 'training_count': training_count,
                 'output_qty': float(state.pending_money),
                 'rate_per_second': float(money_rate_per_sec),
+                'consume_rate_per_second': float(consume_rate_per_sec),
                 'is_money_step': True,
                 'current_price': float(current_price),
             }
@@ -136,12 +138,35 @@ class BlackMarketController:
             for step in chain['steps']:
                 steps_data.append(self._build_step_data(state, step, now))
 
+            # Compute net output rates for smooth frontend interpolation.
+            # Each material step's displayed output is being produced by
+            # this step AND consumed by the next step simultaneously.
+            for i, step_data in enumerate(steps_data):
+                if not step_data['is_money_step']:
+                    next_consume = (
+                        steps_data[i + 1]['consume_rate_per_second']
+                        if i + 1 < len(steps_data) else 0
+                    )
+                    step_data['net_output_rate'] = (
+                        step_data['rate_per_second'] - next_consume
+                    )
+                else:
+                    # Nothing subtracts from pending_money
+                    step_data['net_output_rate'] = step_data['rate_per_second']
+
+            # Precursor decreases at first step's consume rate
+            precursor_rate = (
+                -steps_data[0]['consume_rate_per_second']
+                if steps_data else 0
+            )
+
             drug_rows[drug_type] = {
                 'unlocked': unlocked,
                 'rank_required': rank_required,
                 'precursor_name': PRECURSOR_NAMES[drug_type],
                 'precursor_price': PRECURSOR_PRICES[drug_type],
                 'precursor_qty': float(state.precursor_qty),
+                'precursor_rate_per_second': precursor_rate,
                 'pending_money': float(state.pending_money),
                 'steps': steps_data,
             }
@@ -150,6 +175,7 @@ class BlackMarketController:
             'total_professionals': total_profs,
             'max_professionals': max_profs,
             'drug_rows': drug_rows,
+            'server_time': timezone.now().timestamp(),
         }
 
     def buy_precursor(self, drug_type):

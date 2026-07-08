@@ -31,7 +31,6 @@ class User(AbstractBaseUser):
     attack_points = models.IntegerField(default=0)
     defense_points = models.IntegerField(default=0)
     driving_points = models.IntegerField(default=0)
-    commendations = models.IntegerField(default=0)
 
     objects = UserManager()
 
@@ -62,7 +61,6 @@ class User(AbstractBaseUser):
             'attack_points': self.attack_points,
             'defense_points': self.defense_points,
             'driving_points': self.driving_points,
-            'commendations': self.commendations,
         }
 
         return res
@@ -86,7 +84,6 @@ class User(AbstractBaseUser):
         res = {
             'username': self.username,
             'rank': self.rank,
-            'commendations': self.commendations,
         }
 
         return res

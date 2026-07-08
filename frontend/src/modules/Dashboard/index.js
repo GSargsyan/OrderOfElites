@@ -1,5 +1,5 @@
 // import axios from 'axios'
-import React, { createContext, useState, useEffect, memo } from 'react'
+import React, { createContext, useState, useEffect, memo, useRef } from 'react'
 
 import ChatContainer from 'modules/Chat/chatContainer.js'
 import MissionsTab from 'modules/Missions/missionsTab.js'
@@ -157,6 +157,68 @@ function GameDash({
     )
 }
 
+const AnimatedMoney = ({ value }) => {
+    const [displayValue, setDisplayValue] = useState(value)
+    const [diffs, setDiffs] = useState([])
+    const prevValueRef = useRef(value)
+
+    useEffect(() => {
+        if (value !== prevValueRef.current) {
+            const diff = value - prevValueRef.current
+            
+            if (diff !== 0) {
+                const newDiff = {
+                    id: Date.now() + Math.random(),
+                    amount: diff,
+                }
+                setDiffs(prev => [...prev, newDiff])
+                
+                setTimeout(() => {
+                    setDiffs(prev => prev.filter(d => d.id !== newDiff.id))
+                }, 2000)
+            }
+
+            const startValue = prevValueRef.current
+            const endValue = value
+            const duration = 300
+            const startTime = performance.now()
+
+            const animate = (currentTime) => {
+                const elapsedTime = currentTime - startTime
+                const progress = Math.min(elapsedTime / duration, 1)
+                
+                const currentVal = Math.round(startValue + (endValue - startValue) * progress)
+                setDisplayValue(currentVal)
+
+                if (progress < 1) {
+                    requestAnimationFrame(animate)
+                } else {
+                    setDisplayValue(endValue)
+                }
+            }
+
+            requestAnimationFrame(animate)
+            prevValueRef.current = value
+        }
+    }, [value])
+
+    return (
+        <span className="animated-money-container">
+            <span className="money-diffs-container">
+                {diffs.map(d => (
+                    <span 
+                        key={d.id} 
+                        className={`money-diff ${d.amount >= 0 ? 'diff-positive' : 'diff-negative'}`}
+                    >
+                        {d.amount >= 0 ? '+' : '-'} {formatMoney(Math.abs(d.amount))}
+                    </span>
+                ))}
+            </span>
+            <span>{formatMoney(displayValue)}</span>
+        </span>
+    )
+}
+
 const UserPreview = memo(({ userPreviewData }) => {
     console.log('UserPreview rendered')
 
@@ -164,26 +226,10 @@ const UserPreview = memo(({ userPreviewData }) => {
         <div className="user-preview-bar glass-panel">
             {userPreviewData ? (
                 <>
-                    <div className="user-preview-stats">
-                        <span className="stat-item">
-                            <span className="stat-label">Username:</span>
-                            <span className="stat-value">{userPreviewData.username}</span>
-                        </span>
-                        <span className="stat-sep">|</span>
-                        <span className="stat-item">
-                            <span className="stat-label">City:</span>
-                            <span className="stat-value city">{userPreviewData.city}</span>
-                        </span>
-                        <span className="stat-sep">|</span>
-                        <span className="stat-item">
-                            <span className="stat-label">Money:</span>
-                            <span className="stat-value money">{formatMoney(userPreviewData.money_cash)}</span>
-                        </span>
-                        <span className="stat-sep">|</span>
-                        <span className="stat-item">
-                            <span className="stat-label">Commendations:</span>
-                            <span className="stat-value">{userPreviewData.commendations}</span>
-                        </span>
+                    <div className="user-preview-top">
+                        <span className="user-preview-username">{userPreviewData.username}</span>
+                        <span className="user-preview-city">{userPreviewData.city.toUpperCase()}</span>
+                        <span className="user-preview-money"><AnimatedMoney value={userPreviewData.money_cash} /></span>
                     </div>
 
                     <div className="progress-bar-track">
@@ -195,31 +241,25 @@ const UserPreview = memo(({ userPreviewData }) => {
 
                     <div className="user-preview-stats" style={{ marginTop: '6px' }}>
                         <span className="stat-item">
-                            <span className="stat-label">Rank:</span>
+                            <span className="stat-label">RANK</span>
                             <span className="stat-value">{userPreviewData.rank}</span>
-                        </span>
-                        <span className="stat-item">
-                            <span className="stat-label">Progress:</span>
-                            <span className="stat-value progress">
-                                {Math.floor(userPreviewData.rank_progress)}%
-                            </span>
+                            <span className="stat-progress">({Math.floor(userPreviewData.rank_progress)}%)</span>
                         </span>
                         <span className="stat-sep">|</span>
                         <span className="stat-item">
-                            <span className="stat-label">Attack:</span>
+                            <span className="stat-label">ATTACK</span>
                             <span className="stat-value">{userPreviewData.attack_points}</span>
                         </span>
                         <span className="stat-sep">|</span>
                         <span className="stat-item">
-                            <span className="stat-label">Defense:</span>
+                            <span className="stat-label">DEFENSE</span>
                             <span className="stat-value">{userPreviewData.defense_points}</span>
                         </span>
                         <span className="stat-sep">|</span>
                         <span className="stat-item">
-                            <span className="stat-label">Driving:</span>
+                            <span className="stat-label">DRIVING</span>
                             <span className="stat-value">{userPreviewData.driving_points}</span>
                         </span>
-                        <span className="stat-sep">|</span>
                     </div>
                 </>
             ) : (
