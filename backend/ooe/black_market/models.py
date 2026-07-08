@@ -6,8 +6,8 @@ class PlayerDrugState(models.Model):
     Core table: one row per (player, drug_type, city) combination.
     Stores accumulated quantities for each step of the production chain.
 
-    Alcohol uses: precursor_qty → intermediate_1_qty → pending_money
-    Cannabis uses: precursor_qty → intermediate_1_qty → intermediate_2_qty → pending_money
+    Alcohol uses: precursor_qty → intermediate_1_qty → stash_qty
+    Cannabis uses: precursor_qty → intermediate_1_qty → intermediate_2_qty → stash_qty
     Meth/Coke (future) would use intermediate_3_qty as well.
     """
     user = models.ForeignKey(
@@ -26,7 +26,7 @@ class PlayerDrugState(models.Model):
     intermediate_1_qty = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     intermediate_2_qty = models.DecimalField(max_digits=14, decimal_places=4, default=0)
     intermediate_3_qty = models.DecimalField(max_digits=14, decimal_places=4, default=0)
-    pending_money = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+    stash_qty = models.DecimalField(max_digits=14, decimal_places=4, default=0)
 
     last_tick_at = models.DateTimeField(auto_now_add=True)
     created_at = models.DateTimeField(auto_now_add=True)

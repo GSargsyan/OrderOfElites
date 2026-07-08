@@ -1,14 +1,15 @@
 import random
 from decimal import Decimal
 from datetime import timedelta
+import json
+from django.conf import settings
 
 from celery import shared_task
 from django.utils import timezone
-from django.db.models import Sum
+from django.core.cache import cache
 
-from ooe.black_market.models import PlayerDrugState, Professional, SaleRecord, DrugPrice
+from ooe.black_market.models import SaleRecord, DrugPrice
 from ooe.black_market.constants import (
-    PRODUCTION_CHAINS,
     BASE_PRICES,
     PRICE_ABSORBER,
     PRICE_MIN,
@@ -19,99 +20,10 @@ from ooe.black_market.constants import (
     NOISE_MAX,
     DRUG_TYPES,
 )
+import redis
 
-
-@shared_task
-def process_production():
-    """
-    Runs every PRODUCTION_TICK_SECONDS (10s).
-    For every PlayerDrugState with at least one trained professional,
-    compute elapsed time since last tick, consume inputs, produce outputs.
-    Final-step professionals generate money at the current city price.
-    """
-    now = timezone.now()
-
-    # Mark professionals as trained if their training time has passed
-    Professional.objects.filter(
-        is_trained=False,
-        trained_at__lte=now,
-    ).update(is_trained=True)
-
-    # Fetch all states that have at least one trained professional
-    states = PlayerDrugState.objects.filter(
-        professionals__is_trained=True,
-    ).select_related('city').distinct()
-
-    for state in states:
-        elapsed_hours = Decimal(
-            str((now - state.last_tick_at).total_seconds() / 3600)
-        )
-
-        if elapsed_hours <= 0:
-            continue
-
-        chain = PRODUCTION_CHAINS.get(state.drug_type)
-        if not chain:
-            continue
-
-        # Get current price for the money step
-        try:
-            current_price = DrugPrice.objects.get(
-                city=state.city,
-                drug_type=state.drug_type,
-            ).price
-        except DrugPrice.DoesNotExist:
-            current_price = Decimal(str(BASE_PRICES.get(state.drug_type, 0)))
-
-        total_sold_qty = Decimal('0')
-
-        for step in chain['steps']:
-            trained_count = state.professionals.filter(
-                role=step['role'],
-                is_trained=True,
-            ).count()
-
-            if trained_count == 0:
-                continue
-
-            consume_rate = Decimal(str(step['consume_rate']))
-            available_input = getattr(state, step['consumes_from'])
-
-            would_consume = consume_rate * trained_count * elapsed_hours
-            actual_consumed = min(would_consume, available_input)
-
-            if actual_consumed <= 0:
-                continue
-
-            # Deduct input
-            new_input = available_input - actual_consumed
-            setattr(state, step['consumes_from'], new_input)
-
-            if step['produces_to'] is not None:
-                # Material step: produce output
-                produce_rate = Decimal(str(step['produce_rate']))
-                ratio = produce_rate / consume_rate
-                actual_produced = actual_consumed * ratio
-
-                current_output = getattr(state, step['produces_to'])
-                setattr(state, step['produces_to'], current_output + actual_produced)
-            else:
-                # Money step: convert consumed units to money at current price
-                money_earned = actual_consumed * current_price
-                state.pending_money += money_earned
-                total_sold_qty += actual_consumed
-
-        state.last_tick_at = now
-        state.save()
-
-        # Log sale for supply tracking (used in price formula)
-        if total_sold_qty > 0:
-            SaleRecord.objects.create(
-                city=state.city,
-                drug_type=state.drug_type,
-                quantity=total_sold_qty,
-            )
-
+# Redis client for pub/sub
+redis_client = redis.Redis.from_url(settings.CELERY_BROKER_URL)
 
 @shared_task
 def update_prices():
@@ -124,7 +36,7 @@ def update_prices():
     B = Base price of the drug
     P = Population (unique players logged in within last 24 hours)
     A = Market price fluctuation absorber (higher = more stable)
-    S = Supply (total units sold in this city in the last 30 minutes)
+    S = Supply (weighted sum of units sold in this city in the last 24 hours)
     R = Random noise multiplier (between 0.92 and 1.08)
 
     Result is clamped between PRICE_MIN and PRICE_MAX for each drug type.
@@ -152,14 +64,21 @@ def update_prices():
             A = Decimal(str(PRICE_ABSORBER[drug_type]))
             P = Decimal(str(population))
 
-            # S = total units sold in this city in the last SUPPLY_WINDOW_MINUTES
-            supply_agg = SaleRecord.objects.filter(
+            # Fetch sales in the 24 hour window
+            sales = SaleRecord.objects.filter(
                 city=city,
                 drug_type=drug_type,
                 recorded_at__gte=supply_cutoff,
-            ).aggregate(total=Sum('quantity'))
+            )
 
-            S = supply_agg['total'] or Decimal('0')
+            # Calculate weighted supply S
+            S = Decimal('0')
+            for sale in sales:
+                elapsed = now - sale.recorded_at
+                elapsed_minutes = Decimal(str(elapsed.total_seconds() / 60.0))
+                # Effect grows linearly from 0 to 100% over 60 minutes
+                weight = min(Decimal('1'), elapsed_minutes / Decimal('60'))
+                S += sale.quantity * weight
 
             # R = random noise
             R = Decimal(str(random.uniform(NOISE_MIN, NOISE_MAX)))
@@ -178,6 +97,12 @@ def update_prices():
                 drug_type=drug_type,
                 defaults={'price': price},
             )
+            
+    # Publish prices updated event to Redis
+    redis_client.publish('prices_updated', json.dumps({
+        'timestamp': now.timestamp(),
+        'message': 'Prices have been updated.'
+    }))
 
 
 @shared_task

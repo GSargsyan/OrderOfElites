@@ -1,6 +1,6 @@
 HOUSE_SELL_PERCENT = .90
 CAR_SELL_PERCENT = .75
-WEAPON_SELL_PERCENT = .75
+GUN_SELL_PERCENT = .75
 
 HOUSES = {
     'studio_apartment': {

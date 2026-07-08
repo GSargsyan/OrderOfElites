@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import Houses from './houses'
 import Cars from './cars'
-import Weapons from './weapons'
+import Guns from './guns'
 
 function ItemsTab() {
     console.log('ItemsTab rendered')
@@ -28,16 +28,16 @@ function ItemsTab() {
                     Cars
                 </button>
                 <button
-                    className={`items-sub-tab ${activeTab === 'weapons' ? 'active' : ''}`}
-                    onClick={() => handleTabChange('weapons')}
+                    className={`items-sub-tab ${activeTab === 'guns' ? 'active' : ''}`}
+                    onClick={() => handleTabChange('guns')}
                 >
-                    Weapons
+                    Guns
                 </button>
             </div>
 
             {activeTab === 'houses' && <Houses />}
             {activeTab === 'cars' && <Cars />}
-            {activeTab === 'weapons' && <Weapons />}
+            {activeTab === 'guns' && <Guns />}
         </>
     )
 }

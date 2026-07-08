@@ -25,12 +25,12 @@ class UserCar(models.Model):
         db_table = 'ooe_users_cars'
 
 
-class UserWeapon(models.Model):
-    user = models.ForeignKey('users.User', related_name='weapons', on_delete=models.CASCADE)
-    weapon = models.CharField(max_length=50)
-    city = models.ForeignKey('cities.City', related_name='weapons', on_delete=models.CASCADE)
+class UserGun(models.Model):
+    user = models.ForeignKey('users.User', related_name='guns', on_delete=models.CASCADE)
+    gun = models.CharField(max_length=50)
+    city = models.ForeignKey('cities.City', related_name='guns', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'ooe_users_weapons'
+        db_table = 'ooe_users_guns'

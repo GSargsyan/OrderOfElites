@@ -72,10 +72,10 @@ def remove_professional(request):
 @api_view(['POST'])
 @auth_by_token
 @transaction.atomic
-def withdraw_money(request):
+def sell_stash(request):
     try:
         return Response(
-            BlackMarketController(request.user).withdraw_money(
+            BlackMarketController(request.user).sell_stash(
                 drug_type=request.data.get('drug_type'),
             ),
             status=200)

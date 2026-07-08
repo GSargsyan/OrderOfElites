@@ -112,9 +112,9 @@ function DrugRow({ drugType, drugData, onRefresh }) {
         .catch(err => console.error('Remove error:', err))
     }
 
-    const withdraw = () => {
+    const sell = () => {
         request({
-            url: 'black_market/withdraw',
+            url: 'black_market/sell',
             method: 'POST',
             data: { drug_type: drugType },
         })
@@ -122,7 +122,7 @@ function DrugRow({ drugType, drugData, onRefresh }) {
             onRefresh()
             updateUserPreviewData()
         })
-        .catch(err => console.error('Withdraw error:', err))
+        .catch(err => console.error('Sell error:', err))
     }
 
     const isLocked = !drugData.unlocked
@@ -201,21 +201,24 @@ function DrugRow({ drugType, drugData, onRefresh }) {
 
                 <span>→</span>
 
-                {/* Withdraw */}
+                {/* Sell */}
                 <div style={{ textAlign: 'center', minWidth: '100px' }}>
                     <div><strong>Revenue</strong></div>
-                    <div>
+                    <div style={{ color: '#4caf50' }}>
                         <SmoothCounter
-                            value={drugData.pending_money}
+                            value={drugData.stash_qty * drugData.current_price}
                             ratePerSecond={
                                 drugData.steps.length > 0
-                                    ? drugData.steps[drugData.steps.length - 1].net_output_rate
+                                    ? drugData.steps[drugData.steps.length - 1].net_output_rate * drugData.current_price
                                     : 0
                             }
                             isMoney={true}
                         />
                     </div>
-                    <button onClick={withdraw}>Withdraw</button>
+                    <div style={{ fontSize: '0.85em', color: '#aaa', margin: '4px 0 8px 0' }}>
+                        Market price: ${drugData.current_price?.toFixed(2)}
+                    </div>
+                    <button onClick={sell}>Sell</button>
                 </div>
             </div>
         </div>

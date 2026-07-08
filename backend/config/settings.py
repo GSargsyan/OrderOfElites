@@ -235,10 +235,6 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
 
 CELERY_BEAT_SCHEDULE = {
-    'process-production': {
-        'task': 'ooe.black_market.tasks.process_production',
-        'schedule': 10.0,  # every 10 seconds
-    },
     'update-prices': {
         'task': 'ooe.black_market.tasks.update_prices',
         'schedule': 60.0,  # every 60 seconds

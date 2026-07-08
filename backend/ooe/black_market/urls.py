@@ -4,7 +4,7 @@ from .views import (
     buy_precursor,
     assign_professional,
     remove_professional,
-    withdraw_money,
+    sell_stash,
 )
 
 urlpatterns = [
@@ -12,5 +12,5 @@ urlpatterns = [
     path('api/black_market/buy_precursor', buy_precursor, name='bm_buy_precursor'),
     path('api/black_market/assign_professional', assign_professional, name='bm_assign_professional'),
     path('api/black_market/remove_professional', remove_professional, name='bm_remove_professional'),
-    path('api/black_market/withdraw', withdraw_money, name='bm_withdraw_money'),
+    path('api/black_market/sell', sell_stash, name='bm_sell_stash'),
 ]

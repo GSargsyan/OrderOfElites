@@ -98,21 +98,21 @@ def sell_car(request):
 
 @api_view(['POST'])
 @auth_by_token
-def get_user_weapons(request):
+def get_user_guns(request):
     return Response(
-        ItemsController().get_user_weapons(user=request.user),
+        ItemsController().get_user_guns(user=request.user),
         status=200)
 
 
 @api_view(['POST'])
 @auth_by_token
 @transaction.atomic
-def buy_weapon(request):
+def buy_gun(request):
     try:
         return Response(
-            ItemsController().buy_weapon(
+            ItemsController().buy_gun(
                 user=request.user,
-                weapon_name=request.data['weapon_name'],
+                gun_name=request.data['gun_name'],
             ),
             status=200)
     except OOEException as e:
@@ -125,12 +125,12 @@ def buy_weapon(request):
 @api_view(['POST'])
 @auth_by_token
 @transaction.atomic
-def sell_weapon(request):
+def sell_gun(request):
     try:
         return Response(
-            ItemsController().sell_weapon(
+            ItemsController().sell_gun(
                 user=request.user,
-                weapon_name=request.data['weapon_name'],
+                gun_name=request.data['gun_name'],
             ),
             status=200)
     except OOEException as e:

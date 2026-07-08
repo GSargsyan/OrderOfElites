@@ -39,9 +39,9 @@ PRODUCTION_CHAINS = {
                 'role': 'distributor',
                 'label': 'Distributor',
                 'consumes_from': 'intermediate_1_qty',
-                'produces_to': None,    # produces money
-                'consume_rate': 11,     # liters alcohol per hour per professional
-                'produce_rate': None,   # price-dependent
+                'produces_to': 'stash_qty',
+                'consume_rate': 11,
+                'produce_rate': 11,
             },
         ],
     },
@@ -67,9 +67,9 @@ PRODUCTION_CHAINS = {
                 'role': 'dealer',
                 'label': 'Dealer',
                 'consumes_from': 'intermediate_2_qty',
-                'produces_to': None,    # produces money
-                'consume_rate': 9,      # kg cannabis per hour
-                'produce_rate': None,   # price-dependent
+                'produces_to': 'stash_qty',
+                'consume_rate': 9,
+                'produce_rate': 9,
             },
         ],
     },
@@ -111,7 +111,7 @@ PRICE_MAX = {
 }
 
 POPULATION_LOOKBACK_HOURS = 24
-SUPPLY_WINDOW_MINUTES = 30
+SUPPLY_WINDOW_MINUTES = 1440  # 24 hours
 NOISE_MIN = 0.92
 NOISE_MAX = 1.08
 

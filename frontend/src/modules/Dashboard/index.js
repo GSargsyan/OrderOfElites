@@ -9,6 +9,7 @@ import ItemsTab from 'modules/Items/itemsTab.js'
 import NetworkingTab from 'modules/Networking/networkingTab.js'
 import UserProfileModal from 'modules/Dashboard/userProfile.js'
 import { request, formatMoney } from 'modules/Base'
+import Footer from 'modules/Home/footer'
 import 'styles/dashboard.css'
 
 
@@ -117,6 +118,7 @@ function Dashboard() {
                     />
                 )}
             </UserPreviewCtx.Provider>
+            <Footer />
         </div>
     )
 }
