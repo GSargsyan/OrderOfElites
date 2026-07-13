@@ -4,10 +4,9 @@ const sequelize = new Sequelize('ooe_db', 'ooe', 'ooe_pwd', {
   host: 'ooe_psql',
   dialect: 'postgres',
   port: 5432,
-  logging: false // Set to console.log to see the generated SQL queries
+  logging: false
 });
 
-// 2. Define the Model
 const ChatRoom = sequelize.define('ChatRoom', {
   name: {
     type: DataTypes.STRING(30),
@@ -25,7 +24,6 @@ const ChatRoom = sequelize.define('ChatRoom', {
     type: DataTypes.INTEGER,
     field: 'city_id',
   },
-  // users: association defined later
   createdAt: {
     type: DataTypes.DATE,
     field: 'created_at',
@@ -36,12 +34,50 @@ const ChatRoom = sequelize.define('ChatRoom', {
   }
 }, {
   tableName: 'ooe_chat_rooms',
-  timestamps: true // to handle createdAt and updatedAt
+  timestamps: true
 });
 
-// Define associations if necessary
-// ChatRoom.belongsTo(User, { foreignKey: 'creatorUserId' });
-// ChatRoom.belongsTo(City, { foreignKey: 'cityId' });
-// ChatRoom.belongsToMany(User, { through: 'ChatRoomUsers' });
+const Message = sequelize.define('Message', {
+  chatRoomId: {
+    type: DataTypes.INTEGER,
+    field: 'chat_room_id',
+  },
+  userId: {
+    type: DataTypes.INTEGER,
+    field: 'user_id',
+  },
+  message: {
+    type: DataTypes.TEXT,
+    field: 'message',
+  },
+  readAt: {
+    type: DataTypes.DATE,
+    field: 'read_at',
+    allowNull: true,
+  },
+  createdAt: {
+    type: DataTypes.DATE,
+    field: 'created_at',
+  },
+}, {
+  tableName: 'ooe_messages',
+  timestamps: true,
+  updatedAt: false,
+});
 
-module.exports = { ChatRoom, sequelize }
+const User = sequelize.define('User', {
+  username: {
+    type: DataTypes.STRING(30),
+    field: 'username',
+  },
+}, {
+  tableName: 'ooe_users',
+  timestamps: false,
+});
+
+// Associations
+Message.belongsTo(ChatRoom, { foreignKey: 'chat_room_id' });
+ChatRoom.hasMany(Message, { foreignKey: 'chat_room_id' });
+Message.belongsTo(User, { foreignKey: 'user_id' });
+
+module.exports = { ChatRoom, Message, User, sequelize }

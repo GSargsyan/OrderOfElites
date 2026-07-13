@@ -1,21 +1,84 @@
-import React, { useState } from 'react'
-
+import React, { useState, useEffect } from 'react'
 import Header from './header'
 import Footer from './footer'
 import { request } from 'modules/Base'
+import homepageBg from 'assets/homepage_bg.png'
 import 'styles/dashboard.css'
-
 
 function Homepage() {
     const [isSignup, setIsSignup] = useState(false)
+    const [stats, setStats] = useState({ total_registrations: 0, online_now: 0, online_24h: 0 })
+    const [topElites, setTopElites] = useState([])
+
+    useEffect(() => {
+        request({ url: 'users/homepage-stats', method: 'GET' })
+            .then(res => setStats(res.data))
+            .catch(err => console.error(err))
+
+        request({ url: 'users/top-elites', method: 'GET' })
+            .then(res => setTopElites(res.data.top_elites))
+            .catch(err => console.error(err))
+    }, [])
 
     return (
-        <div className="homepage-wrapper">
+        <div className="homepage-wrapper" style={{ backgroundImage: `url(${homepageBg})` }}>
             <Header />
 
-            {isSignup ?
-                <SignupForm toggleForm={() => setIsSignup(!isSignup)} /> :
-                <LoginForm toggleForm={() => setIsSignup(!isSignup)} />}
+            <div className="homepage-content">
+                <div className="homepage-intro">
+                    <h1 className="homepage-tagline">Join the underworld in a text based assassins game.</h1>
+                </div>
+                
+                <div className="homepage-grid">
+                    {/* Left Column: Stats and Top Elites */}
+                    <div className="homepage-left-col">
+                        <div className="homepage-stats-card panel-card">
+                            <h3>Game Statistics</h3>
+                            <div className="stat-item">
+                                <span>Total Assassins:</span>
+                                <strong>{stats.total_registrations}</strong>
+                            </div>
+                            <div className="stat-item">
+                                <span>Online Now:</span>
+                                <strong className="highlight-text">{stats.online_now}</strong>
+                            </div>
+                            <div className="stat-item">
+                                <span>Online (24h):</span>
+                                <strong>{stats.online_24h}</strong>
+                            </div>
+                        </div>
+
+                        <div className="homepage-elites-card panel-card">
+                            <h3>Top 10 Elites</h3>
+                            <table className="elites-table">
+                                <thead>
+                                    <tr>
+                                        <th>Rank</th>
+                                        <th>Username</th>
+                                        <th>Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {topElites.map((user, idx) => (
+                                        <tr key={idx}>
+                                            <td>#{idx + 1}</td>
+                                            <td>{user.username}</td>
+                                            <td>{user.rank}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Auth */}
+                    <div className="homepage-right-col">
+                        {isSignup ?
+                            <SignupForm toggleForm={() => setIsSignup(!isSignup)} /> :
+                            <LoginForm toggleForm={() => setIsSignup(!isSignup)} />}
+                    </div>
+                </div>
+            </div>
 
             <Footer />
         </div>

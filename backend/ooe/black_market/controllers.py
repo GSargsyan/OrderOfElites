@@ -17,6 +17,7 @@ from ooe.black_market.constants import (
     RANK_REQUIREMENTS,
     PRECURSOR_PRICES,
     PRECURSOR_NAMES,
+    PRECURSOR_BUY_QUANTITIES,
     PRODUCTION_CHAINS,
     BASE_PRICES,
     DRUG_TYPES,
@@ -271,15 +272,18 @@ class BlackMarketController:
             'server_time': timezone.now().timestamp(),
         }
 
-    def buy_precursor(self, drug_type):
-        """Buy 1 unit of precursor material for the given drug type."""
+    def buy_precursor(self, drug_type, quantity=1):
+        """Buy `quantity` units of precursor material for the given drug type."""
         if drug_type not in DRUG_TYPES:
             raise OOEException('Invalid drug type')
+
+        if quantity not in PRECURSOR_BUY_QUANTITIES:
+            raise OOEException('Invalid quantity')
 
         if self.user.rank < RANK_REQUIREMENTS[drug_type]:
             raise OOEException('Rank too low')
 
-        price = PRECURSOR_PRICES[drug_type]
+        price = PRECURSOR_PRICES[drug_type] * quantity
 
         if self.user.money_cash < price:
             raise OOEException('Not enough money')
@@ -292,7 +296,7 @@ class BlackMarketController:
         )
 
         PlayerDrugState.objects.filter(id=state.id).update(
-            precursor_qty=F('precursor_qty') + 1
+            precursor_qty=F('precursor_qty') + quantity
         )
         
         self.user.refresh_from_db()

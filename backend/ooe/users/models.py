@@ -23,6 +23,7 @@ class User(AbstractBaseUser):
     email = models.EmailField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    last_login_time = models.DateTimeField(null=True, blank=True)
     money_cash = models.IntegerField(default=0)
     money_bank = models.IntegerField(default=0)
     city = models.ForeignKey('cities.City', on_delete=models.CASCADE, default=1)
@@ -66,9 +67,9 @@ class User(AbstractBaseUser):
         return res
 
     def add_default_chat_rooms(self):
-        chat_room = ChatRoom.objects.get(name=self.city.name)
-
-        chat_room.users.add(self)
+        chat_room = ChatRoom.objects.filter(city=self.city, chat_type='city').first()
+        if chat_room:
+            chat_room.users.add(self)
 
     def add_exp(self, exp: int):
         User.objects.filter(id=self.id).update(exp=F('exp') + exp)

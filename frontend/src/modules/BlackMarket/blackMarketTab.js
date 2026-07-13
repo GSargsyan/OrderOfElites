@@ -2,6 +2,56 @@ import React, { useState, useEffect, useRef, useContext, useCallback } from 'rea
 import { request, formatMoney } from 'modules/Base'
 import { UserPreviewCtx } from 'modules/Dashboard'
 
+import alcoholGrains from 'assets/alcohol_grains.png'
+import alcoholBrewer from 'assets/alcohol_brewer.png'
+import alcoholDistributor from 'assets/alcohol_distributor.png'
+import cannabisSeed from 'assets/cannabis_seed.png'
+import cannabisBotanist from 'assets/cannabis_botanist.png'
+import cannabisTrimmer from 'assets/cannabis_trimmer.png'
+import cannabisDealer from 'assets/cannabis_dealer.png'
+
+const PRECURSOR_IMAGES = {
+    alcohol: alcoholGrains,
+    cannabis: cannabisSeed,
+}
+
+const ROLE_IMAGES = {
+    brewer: alcoholBrewer,
+    distributor: alcoholDistributor,
+    botanist: cannabisBotanist,
+    trimmer: cannabisTrimmer,
+    dealer: cannabisDealer,
+}
+
+
+/**
+ * Tracks Shift/Ctrl modifier state so buy buttons can offer bulk purchases.
+ * Resets on window blur since keyup won't fire if focus is lost while held.
+ */
+function useBuyMultiplier() {
+    const [multiplier, setMultiplier] = useState(1)
+
+    useEffect(() => {
+        const updateFromEvent = (e) => {
+            if (e.ctrlKey) setMultiplier(100)
+            else if (e.shiftKey) setMultiplier(5)
+            else setMultiplier(1)
+        }
+        const reset = () => setMultiplier(1)
+
+        window.addEventListener('keydown', updateFromEvent)
+        window.addEventListener('keyup', updateFromEvent)
+        window.addEventListener('blur', reset)
+        return () => {
+            window.removeEventListener('keydown', updateFromEvent)
+            window.removeEventListener('keyup', updateFromEvent)
+            window.removeEventListener('blur', reset)
+        }
+    }, [])
+
+    return multiplier
+}
+
 
 /**
  * Smooth counter component using requestAnimationFrame.
@@ -76,14 +126,32 @@ function SmoothCounter({ value, ratePerSecond, isMoney = false, decimals = 2 }) 
 }
 
 
-function DrugRow({ drugType, drugData, onRefresh }) {
+/**
+ * Dotted connector between two production nodes. When `active`, small
+ * glowing lights travel left-to-right along the dotted line to signal
+ * that material is actively flowing through this stage of the chain.
+ */
+function Connector({ active }) {
+    return (
+        <div className={`bm-connector${active ? ' active' : ''}`}>
+            <div className="bm-connector-track">
+                <span className="bm-connector-light" />
+                <span className="bm-connector-light" />
+                <span className="bm-connector-light" />
+            </div>
+        </div>
+    )
+}
+
+
+function DrugRow({ drugType, drugData, buyMultiplier, onRefresh }) {
     const { updateUserPreviewData } = useContext(UserPreviewCtx)
 
     const buyPrecursor = () => {
         request({
             url: 'black_market/buy_precursor',
             method: 'POST',
-            data: { drug_type: drugType },
+            data: { drug_type: drugType, quantity: buyMultiplier },
         })
         .then(() => {
             onRefresh()
@@ -126,100 +194,87 @@ function DrugRow({ drugType, drugData, onRefresh }) {
     }
 
     const isLocked = !drugData.unlocked
+    const lastStep = drugData.steps.length > 0 ? drugData.steps[drugData.steps.length - 1] : null
+
+    // Whether material is actively flowing across each connector segment,
+    // derived from the consumption/production rates already in drugData.
+    const connectorActive = drugData.steps.map(step => step.consume_rate_per_second > 0)
+    connectorActive.push(lastStep ? lastStep.rate_per_second > 0 : false)
+
+    const buyLabel = buyMultiplier === 1 ? 'Buy 1 Unit' : `Buy ${buyMultiplier} Units`
 
     return (
-        <div style={{
-            opacity: isLocked ? 0.4 : 1,
-            pointerEvents: isLocked ? 'none' : 'auto',
-            marginBottom: '24px',
-            padding: '12px',
-            border: '1px solid #555',
-        }}>
-            <h3 style={{ textTransform: 'capitalize', marginBottom: '8px' }}>
-                {drugType}
-                {isLocked && <span> (Requires Rank {drugData.rank_required})</span>}
-            </h3>
+        <div className={`bm-drug-card${isLocked ? ' locked' : ''}`}>
+            <h3 className="bm-drug-title">{drugType}</h3>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flexWrap: 'wrap' }}>
-                {/* Precursor */}
-                <div style={{ textAlign: 'center', minWidth: '100px' }}>
-                    <div><strong>{drugData.precursor_name}</strong></div>
-                    <div>
-                        <SmoothCounter
-                            value={drugData.precursor_qty}
-                            ratePerSecond={drugData.precursor_rate_per_second}
-                        />{' '}kg
-                    </div>
-                    <div style={{ fontSize: '0.85em', color: '#aaa' }}>
-                        ${drugData.precursor_price}/kg
-                    </div>
-                    <button onClick={buyPrecursor}>Buy 1 kg</button>
-                </div>
-
-                <span>→</span>
-
-                {/* Production steps */}
-                {drugData.steps.map((step, idx) => (
-                    <React.Fragment key={step.role}>
-                        <div style={{ textAlign: 'center', minWidth: '120px' }}>
-                            <div><strong>{step.label}</strong></div>
-                            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '6px' }}>
-                                <button onClick={() => removeProfessional(step.role)}>▼</button>
-                                <span>{step.count}</span>
-                                <button onClick={() => assignProfessional(step.role)}>▲</button>
+            <div className="bm-chain-container">
+                <div className="bm-chain-wrapper">
+                    <div className="bm-chain">
+                        {/* Precursor node */}
+                        <div className="bm-node bm-node-precursor">
+                            <img className="bm-node-image" src={PRECURSOR_IMAGES[drugType]} alt={drugData.precursor_name} />
+                            <div className="bm-node-label">{drugData.precursor_name}</div>
+                            <div className="bm-node-qty">
+                                <SmoothCounter
+                                    value={drugData.precursor_qty}
+                                    ratePerSecond={drugData.precursor_rate_per_second}
+                                />{' '}units
                             </div>
-                            {step.training_count > 0 && (
-                                <div style={{ fontSize: '0.8em', color: '#f0c040' }}>
-                                    ({step.training_count} training)
-                                </div>
-                            )}
-                            <div>
-                                {step.is_money_step ? (
-                                    <SmoothCounter
-                                        value={step.output_qty}
-                                        ratePerSecond={step.net_output_rate}
-                                        isMoney={true}
-                                    />
-                                ) : (
-                                    <SmoothCounter
-                                        value={step.output_qty}
-                                        ratePerSecond={step.net_output_rate}
-                                    />
-                                )}
-                                {step.is_money_step
-                                    ? <span style={{ fontSize: '0.8em', color: '#aaa' }}>
-                                        {' '}(@ ${step.current_price?.toFixed(2)}/unit)
-                                      </span>
-                                    : <span style={{ fontSize: '0.85em' }}> units</span>
-                                }
-                            </div>
+                            <div className="bm-node-sub">${drugData.precursor_price}/unit</div>
+                            <button className="btn-buy bm-buy-btn" onClick={buyPrecursor}>{buyLabel}</button>
                         </div>
 
-                        {idx < drugData.steps.length - 1 && <span>→</span>}
-                    </React.Fragment>
-                ))}
+                        <Connector active={connectorActive[0]} />
 
-                <span>→</span>
+                        {/* Production steps */}
+                        {drugData.steps.map((step, idx) => (
+                            <React.Fragment key={step.role}>
+                                <div className="bm-node bm-node-step">
+                                    <img className="bm-node-image" src={ROLE_IMAGES[step.role]} alt={step.label} />
+                                    <div className="bm-node-label">{step.label}</div>
+                                    <div className="bm-step-controls">
+                                        <button className="bm-step-btn" onClick={() => removeProfessional(step.role)}>−</button>
+                                        <span className="bm-step-count">{step.count}</span>
+                                        <button className="bm-step-btn" onClick={() => assignProfessional(step.role)}>+</button>
+                                    </div>
+                                    {step.training_count > 0 && (
+                                        <div className="bm-training-badge">{step.training_count} training</div>
+                                    )}
+                                    <div className="bm-node-qty">
+                                        <SmoothCounter
+                                            value={step.output_qty}
+                                            ratePerSecond={step.net_output_rate}
+                                        />{' '}units
+                                    </div>
+                                </div>
 
-                {/* Sell */}
-                <div style={{ textAlign: 'center', minWidth: '100px' }}>
-                    <div><strong>Revenue</strong></div>
-                    <div style={{ color: '#4caf50' }}>
-                        <SmoothCounter
-                            value={drugData.stash_qty * drugData.current_price}
-                            ratePerSecond={
-                                drugData.steps.length > 0
-                                    ? drugData.steps[drugData.steps.length - 1].net_output_rate * drugData.current_price
-                                    : 0
-                            }
-                            isMoney={true}
-                        />
+                                <Connector active={connectorActive[idx + 1]} />
+                            </React.Fragment>
+                        ))}
+
+                        {/* Revenue / sell node */}
+                        <div className="bm-node bm-node-revenue">
+                            <div className="bm-revenue-icon">$</div>
+                            <div className="bm-node-label">Stash Value</div>
+                            <div className="bm-node-qty bm-revenue-value">
+                                <SmoothCounter
+                                    value={drugData.stash_qty * drugData.current_price}
+                                    ratePerSecond={lastStep ? lastStep.net_output_rate * drugData.current_price : 0}
+                                    isMoney={true}
+                                />
+                            </div>
+                            <div className="bm-node-sub">${drugData.current_price?.toFixed(2)}/unit</div>
+                            <button className="bm-sell-btn" onClick={sell}>Sell</button>
+                        </div>
                     </div>
-                    <div style={{ fontSize: '0.85em', color: '#aaa', margin: '4px 0 8px 0' }}>
-                        Market price: ${drugData.current_price?.toFixed(2)}
-                    </div>
-                    <button onClick={sell}>Sell</button>
                 </div>
+
+                {isLocked && (
+                    <div className="bm-lock-overlay">
+                        <span className="bm-lock-icon" aria-hidden="true">🔒</span>
+                        <span className="bm-lock-text">Unlocks at Rank {drugData.rank_required}</span>
+                    </div>
+                )}
             </div>
         </div>
     )
@@ -228,6 +283,7 @@ function DrugRow({ drugType, drugData, onRefresh }) {
 
 function BlackMarketTab() {
     const [tabData, setTabData] = useState(null)
+    const buyMultiplier = useBuyMultiplier()
 
     const fetchData = useCallback(() => {
         request({
@@ -266,18 +322,36 @@ function BlackMarketTab() {
         return <div className="loading-text">LOADING BLACK MARKET...</div>
     }
 
+    const profPercent = tabData.max_professionals > 0
+        ? Math.min(100, (tabData.total_professionals / tabData.max_professionals) * 100)
+        : 0
+
     return (
-        <div>
-            <div style={{ marginBottom: '16px' }}>
-                <strong>Professionals: </strong>
-                {tabData.total_professionals} / {tabData.max_professionals}
+        <div className="bm-container">
+            <div className="bm-professionals-bar">
+                <div className="bm-professionals-top">
+                    <span className="bm-professionals-label">Professionals</span>
+                    <span className="bm-professionals-value">
+                        {tabData.total_professionals} / {tabData.max_professionals}
+                    </span>
+                </div>
+                <div className="progress-bar-track">
+                    <div className="progress-bar-fill" style={{ width: `${profPercent}%` }} />
+                </div>
             </div>
+
+            {buyMultiplier > 1 && (
+                <div className="bm-multiplier-hint">
+                    {buyMultiplier === 100 ? 'CTRL held — bulk purchase ×100' : 'SHIFT held — bulk purchase ×5'}
+                </div>
+            )}
 
             {Object.entries(tabData.drug_rows).map(([drugType, drugData]) => (
                 <DrugRow
                     key={drugType}
                     drugType={drugType}
                     drugData={drugData}
+                    buyMultiplier={buyMultiplier}
                     onRefresh={fetchData}
                 />
             ))}

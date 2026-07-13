@@ -13,16 +13,22 @@ class SkillsController:
         self.user = user
 
     def get_skills_tab_data(self):
+        free_cd = cache.get(f'user_{self.user.id}_training_free_cd') or 0
+        pro_cd = cache.get(f'user_{self.user.id}_training_pro_cd') or 0
         return {
-            'attack_free_cd': cache.get(f'user_{self.user.id}_attack_free_cd') or 0,
-            'defense_free_cd': cache.get(f'user_{self.user.id}_defense_free_cd') or 0,
-            'driving_free_cd': cache.get(f'user_{self.user.id}_driving_free_cd') or 0,
-            'attack_pro_cd': cache.get(f'user_{self.user.id}_attack_pro_cd') or 0,
-            'defense_pro_cd': cache.get(f'user_{self.user.id}_defense_pro_cd') or 0,
-            'driving_pro_cd': cache.get(f'user_{self.user.id}_driving_pro_cd') or 0,
+            'attack_free_cd': free_cd,
+            'defense_free_cd': free_cd,
+            'driving_free_cd': free_cd,
+            'attack_pro_cd': pro_cd,
+            'defense_pro_cd': pro_cd,
+            'driving_pro_cd': pro_cd,
             'attack_pro_price': SKILLS['attack_pro']['price'],
             'defense_pro_price': SKILLS['defense_pro']['price'],
             'driving_pro_price': SKILLS['driving_pro']['price'],
+            'free_points': SKILLS['attack_free']['points'],
+            'pro_points': SKILLS['attack_pro']['points'],
+            'free_cooldown': SKILL_COOLDOWNS['free'],
+            'pro_cooldown': SKILL_COOLDOWNS['pro'],
         }
 
     def validate_practice(self, skill_name: str):
@@ -56,11 +62,12 @@ class SkillsController:
 
         self.user.add_exp(skill['exp_reward'])
 
-        cd = int(time.time()) + SKILL_COOLDOWNS["free" if is_free else "pro"]
+        cooldown_sec = SKILL_COOLDOWNS["free" if is_free else "pro"]
+        cd = int(time.time()) + cooldown_sec
 
         cache.set(f'user_{self.user.id}_training_{"free" if is_free else "pro"}_cd',
             cd,
-            timeout = skill['cooldown'])
+            timeout = cooldown_sec)
 
         return {
                 'points_gained': points_gained,

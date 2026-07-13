@@ -102,3 +102,66 @@ SKILLS = {
 }
 
 ITEM_SELL_PERCENT = .75
+
+# the realistic travel times will be frustrated we need a variable
+# in constants that will reduce the amount of time by dividing to this number
+TRAVEL_TIME_REDUCER = 2.32
+
+TRAVEL_ROUTES = {
+    'New York': {
+        'Mexico City': {
+            'time_minutes': 240,
+            'cost': 3500
+        },
+        'Moscow': {
+            'time_minutes': 540,
+            'cost': 7500
+        },
+        'Rome': {
+            'time_minutes': 480,
+            'cost': 6900
+        },
+    },
+    'Mexico City': {
+        'New York': {
+            'time_minutes': 240,
+            'cost': 3500
+        },
+        'Moscow': {
+            'time_minutes': 750,
+            'cost': 10700
+        },
+        'Rome': {
+            'time_minutes': 720,
+            'cost': 10200
+        },
+    },
+    'Moscow': {
+        'New York': {
+            'time_minutes': 540,
+            'cost': 7500
+        },
+        'Mexico City': {
+            'time_minutes': 750,
+            'cost': 10700
+        },
+        'Rome': {
+            'time_minutes': 210,
+            'cost': 2400
+        },
+    },
+    'Rome': {
+        'New York': {
+            'time_minutes': 480,
+            'cost': 6900
+        },
+        'Mexico City': {
+            'time_minutes': 720,
+            'cost': 10200
+        },
+        'Moscow': {
+            'time_minutes': 210,
+            'cost': 2400
+        },
+    }
+}

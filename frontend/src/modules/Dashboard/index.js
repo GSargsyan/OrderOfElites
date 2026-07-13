@@ -77,7 +77,7 @@ function Dashboard() {
     }, [])
 
     return (
-        <div className="dashboard-wrapper">
+        <div className="dashboard-wrapper" data-city={userPreviewData?.city}>
             {/* ── Header Bar ─────────────────────────── */}
             <div className="header-bar">
                 <h1 className="game-title">
@@ -85,8 +85,6 @@ function Dashboard() {
                 </h1>
 
                 <UserPreview userPreviewData={userPreviewData} />
-
-                <ServerClock />
             </div>
 
             {/* ── Center Layout ──────────────────────── */}
@@ -271,42 +269,7 @@ const UserPreview = memo(({ userPreviewData }) => {
     )
 })
 
-function ServerClock() {
-    const [time, setTime] = useState('')
-    const [tzLabel, setTzLabel] = useState('UTC')
 
-    useEffect(() => {
-        const tick = () => {
-            const now = new Date()
-            const h = String(now.getHours()).padStart(2, '0')
-            const m = String(now.getMinutes()).padStart(2, '0')
-            const s = String(now.getSeconds()).padStart(2, '0')
-            setTime(`${h}:${m}:${s}`)
-
-            const offsetMinutes = -now.getTimezoneOffset()
-            const offsetHours = offsetMinutes / 60
-            const sign = offsetHours >= 0 ? '+' : '-'
-            const absOffsetHours = Math.abs(offsetHours)
-            const integerHours = Math.floor(absOffsetHours)
-            const fractionMinutes = (absOffsetHours - integerHours) * 60
-            let offsetString = `UTC${sign}${integerHours}`
-            if (fractionMinutes > 0) {
-                offsetString += `:${String(fractionMinutes).padStart(2, '0')}`
-            }
-            setTzLabel(offsetString)
-        }
-        tick()
-        const interval = setInterval(tick, 1000)
-        return () => clearInterval(interval)
-    }, [])
-
-    return (
-        <div className="server-clock">
-            <span className="clock-time">{time}</span>
-            <span className="clock-label">{tzLabel}</span>
-        </div>
-    )
-}
 
 function DashboardTab() {
     console.log('DashboardTab rendered')

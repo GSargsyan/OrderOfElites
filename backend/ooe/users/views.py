@@ -1,5 +1,6 @@
 import re
-
+from datetime import timedelta
+from django.utils import timezone
 from django.db import transaction
 from django.http import JsonResponse
 from django.contrib.auth import authenticate, login
@@ -74,7 +75,10 @@ def login_user(request):
     user = authenticate(request, username=username, password=password)
 
     if user is not None:
+        user.last_login_time = timezone.now()
+        user.save(update_fields=['last_login_time'])
         token, created = Token.objects.get_or_create(user=user)
+        user.add_default_chat_rooms()
         resp = Response({'token': token.key}, status=200)
     else:
         resp = Response({"error": "Incorrect Username/Password combination"},
@@ -127,8 +131,43 @@ def signup_user(request):
             "numbers and special characters"}, status=400)
         
     user = User.objects.create(username=username, password=make_password(password))
+    user.last_login_time = timezone.now()
+    user.save(update_fields=['last_login_time'])
     Token.objects.create(user=user)
 
     user.add_default_chat_rooms()
 
     return Response(status=201)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_homepage_stats(request):
+    total_registrations = User.objects.count()
+    
+    # Calculate online now (within last 15 mins) and online 24h
+    now = timezone.now()
+    fifteen_mins_ago = now - timedelta(minutes=15)
+    one_day_ago = now - timedelta(hours=24)
+
+    # We use updated_at to track activity since login is just one action
+    online_now = User.objects.filter(updated_at__gte=fifteen_mins_ago).count()
+    online_24h = User.objects.filter(updated_at__gte=one_day_ago).count()
+
+    return Response({
+        'total_registrations': total_registrations,
+        'online_now': online_now,
+        'online_24h': online_24h,
+    }, status=200)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def get_top_elites(request):
+    top_users = User.objects.order_by('-rank', '-exp')[:10]
+    data = []
+    for user in top_users:
+        data.append({
+            'username': user.username,
+            'rank': user.rank,
+            'exp': user.exp,
+        })
+    return Response({'top_elites': data}, status=200)

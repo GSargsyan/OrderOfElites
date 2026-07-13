@@ -1,36 +1,71 @@
-import { useState, useEffect, memo } from 'react'
+import { useState, useEffect, useRef, memo, useCallback } from 'react'
 import socketIOClient from "socket.io-client"
 import { CHAT_URL } from 'modules/Base/constants.js'
 import { request } from 'modules/Base'
 import { ChatBoard, MessagesBoard } from 'modules/Chat/chatBoard.js'
 
 const ChatContainer = memo(({ messageUser }) => {
-    console.log('ChatContainer rendered')
     const [rooms, setRooms] = useState(null)
     const [activeTab, setActiveTab] = useState(0)
+    const [notifSocket, setNotifSocket] = useState(null)
+    const [totalUnread, setTotalUnread] = useState(0)
+    const [messageUserState, setMessageUserState] = useState(null)
 
+    // Load chat rooms
     useEffect(() => {
-        if (messageUser !== null) {
-            setActiveTab(0)
-        }
-
         request({
-            'url': 'chat/get_user_rooms',
-            'method': 'POST',
-        })
-        .then(response => {
-            console.log(response.data)
+            url: 'chat/get_user_rooms',
+            method: 'POST',
+        }).then(response => {
             setRooms(response.data)
         })
     }, [])
 
+    // Connect to notifications namespace for real-time DMs
     useEffect(() => {
-        if (messageUser === null) {
-            return
-        }
+        const token = localStorage.getItem('token')
+        const socket = socketIOClient(`${CHAT_URL}/notifications`, {
+            query: { token }
+        })
 
-        setActiveTab(0)
-    }, [messageUser])
+        setNotifSocket(socket)
+
+        // Track unread count updates
+        socket.on('new_dm', () => {
+            // Refresh unread count from conversations
+            refreshUnreadCount()
+        })
+
+        return () => socket.disconnect()
+    }, [])
+
+    const refreshUnreadCount = useCallback(() => {
+        request({
+            url: 'chat/get_dm_conversations',
+            method: 'POST',
+        }).then(response => {
+            const total = response.data.reduce((sum, conv) => sum + (conv.unread_count || 0), 0)
+            setTotalUnread(total)
+        })
+    }, [])
+
+    // Initial unread count load
+    useEffect(() => {
+        refreshUnreadCount()
+    }, [refreshUnreadCount])
+
+    // Handle messageUser prop from profile modal
+    useEffect(() => {
+        if (messageUser && rooms) {
+            setActiveTab(rooms.length)  // Switch to Messages tab
+            setMessageUserState(messageUser)
+        }
+    }, [messageUser, rooms])
+
+    // Clear messageUser after it's been handled by MessagesBoard
+    const handleMessageUserHandled = useCallback(() => {
+        setMessageUserState(null)
+    }, [])
 
     if (!rooms) {
         return (
@@ -42,38 +77,40 @@ const ChatContainer = memo(({ messageUser }) => {
 
     const handleTabClick = (index) => {
         setActiveTab(index)
-        console.log('clicked tab', index)
+        // Clear unread when switching to Messages tab
+        if (index === rooms.length) {
+            refreshUnreadCount()
+        }
     }
 
     return (
         <div className="chat-panel">
             <div className="chat-tab-bar">
-                <div
-                    className={`chat-tab ${activeTab === 0 ? 'active' : ''}`}
-                    onClick={() => handleTabClick(0)}
-                    key={0}
-                >
-                    Messages
-                </div>
-
                 {rooms.map((chat, index) => (
                     <div
-                        className={`chat-tab ${activeTab === index + 1 ? 'active' : ''}`}
+                        className={`chat-tab ${activeTab === index ? 'active' : ''}`}
                         key={chat.id}
-                        onClick={() => handleTabClick(index + 1)}
+                        onClick={() => handleTabClick(index)}
                     >
                         {chat.name}
                     </div>
                 ))}
+
+                <div
+                    className={`chat-tab ${activeTab === rooms.length ? 'active' : ''}`}
+                    onClick={() => handleTabClick(rooms.length)}
+                    key="messages"
+                >
+                    Messages
+                    {totalUnread > 0 && (
+                        <span className="chat-tab-badge">{totalUnread}</span>
+                    )}
+                </div>
             </div>
 
             <div className="chat-body">
-                {activeTab === 0 && (
-                    <MessagesBoard messageUser={messageUser} />
-                )}
-
                 {rooms.map((chat, index) => (
-                    activeTab === index + 1 && (
+                    activeTab === index && (
                         <ChatBoard
                             key={chat.id}
                             chatRoomId={chat.id}
@@ -81,6 +118,14 @@ const ChatContainer = memo(({ messageUser }) => {
                         />
                     )
                 ))}
+
+                {activeTab === rooms.length && (
+                    <MessagesBoard
+                        messageUser={messageUserState}
+                        onMessageUserHandled={handleMessageUserHandled}
+                        notifSocket={notifSocket}
+                    />
+                )}
             </div>
         </div>
     )

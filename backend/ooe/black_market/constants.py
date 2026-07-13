@@ -21,6 +21,10 @@ PRECURSOR_NAMES = {
     'cannabis': 'Seed',
 }
 
+# ── Precursor Bulk Buy ────────────────────────────────────────
+# Whitelisted quantities for buy_precursor (1 = default, 5 = shift, 100 = ctrl)
+PRECURSOR_BUY_QUANTITIES = {1, 5, 100}
+
 # ── Production Chains ─────────────────────────────────────────
 # Each drug type has an ordered list of steps.
 # The final step (produces_to=None) generates money instead of material.

@@ -21,9 +21,15 @@ def get_tab_data(request):
 @transaction.atomic
 def buy_precursor(request):
     try:
+        quantity = int(request.data.get('quantity') or 1)
+    except (TypeError, ValueError):
+        quantity = 1
+
+    try:
         return Response(
             BlackMarketController(request.user).buy_precursor(
                 drug_type=request.data.get('drug_type'),
+                quantity=quantity,
             ),
             status=200)
     except OOEException as e:
