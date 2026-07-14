@@ -34,3 +34,13 @@ class UserGun(models.Model):
 
     class Meta:
         db_table = 'ooe_users_guns'
+
+
+class UserAirplane(models.Model):
+    user = models.ForeignKey('users.User', related_name='airplanes', on_delete=models.CASCADE)
+    airplane = models.CharField(max_length=50)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'ooe_users_airplanes'

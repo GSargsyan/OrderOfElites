@@ -8,7 +8,10 @@ from .views import \
     sell_gun, \
     get_user_cars, \
     buy_car, \
-    sell_car
+    sell_car, \
+    get_user_airplanes, \
+    buy_airplane, \
+    sell_airplane
     
 
 urlpatterns = [
@@ -21,4 +24,7 @@ urlpatterns = [
     path('api/items/get_user_cars', get_user_cars),
     path('api/items/buy_car', buy_car),
     path('api/items/sell_car', sell_car),
+    path('api/items/get_user_airplanes', get_user_airplanes),
+    path('api/items/buy_airplane', buy_airplane),
+    path('api/items/sell_airplane', sell_airplane),
 ]

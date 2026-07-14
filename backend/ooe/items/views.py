@@ -139,3 +139,48 @@ def sell_gun(request):
             'message': str(e),
         }, status=400)
 
+
+@api_view(['POST'])
+@auth_by_token
+def get_user_airplanes(request):
+    return Response(
+        ItemsController().get_user_airplanes(user=request.user),
+        status=200)
+
+
+@api_view(['POST'])
+@auth_by_token
+@transaction.atomic
+def buy_airplane(request):
+    try:
+        return Response(
+            ItemsController().buy_airplane(
+                user=request.user,
+                airplane_name=request.data['airplane_name'],
+            ),
+            status=200)
+    except OOEException as e:
+        return Response({
+            'status': 'error',
+            'message': str(e),
+        }, status=400)
+
+
+@api_view(['POST'])
+@auth_by_token
+@transaction.atomic
+def sell_airplane(request):
+    try:
+        return Response(
+            ItemsController().sell_airplane(
+                user=request.user,
+                airplane_name=request.data['airplane_name'],
+            ),
+            status=200)
+    except OOEException as e:
+        return Response({
+            'status': 'error',
+            'message': str(e),
+        }, status=400)
+
+

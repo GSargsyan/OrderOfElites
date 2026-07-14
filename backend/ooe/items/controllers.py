@@ -8,7 +8,9 @@ from ooe.users.models import User
 from ooe.base.exceptions import OOEException
 from ooe.items.constants import \
     HOUSES, \
-    HOUSE_SELL_PERCENT
+    HOUSE_SELL_PERCENT, \
+    AIRPLANES, \
+    AIRPLANE_SELL_PERCENT
 
 
 class ItemsController:
@@ -78,4 +80,69 @@ class ItemsController:
         return {
             'status': 'success',
             'message': 'House sold',
+        }
+
+    @staticmethod
+    def get_user_airplanes(user: object):
+        user_airplanes = user.airplanes.all()
+        owned_airplanes = {ap.airplane for ap in user_airplanes}
+
+        return {
+            key: {
+                'name': airplane['name'],
+                'price': airplane['price'],
+                'speed_multiplier': airplane['speed_multiplier'],
+                'price_multiplier': airplane['price_multiplier'],
+                'cooldown': airplane['cooldown'],
+                'cooldown_minutes': airplane['cooldown_minutes'],
+                'owned': key in owned_airplanes or key == 'commercial_flight',
+            }
+            for key, airplane in AIRPLANES.items()
+        }
+
+    @staticmethod
+    def buy_airplane(user: object, airplane_name: str):
+        if airplane_name not in AIRPLANES:
+            raise OOEException('Invalid airplane name')
+
+        if airplane_name == 'commercial_flight':
+            raise OOEException('Cannot buy commercial flight')
+
+        if user.money_cash < AIRPLANES[airplane_name]['price']:
+            raise OOEException('Not enough money')
+
+        if user.airplanes.filter(airplane=airplane_name).exists():
+            raise OOEException('Already owns this airplane')
+
+        user.money_cash = F('money_cash') - AIRPLANES[airplane_name]['price']
+        user.save()
+
+        user.airplanes.create(
+            airplane=airplane_name,
+        )
+
+        return {
+            'status': 'success',
+            'message': 'Airplane bought',
+        }
+
+    @staticmethod
+    def sell_airplane(user: object, airplane_name: str):
+        if airplane_name not in AIRPLANES:
+            raise OOEException('Invalid airplane name')
+
+        if airplane_name == 'commercial_flight':
+            raise OOEException('Cannot sell commercial flight')
+
+        if not user.airplanes.filter(airplane=airplane_name).exists():
+            raise OOEException('Does not own this airplane')
+
+        user.money_cash = F('money_cash') + AIRPLANES[airplane_name]['price'] * AIRPLANE_SELL_PERCENT
+        user.save()
+
+        user.airplanes.filter(airplane=airplane_name).delete()
+
+        return {
+            'status': 'success',
+            'message': 'Airplane sold',
         }
