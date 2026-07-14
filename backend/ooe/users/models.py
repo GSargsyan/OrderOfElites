@@ -81,10 +81,49 @@ class User(AbstractBaseUser):
             self.rank += 1
             self.save(update_fields=['rank'])
 
-    def get_profile_data(self):
+    def get_profile_data(self, requesting_user=None):
+        reviews = self.received_reviews.select_related('reviewer').order_by('created_at')
+        total_rating = sum(r.rating for r in reviews)
+        count = len(reviews)
+        overall_rating = round(total_rating / count, 1) if count > 0 else None
+        
+        serialized_reviews = [{
+            'id': r.id,
+            'reviewer': r.reviewer.username,
+            'rating': r.rating,
+            'text': r.text,
+            'created_at': r.created_at.isoformat()
+        } for r in reviews]
+        
+        cooldown_seconds = 0
+        if requesting_user and requesting_user != self:
+            from datetime import timedelta
+            from django.utils import timezone
+            one_day_ago = timezone.now() - timedelta(hours=24)
+            last_review = self.received_reviews.filter(reviewer=requesting_user, created_at__gt=one_day_ago).order_by('-created_at').first()
+            if last_review:
+                elapsed = timezone.now() - last_review.created_at
+                cooldown_seconds = max(0, int(86400 - elapsed.total_seconds()))
+
         res = {
             'username': self.username,
             'rank': self.rank,
+            'overall_rating': overall_rating,
+            'reviews_count': count,
+            'reviews': serialized_reviews,
+            'cooldown_seconds': cooldown_seconds,
         }
 
         return res
+
+
+class UserReview(models.Model):
+    reviewer = models.ForeignKey('users.User', related_name='written_reviews', on_delete=models.CASCADE)
+    reviewed = models.ForeignKey('users.User', related_name='received_reviews', on_delete=models.CASCADE)
+    rating = models.IntegerField()
+    text = models.CharField(max_length=250)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'ooe_user_reviews'
+        ordering = ['created_at']

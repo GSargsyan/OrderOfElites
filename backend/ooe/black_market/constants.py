@@ -8,17 +8,23 @@ TRAINING_TIME_MINUTES = 0.1  # testing at 0.1 # 60          # Minutes to train a
 RANK_REQUIREMENTS = {
     'alcohol': 1,
     'cannabis': 5,
+    'methamphetamine': 8,
+    'cocaine': 12,
 }
 
 # ── Precursor Prices (cost per 1 kg / 1 unit) ────────────────
 PRECURSOR_PRICES = {
-    'alcohol': 40,      # $40 per kg grain
-    'cannabis': 100,    # $100 per kg seeds
+    'alcohol': 400,
+    'cannabis': 1000,
+    'methamphetamine': 5000,
+    'cocaine': 15000,
 }
 
 PRECURSOR_NAMES = {
     'alcohol': 'Grain',
     'cannabis': 'Seed',
+    'methamphetamine': 'Meth Precursors',
+    'cocaine': 'Coca Leaves',
 }
 
 # ── Precursor Bulk Buy ────────────────────────────────────────
@@ -77,6 +83,78 @@ PRODUCTION_CHAINS = {
             },
         ],
     },
+    'methamphetamine': {
+        'steps': [
+            {
+                'role': 'chemist',
+                'label': 'Chemist',
+                'consumes_from': 'precursor_qty',
+                'produces_to': 'intermediate_1_qty',
+                'consume_rate': 10,
+                'produce_rate': 15,
+            },
+            {
+                'role': 'cook',
+                'label': 'Cook',
+                'consumes_from': 'intermediate_1_qty',
+                'produces_to': 'intermediate_2_qty',
+                'consume_rate': 10,
+                'produce_rate': 5,
+            },
+            {
+                'role': 'crystalizer',
+                'label': 'Crystalizer',
+                'consumes_from': 'intermediate_2_qty',
+                'produces_to': 'intermediate_3_qty',
+                'consume_rate': 8,
+                'produce_rate': 4,
+            },
+            {
+                'role': 'meth_dealer',
+                'label': 'Dealer',
+                'consumes_from': 'intermediate_3_qty',
+                'produces_to': 'stash_qty',
+                'consume_rate': 12,
+                'produce_rate': 12,
+            },
+        ],
+    },
+    'cocaine': {
+        'steps': [
+            {
+                'role': 'picker',
+                'label': 'Picker',
+                'consumes_from': 'precursor_qty',
+                'produces_to': 'intermediate_1_qty',
+                'consume_rate': 20,
+                'produce_rate': 10,
+            },
+            {
+                'role': 'paste_maker',
+                'label': 'Paste Maker',
+                'consumes_from': 'intermediate_1_qty',
+                'produces_to': 'intermediate_2_qty',
+                'consume_rate': 10,
+                'produce_rate': 5,
+            },
+            {
+                'role': 'refiner',
+                'label': 'Refiner',
+                'consumes_from': 'intermediate_2_qty',
+                'produces_to': 'intermediate_3_qty',
+                'consume_rate': 8,
+                'produce_rate': 4,
+            },
+            {
+                'role': 'coke_dealer',
+                'label': 'Dealer',
+                'consumes_from': 'intermediate_3_qty',
+                'produces_to': 'stash_qty',
+                'consume_rate': 15,
+                'produce_rate': 15,
+            },
+        ],
+    },
 }
 
 # ── Pricing Formula ───────────────────────────────────────────
@@ -94,24 +172,32 @@ PRODUCTION_CHAINS = {
 # Higher A values make the drug more resistant to supply-driven price drops.
 #
 BASE_PRICES = {
-    'alcohol': 100,     # $100 per liter
-    'cannabis': 800,    # $800 per kg
+    'alcohol': 1000,
+    'cannabis': 8000,
+    'methamphetamine': 20000,
+    'cocaine': 40000,
 }
 
 PRICE_ABSORBER = {
-    'alcohol': 80,      # High absorber → price barely moves with supply
-    'cannabis': 50,     # Moderate
+    'alcohol': 50,
+    'cannabis': 10,
+    'methamphetamine': 5,
+    'cocaine': 3,
 }
 
 # Min/max price bounds (prevent prices from going unreasonably low or high)
 PRICE_MIN = {
-    'alcohol': 20,      # Floor: $20 per liter
-    'cannabis': 150,    # Floor: $150 per kg
+    'alcohol': 200,
+    'cannabis': 1600,
+    'methamphetamine': 4000,
+    'cocaine': 8000,
 }
 
 PRICE_MAX = {
-    'alcohol': 200,     # Ceiling: $200 per liter
-    'cannabis': 1500,   # Ceiling: $1500 per kg
+    'alcohol': 2000,
+    'cannabis': 16000,
+    'methamphetamine': 40000,
+    'cocaine': 80000,
 }
 
 POPULATION_LOOKBACK_HOURS = 24

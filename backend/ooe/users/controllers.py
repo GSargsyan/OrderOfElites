@@ -3,7 +3,7 @@ import time
 from django.core.cache import cache
 from django.db.models import F
 
-from ooe.users.models import User
+from ooe.users.models import User, UserReview
 from ooe.base.exceptions import OOEException
 from ooe.base.constants import SKILLS, SKILL_COOLDOWNS
 
@@ -73,3 +73,56 @@ class SkillsController:
                 'points_gained': points_gained,
                 'exp_gained': skill['exp_reward'],
                 'cd_remaining': cd}
+
+
+class UserReviewsController:
+    def __init__(self, user: User):
+        self.user = user  # The reviewer
+
+    def add_review(self, reviewed_username: str, rating: int, text: str):
+        try:
+            reviewed_user = User.objects.get(username=reviewed_username)
+        except User.DoesNotExist:
+            raise OOEException("User not found")
+
+        if self.user == reviewed_user:
+            raise OOEException("You cannot write a review for yourself")
+
+        try:
+            rating_val = int(rating)
+            if not (1 <= rating_val <= 5):
+                raise ValueError()
+        except (ValueError, TypeError):
+            raise OOEException("Rating must be an integer between 1 and 5")
+
+        text = (text or "").strip()
+        if not text:
+            raise OOEException("Review text cannot be empty")
+        if len(text) > 250:
+            raise OOEException("Review text must be at most 250 characters")
+
+        from datetime import timedelta
+        from django.utils import timezone
+        one_day_ago = timezone.now() - timedelta(hours=24)
+
+        last_review = UserReview.objects.filter(
+            reviewer=self.user,
+            reviewed=reviewed_user,
+            created_at__gt=one_day_ago
+        ).order_by('-created_at').first()
+
+        if last_review:
+            elapsed = timezone.now() - last_review.created_at
+            remaining = int(86400 - elapsed.total_seconds())
+            hours = remaining // 3600
+            minutes = (remaining % 3600) // 60
+            raise OOEException(f"You must wait {hours} hours and {minutes} minutes before reviewing this operative again")
+
+        UserReview.objects.create(
+            reviewer=self.user,
+            reviewed=reviewed_user,
+            rating=rating_val,
+            text=text
+        )
+
+        return reviewed_user.get_profile_data(requesting_user=self.user)

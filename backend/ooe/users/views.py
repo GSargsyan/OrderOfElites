@@ -14,7 +14,7 @@ from ooe.base.utils import auth_by_token
 
 from ooe.base.exceptions import OOEException
 from ooe.users.models import User
-from ooe.users.controllers import SkillsController
+from ooe.users.controllers import SkillsController, UserReviewsController
 from ooe.users.constants import \
     USERNAME_REGEX, \
     USERNAME_LEN_MAX, \
@@ -47,9 +47,28 @@ def find_by_username(request):
         return Response({"error": "Username is required"}, status=400)
 
     try:
-        return Response(User.objects.get(username=username).get_profile_data(), status=200)
+        return Response(User.objects.get(username=username).get_profile_data(requesting_user=request.user), status=200)
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
+
+
+@api_view(['POST'])
+@auth_by_token
+def add_review(request):
+    reviewed_username = request.data.get("reviewed_username")
+    rating = request.data.get("rating")
+    text = request.data.get("text")
+
+    try:
+        controller = UserReviewsController(request.user)
+        profile_data = controller.add_review(reviewed_username, rating, text)
+        return Response(profile_data, status=201)
+    except OOEException as e:
+        return Response({
+            'status': 'error',
+            'message': str(e),
+        }, status=400)
+
 
 
 @api_view(['POST'])

@@ -9,10 +9,22 @@ import cannabisSeed from 'assets/cannabis_seed.png'
 import cannabisBotanist from 'assets/cannabis_botanist.png'
 import cannabisTrimmer from 'assets/cannabis_trimmer.png'
 import cannabisDealer from 'assets/cannabis_dealer.png'
+import methPrecursors from 'assets/methamphetamine_meth_precursor.png'
+import methChemist from 'assets/methamphetamine_chemist.png'
+import methCook from 'assets/methamphetamine_cook.png'
+import methCrystalizer from 'assets/methamphetamine_crystalizer.png'
+import methDealer from 'assets/methamphetamine_dealer.png'
+import cocaLeaves from 'assets/cocaine_coca_leaves.png'
+import cokePicker from 'assets/cocaine_raw_crop.png'
+import cokePasteMaker from 'assets/cocaine_paste_maker.png'
+import cokeRefiner from 'assets/cocaine_refiner.png'
+import cokeDealer from 'assets/cocaine_dealer.png'
 
 const PRECURSOR_IMAGES = {
     alcohol: alcoholGrains,
     cannabis: cannabisSeed,
+    methamphetamine: methPrecursors,
+    cocaine: cocaLeaves,
 }
 
 const ROLE_IMAGES = {
@@ -21,6 +33,14 @@ const ROLE_IMAGES = {
     botanist: cannabisBotanist,
     trimmer: cannabisTrimmer,
     dealer: cannabisDealer,
+    chemist: methChemist,
+    cook: methCook,
+    crystalizer: methCrystalizer,
+    meth_dealer: methDealer,
+    picker: cokePicker,
+    paste_maker: cokePasteMaker,
+    refiner: cokeRefiner,
+    coke_dealer: cokeDealer,
 }
 
 

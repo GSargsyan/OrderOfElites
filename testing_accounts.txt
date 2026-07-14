@@ -1,0 +1,2 @@
+Generated the correct PBKDF2 Django-hashed password string for password: password123
+Inserted 10 test users (Test_One to Test_Ten with IDs 10 through 19) with default stats, set to the active city Mexico City (city_id = 5).
