@@ -2,12 +2,30 @@ import React, { useState, useEffect, useContext } from 'react'
 import { request, formatMoney } from 'modules/Base'
 import { UserPreviewCtx } from 'modules/Dashboard'
 
+import apexTypeC200 from 'assets/pictures/cars/apex_type_c200.png'
+import overlander from 'assets/pictures/cars/overlander.png'
+import falkenGts from 'assets/pictures/cars/falken_gts.png'
+import vanguard from 'assets/pictures/cars/vanguard.png'
+import banshee from 'assets/pictures/cars/banshee.png'
+import imperiumRArmored from 'assets/pictures/cars/imperium_r_armored.png'
+import bordeauxV16 from 'assets/pictures/cars/bordeaux_v16.png'
+
+const CAR_IMAGES = {
+    apex_type_c200: apexTypeC200,
+    overlander: overlander,
+    falken_gts: falkenGts,
+    vanguard: vanguard,
+    banshee: banshee,
+    imperium_r_armored: imperiumRArmored,
+    bordeaux_v16: bordeauxV16,
+}
+
 function Cars() {
     console.log('Cars rendered')
 
     const [cars, setCars] = useState(null)
 
-    const { userPreviewData, updateUserPreviewData } = useContext(UserPreviewCtx)
+    const { updateUserPreviewData } = useContext(UserPreviewCtx)
 
     useEffect(() => {
         getCarsData()
@@ -23,7 +41,7 @@ function Cars() {
             setCars(response.data)
         })
         .catch(error => {
-            console.error("Error getting items tab data: ", error)
+            console.error("Error getting cars data: ", error)
         })
     }
 
@@ -74,33 +92,33 @@ function Cars() {
             {Object.keys(cars).map(carKey => (
                 <div className="item-card" key={carKey}>
                     <img
-                        className="item-image"
-                        src={`/images/${carKey}.png`}
+                        className="car-image"
+                        src={CAR_IMAGES[carKey]}
                         alt={cars[carKey].name}
                     />
                     <div className="item-info">
                         <h2>{cars[carKey].name}</h2>
                         <div className="item-owned-cities">
-                            <span>Owned in cities: </span>
-                            {cars[carKey].owns_in_cities.length === 0 ? (
-                                <span>None</span>
-                            ) : (
-                                <span>{cars[carKey].owns_in_cities.join(', ')}</span>
-                            )}
+                            <span>Owned in current city: </span>
+                            <span style={{ color: cars[carKey].count_in_current_city > 0 ? '#66bb6a' : undefined, fontWeight: 'bold' }}>
+                                {cars[carKey].count_in_current_city}
+                            </span>
                         </div>
                         <p>Price: <strong>{formatMoney(cars[carKey].price)}</strong></p>
+                        <p>Drive: {cars[carKey].driving_multiplier}x</p>
                         <p>Defense: {cars[carKey].defense_multiplier}x</p>
-                        <p>Maintenance Cost: {formatMoney(cars[carKey].maintenance_cost)}</p>
+                        <p>Attack: {cars[carKey].attack_multiplier}x</p>
 
-                        {cars[carKey].owns_in_current_city ? (
-                            <button
-                                className="btn-sell"
-                                onClick={() => sellCar(carKey)}>Sell</button>
-                        ) : (
+                        <div style={{ display: 'flex', gap: '8px' }}>
                             <button
                                 className="btn-buy"
                                 onClick={() => buyCar(carKey)}>Buy</button>
-                        )}
+                            {cars[carKey].count_in_current_city > 0 && (
+                                <button
+                                    className="btn-sell"
+                                    onClick={() => sellCar(carKey)}>Sell</button>
+                            )}
+                        </div>
                     </div>
                 </div>
             ))}

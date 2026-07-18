@@ -61,3 +61,55 @@ AIRPLANES = {
         'cooldown_minutes': 15,
     },
 }
+
+CARS = {
+    'apex_type_c200': {
+        'name': 'Apex Type-C200',
+        'price': 20000,
+        'driving_multiplier': 1,
+        'defense_multiplier': 1,
+        'attack_multiplier': 1,
+    },
+    'overlander': {
+        'name': 'Overlander',
+        'price': 50000,
+        'driving_multiplier': 1,
+        'defense_multiplier': 2,
+        'attack_multiplier': 1,
+    },
+    'falken_gts': {
+        'name': 'Falken GTS',
+        'price': 100000,
+        'driving_multiplier': 1.5,
+        'defense_multiplier': 1.5,
+        'attack_multiplier': 1.5,
+    },
+    'vanguard': {
+        'name': 'Vanguard',
+        'price': 250000,
+        'driving_multiplier': 1.2,
+        'defense_multiplier': 3,
+        'attack_multiplier': 1.2,
+    },
+    'banshee': {
+        'name': 'Banshee',
+        'price': 600000,
+        'driving_multiplier': 2.5,
+        'defense_multiplier': 1.7,
+        'attack_multiplier': 1.7,
+    },
+    'imperium_r_armored': {
+        'name': 'Imperium-R Armored',
+        'price': 2000000,
+        'driving_multiplier': 1.5,
+        'defense_multiplier': 3.5,
+        'attack_multiplier': 2.5,
+    },
+    'bordeaux_v16': {
+        'name': 'Bordeaux V16',
+        'price': 12000000,
+        'driving_multiplier': 4,
+        'defense_multiplier': 2.5,
+        'attack_multiplier': 3.5,
+    },
+}

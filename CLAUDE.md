@@ -7,6 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 Order of Elites is an online text-based PBBG (Persistent Browser-Based Game) — a John Wick-inspired assassins' universe. Players earn money via missions and drug/alcohol production, kill each other (permadeath), chat, and send DMs. The draft game design/rules live in `README.md` (ranks, missions, black market economy formulas, weapons/cars/houses pricing, travel times, etc.). It might not match with what I actually have coded, because
 I sometimes forget to update the README.md, so don't rely on that unless I tell you that
 specific part is finilized.
+I'm building this with the help of AI, especially for the UI/UX, because I'm bad at
+style/design so you do your best matching the existing styles and design.
 
 ## Architecture
 

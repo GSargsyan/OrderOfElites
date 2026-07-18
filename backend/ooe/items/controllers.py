@@ -9,8 +9,12 @@ from ooe.base.exceptions import OOEException
 from ooe.items.constants import \
     HOUSES, \
     HOUSE_SELL_PERCENT, \
+    CARS, \
+    CAR_SELL_PERCENT, \
     AIRPLANES, \
     AIRPLANE_SELL_PERCENT
+
+from ooe.items.models import CarTransaction
 
 
 class ItemsController:
@@ -80,6 +84,84 @@ class ItemsController:
         return {
             'status': 'success',
             'message': 'House sold',
+        }
+
+    @staticmethod
+    def get_user_cars(user: object):
+        user_cars = user.cars.filter(city=user.city)
+        # Count how many of each car type the player owns in the current city
+        counts = {}
+        for uc in user_cars:
+            counts[uc.car] = counts.get(uc.car, 0) + 1
+
+        return {
+            key: {
+                'name': car['name'],
+                'price': car['price'],
+                'driving_multiplier': car['driving_multiplier'],
+                'defense_multiplier': car['defense_multiplier'],
+                'attack_multiplier': car['attack_multiplier'],
+                'count_in_current_city': counts.get(key, 0),
+            }
+            for key, car in CARS.items()
+        }
+
+    @staticmethod
+    def buy_car(user: object, car_name: str):
+        if car_name not in CARS:
+            raise OOEException('Invalid car name')
+
+        if user.money_cash < CARS[car_name]['price']:
+            raise OOEException('Not enough money')
+
+        user.money_cash = F('money_cash') - CARS[car_name]['price']
+        user.save()
+
+        user.cars.create(
+            car=car_name,
+            city=user.city,
+        )
+
+        CarTransaction.objects.create(
+            user=user,
+            car=car_name,
+            city=user.city,
+            action=CarTransaction.BUY,
+            price=CARS[car_name]['price'],
+        )
+
+        return {
+            'status': 'success',
+            'message': 'Car bought',
+        }
+
+    @staticmethod
+    def sell_car(user: object, car_name: str):
+        if car_name not in CARS:
+            raise OOEException('Invalid car name')
+
+        # Find the oldest owned unit of this car in the current city (FIFO)
+        car_to_sell = user.cars.filter(car=car_name, city=user.city).order_by('id').first()
+        if not car_to_sell:
+            raise OOEException('Does not own this car in the current city')
+
+        sell_price = int(CARS[car_name]['price'] * CAR_SELL_PERCENT)
+        user.money_cash = F('money_cash') + sell_price
+        user.save()
+
+        car_to_sell.delete()
+
+        CarTransaction.objects.create(
+            user=user,
+            car=car_name,
+            city=user.city,
+            action=CarTransaction.SELL,
+            price=sell_price,
+        )
+
+        return {
+            'status': 'success',
+            'message': 'Car sold',
         }
 
     @staticmethod

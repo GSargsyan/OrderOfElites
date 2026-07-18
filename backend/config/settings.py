@@ -244,4 +244,8 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'ooe.black_market.tasks.cleanup_sale_records',
         'schedule': 600.0,  # every 10 minutes
     },
+    'expire-extraction-invitations': {
+        'task': 'ooe.missions.tasks.expire_extraction_invitations',
+        'schedule': 60.0,  # every 60 seconds
+    },
 }
