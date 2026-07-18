@@ -2,9 +2,9 @@ import React, { useState, useEffect, useContext } from 'react'
 import { request, formatMoney } from 'modules/Base'
 import { UserPreviewCtx } from 'modules/Dashboard'
 
-import airplaneCorvus from 'assets/airplane_corvus.png'
-import airplaneMachIv from 'assets/airplane_mach_iv.png'
-import airplaneSentinelle from 'assets/airplane_sentinelle.png'
+import airplaneCorvus from 'assets/pictures/airplanes/airplane_corvus.png'
+import airplaneMachIv from 'assets/pictures/airplanes/airplane_mach_iv.png'
+import airplaneSentinelle from 'assets/pictures/airplanes/airplane_sentinelle.png'
 
 const AIRPLANE_IMAGES = {
     corvus: airplaneCorvus,

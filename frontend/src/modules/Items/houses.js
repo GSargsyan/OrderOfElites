@@ -2,6 +2,16 @@ import React, { useState, useEffect, useContext } from 'react'
 import { request, formatMoney } from 'modules/Base'
 import { UserPreviewCtx } from 'modules/Dashboard'
 
+import luxuryCondo from 'assets/pictures/houses/luxury_condo.png'
+import mansionEstate from 'assets/pictures/houses/mansion_estate.png'
+import studioApartment from 'assets/pictures/houses/studio_apartment.png'
+
+const HOUSE_IMAGES = {
+    luxury_condo: luxuryCondo,
+    mansion_estate: mansionEstate,
+    studio_apartment: studioApartment,
+}
+
 function Houses() {
     console.log('Houses rendered')
 
@@ -75,7 +85,7 @@ function Houses() {
                 <div className="item-card" key={houseKey}>
                     <img
                         className="item-image"
-                        src={`/images/${houseKey}.png`}
+                        src={HOUSE_IMAGES[houseKey]}
                         alt={houses[houseKey].name}
                     />
                     <div className="item-info">

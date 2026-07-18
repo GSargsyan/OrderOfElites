@@ -1,5 +1,5 @@
 // import axios from 'axios'
-import React, { createContext, useState, useEffect, memo, useRef } from 'react'
+import React, { createContext, useState, useEffect, memo, useRef, useCallback } from 'react'
 
 import ChatContainer from 'modules/Chat/chatContainer.js'
 import MissionsTab from 'modules/Missions/missionsTab.js'
@@ -7,6 +7,8 @@ import SkillsTab from 'modules/Skills/skillsTab.js'
 import BlackMarketTab from 'modules/BlackMarket/blackMarketTab.js'
 import ItemsTab from 'modules/Items/itemsTab.js'
 import NetworkingTab from 'modules/Networking/networkingTab.js'
+import TravelTab from 'modules/Travel/travelTab.js'
+import FlightOverlay from 'modules/Travel/flightOverlay.js'
 import UserProfileModal from 'modules/Dashboard/userProfile.js'
 import { request, formatMoney } from 'modules/Base'
 import Footer from 'modules/Home/footer'
@@ -14,6 +16,9 @@ import 'styles/dashboard.css'
 
 
 export const UserPreviewCtx = createContext()
+
+// Tabs that are blocked while the user is in-flight
+const FLIGHT_BLOCKED_TABS = ['missions', 'skills', 'black_market', 'items']
 
 function Dashboard() {
     const [activeTab, setActiveTab] = useState('dashboard')
@@ -25,16 +30,15 @@ function Dashboard() {
     const [messageUser, setMessageUser] = useState(null)
     const [focusChatInput, setFocusChatInput] = useState(false)
 
-    const updateUserPreviewData = () => {
+    const updateUserPreviewData = useCallback(() => {
         request({
             'url': 'users/get_preview',
             'method': 'POST',
         })
             .then(response => {
-                console.log(response.data)
                 setUserPreviewData(response.data)
             })
-    }
+    }, [])
 
     const tabComponents = {
         'dashboard': {
@@ -62,6 +66,11 @@ function Dashboard() {
             'label': 'Items',
             'props': {}
         },
+        'travel': {
+            'component': TravelTab,
+            'label': 'Travel',
+            'props': {}
+        },
         'networking': {
             'component': NetworkingTab,
             'label': 'Networking',
@@ -76,6 +85,9 @@ function Dashboard() {
         updateUserPreviewData()
     }, [])
 
+    const isInFlight = userPreviewData?.in_flight || false
+    const flightData = userPreviewData?.flight_data || null
+
     return (
         <div className="dashboard-wrapper" data-city={userPreviewData?.city}>
             {/* ── Header Bar ─────────────────────────── */}
@@ -84,7 +96,11 @@ function Dashboard() {
                     Order <span className="accent">of</span> Elites
                 </h1>
 
-                <UserPreview userPreviewData={userPreviewData} />
+                <UserPreview
+                    userPreviewData={userPreviewData}
+                    isInFlight={isInFlight}
+                    flightData={flightData}
+                />
             </div>
 
             {/* ── Center Layout ──────────────────────── */}
@@ -95,6 +111,8 @@ function Dashboard() {
                     <GameDash
                         tabComponents={tabComponents}
                         activeTab={activeTab}
+                        isInFlight={isInFlight}
+                        flightData={flightData}
                         setUserProfileData={setUserProfileData}
                     />
 
@@ -102,6 +120,7 @@ function Dashboard() {
                         tabComponents={tabComponents}
                         activeTab={activeTab}
                         setActiveTab={setActiveTab}
+                        isInFlight={isInFlight}
                     />
                 </div>
 
@@ -121,19 +140,20 @@ function Dashboard() {
     )
 }
 
-function MenuItems({ tabComponents, activeTab, setActiveTab }) {
-    console.log('MenuItems rendered')
-
+function MenuItems({ tabComponents, activeTab, setActiveTab, isInFlight }) {
     return (
         <div className="menu-panel glass-panel">
-            {Object.keys(tabComponents).map(tabKey => (
-                <button
-                    className={`menu-btn ${activeTab === tabKey ? 'active' : ''}`}
-                    key={tabKey}
-                    onClick={(e) => setActiveTab(tabKey)}
-                >{tabComponents[tabKey].label}
-                </button>
-            ))}
+            {Object.keys(tabComponents).map(tabKey => {
+                return (
+                    <button
+                        className={`menu-btn ${activeTab === tabKey ? 'active' : ''}`}
+                        key={tabKey}
+                        onClick={() => setActiveTab(tabKey)}
+                    >
+                        {tabComponents[tabKey].label}
+                    </button>
+                )
+            })}
         </div>
     )
 }
@@ -141,18 +161,25 @@ function MenuItems({ tabComponents, activeTab, setActiveTab }) {
 function GameDash({
     tabComponents,
     activeTab,
+    isInFlight,
+    flightData,
     setUserProfileData,
     setShowUserProfileModal
 }) {
-    console.log('GameDash rendered')
+    const isBlockedByFlight = isInFlight && FLIGHT_BLOCKED_TABS.includes(activeTab)
 
     return (
         <div
-            key={activeTab}
+            key={isBlockedByFlight ? 'flight-overlay' : activeTab}
             className='central-panel glass-panel'
+            style={{ position: 'relative' }}
         >
-            {React.createElement(tabComponents[activeTab].component,
-                tabComponents[activeTab].props)}
+            {isBlockedByFlight ? (
+                <FlightOverlay />
+            ) : (
+                React.createElement(tabComponents[activeTab].component,
+                    tabComponents[activeTab].props)
+            )}
         </div>
     )
 }
@@ -219,16 +246,87 @@ const AnimatedMoney = ({ value }) => {
     )
 }
 
-const UserPreview = memo(({ userPreviewData }) => {
-    console.log('UserPreview rendered')
 
+/**
+ * FlightRouteIndicator
+ * Shows: OriginCity ...●...●...● DestinationCity
+ * with a progress-based animated dots line and an ETA label on top (hours/minutes, no seconds).
+ */
+function FlightRouteIndicator({ flightData }) {
+    const [etaLabel, setEtaLabel] = useState('')
+    const [progress, setProgress] = useState(0)
+
+    useEffect(() => {
+        const tick = () => {
+            const now = Math.floor(Date.now() / 1000)
+            const total = flightData.arrival_time - flightData.departed_at
+            const elapsed = now - flightData.departed_at
+            const remaining = Math.max(0, flightData.arrival_time - now)
+
+            // Progress 0→1
+            const pct = total > 0 ? Math.min(1, elapsed / total) : 0
+            setProgress(pct)
+
+            // ETA label (no seconds)
+            const totalMins = Math.floor(remaining / 60)
+            const h = Math.floor(totalMins / 60)
+            const m = totalMins % 60
+            if (remaining <= 0) {
+                setEtaLabel('Arriving...')
+            } else if (h > 0) {
+                setEtaLabel(`${h}h ${m}m`)
+            } else {
+                setEtaLabel(`${m}m`)
+            }
+        }
+
+        tick()
+        const interval = setInterval(tick, 10000) // update every 10s (no seconds shown)
+        return () => clearInterval(interval)
+    }, [flightData])
+
+    // 7 dots total — light up based on progress
+    const DOT_COUNT = 7
+    const litDots = Math.round(progress * DOT_COUNT)
+
+    return (
+        <div className="flight-route-indicator">
+            <div className="flight-route-eta">{etaLabel}</div>
+            <div className="flight-route-track">
+                <span className="flight-route-city flight-route-city--origin">
+                    {flightData.origin_city}
+                </span>
+                <div className="flight-route-dots">
+                    {Array.from({ length: DOT_COUNT }).map((_, i) => (
+                        <span
+                            key={i}
+                            className={`flight-route-dot ${i < litDots ? 'flight-route-dot--lit' : ''}`}
+                        />
+                    ))}
+                </div>
+                <span className="flight-route-city flight-route-city--dest">
+                    {flightData.destination_city}
+                </span>
+            </div>
+        </div>
+    )
+}
+
+
+const UserPreview = memo(({ userPreviewData, isInFlight, flightData }) => {
     return (
         <div className="user-preview-bar glass-panel">
             {userPreviewData ? (
                 <>
                     <div className="user-preview-top">
                         <span className="user-preview-username">{userPreviewData.username}</span>
-                        <span className="user-preview-city">{userPreviewData.city.toUpperCase()}</span>
+
+                        {isInFlight && flightData ? (
+                            <FlightRouteIndicator flightData={flightData} />
+                        ) : (
+                            <span className="user-preview-city">{userPreviewData.city.toUpperCase()}</span>
+                        )}
+
                         <span className="user-preview-money"><AnimatedMoney value={userPreviewData.money_cash} /></span>
                     </div>
 
@@ -272,8 +370,6 @@ const UserPreview = memo(({ userPreviewData }) => {
 
 
 function DashboardTab() {
-    console.log('DashboardTab rendered')
-
     return (
         <div className="dashboard-welcome">
             <h2>WELCOME, OPERATIVE</h2>

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import Header from './header'
 import Footer from './footer'
 import { request } from 'modules/Base'
-import homepageBg from 'assets/homepage_bg.png'
+import homepageBg from 'assets/pictures/homepage_bg.png'
 import 'styles/dashboard.css'
 
 function Homepage() {

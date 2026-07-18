@@ -103,8 +103,8 @@ SKILLS = {
 
 ITEM_SELL_PERCENT = .75
 
-# the realistic travel times will be frustrated we need a variable
-# in constants that will reduce the amount of time by dividing to this number
+# the exact realistic times to wait in game will be frustrating,
+# so let's divide the realistic times by this number
 TRAVEL_TIME_REDUCER = 2.32
 
 TRAVEL_ROUTES = {

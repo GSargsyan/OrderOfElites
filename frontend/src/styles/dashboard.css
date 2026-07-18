@@ -99,14 +99,13 @@ button {
   content: '';
   position: fixed;
   inset: 0;
-  background: url('../assets/dashboard_bg.png') center/cover no-repeat;
   opacity: 0.35;
   z-index: 0;
   pointer-events: none;
 }
 
 .dashboard-wrapper[data-city="New York"]::before {
-  background: url('../assets/new_york_bg.png') center/cover no-repeat;
+  background: url('../assets/pictures/new_york_bg.png') center/cover no-repeat;
 }
 
 /* Dark vignette overlay */
@@ -2753,3 +2752,597 @@ button {
     width: 34px;
   }
 }
+
+
+/* ═══════════════════════════════════════════════════════════
+   TRAVEL TAB
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Notice Banner ── */
+.travel-notice {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-style: italic;
+  color: var(--text-muted);
+  background: rgba(79, 195, 247, 0.04);
+  border: 1px solid rgba(79, 195, 247, 0.1);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  margin-bottom: 24px;
+  letter-spacing: 0.2px;
+  line-height: 1.5;
+}
+
+/* ── Section Header ── */
+.travel-section {
+  margin-bottom: 24px;
+}
+
+.travel-section-title {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+/* ── City Cards Grid ── */
+.travel-cities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.travel-city-card {
+  padding: 14px 16px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-med);
+  position: relative;
+  overflow: hidden;
+}
+
+.travel-city-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-cyan);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.travel-city-card:hover {
+  border-color: rgba(79, 195, 247, 0.25);
+  background: var(--bg-panel-hover);
+}
+
+.travel-city-card.selected {
+  border-color: rgba(79, 195, 247, 0.5);
+  background: rgba(79, 195, 247, 0.06);
+  box-shadow: var(--glow-cyan);
+}
+
+.travel-city-card.selected::before {
+  opacity: 1;
+}
+
+.travel-city-name {
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.travel-city-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.travel-city-cost {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--accent-gold);
+}
+
+.travel-city-time {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ── Airplane Cards Grid ── */
+.travel-airplanes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.travel-airplane-card {
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-med);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+}
+
+.travel-airplane-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent-gold);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.travel-airplane-card:hover {
+  border-color: rgba(212, 168, 75, 0.2);
+  background: var(--bg-panel-hover);
+}
+
+.travel-airplane-card.selected {
+  border-color: rgba(212, 168, 75, 0.4);
+  background: rgba(212, 168, 75, 0.05);
+  box-shadow: var(--glow-gold);
+}
+
+.travel-airplane-card.selected::before {
+  opacity: 1;
+}
+
+.travel-airplane-img {
+  width: 60px;
+  height: 44px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.travel-airplane-img--commercial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(79, 195, 247, 0.08);
+  border: 1px solid var(--glass-border);
+  font-size: 1.8rem;
+  color: var(--accent-cyan);
+}
+
+.travel-airplane-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.travel-airplane-name {
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+}
+
+.travel-airplane-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* ── Flight Summary Box ── */
+.travel-summary-box {
+  background: rgba(212, 168, 75, 0.04);
+  border: 1px solid rgba(212, 168, 75, 0.2);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.travel-summary-title {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.travel-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+}
+
+.travel-summary-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.travel-summary-label {
+  font-family: var(--font-ui);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.travel-summary-value {
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
+}
+
+.travel-summary-cost {
+  color: var(--accent-gold);
+}
+
+/* ── Travel Button ── */
+.btn-travel {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 32px;
+  font-family: var(--font-ui);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--bg-deep);
+  background: linear-gradient(135deg, var(--accent-gold-dim), var(--accent-gold));
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-med);
+  border: none;
+  box-shadow: 0 4px 16px rgba(212, 168, 75, 0.25);
+}
+
+.btn-travel:hover:not(:disabled) {
+  filter: brightness(1.12);
+  box-shadow: 0 6px 24px rgba(212, 168, 75, 0.4);
+  transform: translateY(-1px);
+}
+
+.btn-travel:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* ── Error ── */
+.travel-error {
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  color: var(--accent-red);
+  background: rgba(239, 83, 80, 0.08);
+  border: 1px solid rgba(239, 83, 80, 0.2);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin-bottom: 12px;
+}
+
+/* ── Active Flight Panel ── */
+.travel-active-flight {
+  text-align: center;
+  padding: 32px 20px;
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  border-radius: var(--radius-lg);
+  background: rgba(79, 195, 247, 0.04);
+  animation: flightPulse 4s ease-in-out infinite;
+}
+
+@keyframes flightPulse {
+  0%, 100% { box-shadow: 0 0 0 rgba(79, 195, 247, 0); }
+  50% { box-shadow: 0 0 20px rgba(79, 195, 247, 0.15); }
+}
+
+.travel-active-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.travel-active-icon {
+  font-size: 1.8rem;
+  animation: flyAcross 3s ease-in-out infinite;
+}
+
+@keyframes flyAcross {
+  0%, 100% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+}
+
+.travel-active-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--accent-cyan);
+  text-shadow: var(--glow-cyan);
+  text-transform: uppercase;
+}
+
+.travel-active-route {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.travel-active-city {
+  font-family: var(--font-ui);
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 1px;
+}
+
+.travel-active-city--dest {
+  color: var(--accent-cyan);
+}
+
+.travel-active-arrow {
+  font-size: 1.3rem;
+  color: var(--accent-gold);
+  opacity: 0.7;
+}
+
+.travel-active-eta {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--accent-gold);
+  text-shadow: var(--glow-gold);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.travel-active-airplane {
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+/* ── Cooldown Notice ── */
+.travel-cooldown-notice {
+  text-align: center;
+  padding: 32px 20px;
+  border: 1px solid rgba(212, 168, 75, 0.2);
+  border-radius: var(--radius-lg);
+  background: rgba(212, 168, 75, 0.04);
+}
+
+.travel-cooldown-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.travel-cooldown-title {
+  font-family: var(--font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--accent-gold);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.travel-cooldown-remaining {
+  font-family: var(--font-ui);
+  font-size: 1rem;
+  color: var(--text-secondary);
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   FLIGHT OVERLAY (central panel video effect)
+   ═══════════════════════════════════════════════════════════ */
+.flight-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: #000;
+  z-index: 5;
+}
+
+.flight-overlay-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.85;
+}
+
+.flight-overlay-info {
+  position: relative;
+  z-index: 6;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 24px 32px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(79, 195, 247, 0.2);
+  border-radius: var(--radius-xl);
+  backdrop-filter: blur(6px);
+  pointer-events: none;
+  user-select: none;
+}
+
+.flight-overlay-icon {
+  font-size: 2.5rem;
+  animation: overlayPlaneFloat 3s ease-in-out infinite;
+}
+
+@keyframes overlayPlaneFloat {
+  0%, 100% { transform: translateY(0) translateX(-3px); }
+  50% { transform: translateY(-6px) translateX(3px); }
+}
+
+.flight-overlay-title {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--accent-cyan);
+  text-shadow: var(--glow-cyan);
+  text-transform: uppercase;
+}
+
+.flight-overlay-eta {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.flight-overlay-eta-label {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.flight-overlay-eta-value {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--accent-gold);
+  text-shadow: var(--glow-gold);
+  letter-spacing: 2px;
+}
+
+.flight-overlay-subtitle {
+  font-family: var(--font-body);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  letter-spacing: 0.3px;
+  max-width: 260px;
+  line-height: 1.5;
+  margin-top: 4px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   FLIGHT ROUTE INDICATOR (header bar)
+   Shown in-place of city name when in-flight:
+   New York ●─●─●─●─●─●─● Rome
+   ═══════════════════════════════════════════════════════════ */
+.flight-route-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+}
+
+.flight-route-eta {
+  font-family: var(--font-display);
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--accent-gold);
+  text-shadow: var(--glow-gold);
+  white-space: nowrap;
+}
+
+.flight-route-track {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+}
+
+.flight-route-city {
+  font-family: var(--font-ui);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.flight-route-city--dest {
+  color: var(--accent-cyan);
+}
+
+.flight-route-dots {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.flight-route-dot {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(79, 195, 247, 0.18);
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+  flex-shrink: 0;
+}
+
+.flight-route-dot--lit {
+  background: var(--accent-cyan);
+  box-shadow: 0 0 6px rgba(79, 195, 247, 0.7);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   MENU BUTTON — flight-blocked state
+   ═══════════════════════════════════════════════════════════ */
+.menu-btn--flight-blocked {
+  opacity: 0.55;
+  position: relative;
+}
+
+.menu-btn-flight-badge {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.7rem;
+  opacity: 0.7;
+}

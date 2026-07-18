@@ -42,6 +42,9 @@ class User(AbstractBaseUser):
         db_table = 'ooe_users'
 
     def get_rank_progress(self):
+        if self.rank + 1 not in RANK_EXPS:
+            return 100.0
+
         next_rank_exp = RANK_EXPS[self.rank + 1]
         curr_rank_exp = RANK_EXPS[self.rank]
 
@@ -53,6 +56,9 @@ class User(AbstractBaseUser):
         return progress
 
     def get_preview_data(self):
+        from ooe.travel.controllers import TravelController
+        TravelController.check_and_complete_active_flight(self)
+
         res = {
             'username': self.username,
             'city': self.city.name,
@@ -62,7 +68,22 @@ class User(AbstractBaseUser):
             'attack_points': self.attack_points,
             'defense_points': self.defense_points,
             'driving_points': self.driving_points,
+            'in_flight': False,
+            'flight_data': None,
         }
+
+        # Include active flight data if the user is currently in flight
+        active_flight = self.flights.filter(arrived_at__isnull=True).select_related(
+            'origin_city', 'destination_city'
+        ).first()
+        if active_flight:
+            res['in_flight'] = True
+            res['flight_data'] = {
+                'origin_city': active_flight.origin_city.name,
+                'destination_city': active_flight.destination_city.name,
+                'arrival_time': active_flight.arrival_time.timestamp(),
+                'departed_at': active_flight.departed_at.timestamp(),
+            }
 
         return res
 
@@ -77,7 +98,7 @@ class User(AbstractBaseUser):
         self.refresh_from_db()
 
         # Update rank if needed
-        if self.exp >= RANK_EXPS[self.rank + 1]:
+        if self.rank + 1 in RANK_EXPS and self.exp >= RANK_EXPS[self.rank + 1]:
             self.rank += 1
             self.save(update_fields=['rank'])
 
