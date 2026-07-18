@@ -142,13 +142,10 @@ def signup_user(request):
             f"{PASSWORD_LEN_MAX} characters long"}, status=400)
 
     if not re.match(PASSWORD_REGEX, password):
-        return Response({"error": "Password should consist of latin letters, numbers " 
-            "and underscores"}, status=400)
-
-    if not re.match(PASSWORD_REGEX, password):
         return Response({"error": "Password can only contain latin letters, "
-            "numbers and special characters"}, status=400)
-        
+            "numbers and !@#$%^&*() special characters"}, status=400)
+
+
     user = User.objects.create(username=username, password=make_password(password))
     user.last_login_time = timezone.now()
     user.save(update_fields=['last_login_time'])

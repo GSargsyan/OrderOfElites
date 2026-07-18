@@ -1,3 +1,6 @@
+# solo missions startable via start_mission/<name> (extraction has its own flow)
+SIMPLE_MISSIONS = ('stakeout', 'recon_op')
+
 RANK_REQUIREMENTS = {
     'stakeout': 1,
     'recon_op': 2,

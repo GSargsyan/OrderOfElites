@@ -14,7 +14,8 @@ from ooe.base.exceptions import OOEException
 from ooe.base.constants import RANK_EXPS
 from ooe.missions.constants import \
     RANK_REQUIREMENTS, \
-    MISSIONS
+    MISSIONS, \
+    SIMPLE_MISSIONS
 from ooe.missions.models import ExtractionMission
 
 
@@ -36,6 +37,9 @@ class Mission:
         self.user = user
 
     def validate_start(self):
+        if self.name not in SIMPLE_MISSIONS:
+            raise OOEException('Invalid mission')
+
         cd_remaining = cache.get(f'user_{self.user.id}_{self.name}_cd')
 
         if cd_remaining is not None and cd_remaining > int(time.time()):

@@ -1,3 +1,17 @@
 *.swp
 .idea/
 .DS_Store
+
+# Python
+__pycache__/
+*.pyc
+
+# Runtime state
+backend/celerybeat-schedule
+backend/var/
+psql/pgdata/
+redis/data/
+
+# Node / React
+node_modules/
+frontend/build/

@@ -32,6 +32,9 @@ class SkillsController:
         }
 
     def validate_practice(self, skill_name: str):
+        if skill_name not in SKILLS:
+            raise OOEException('Invalid skill')
+
         is_free = skill_name.endswith('_free')
 
         cd_remaining = cache.get(f'user_{self.user.id}_training_{"free" if is_free else "pro"}_cd')

@@ -50,7 +50,7 @@ def update_prices():
 
     # P = active players (logged in recently)
     population = User.objects.filter(
-        last_login__gte=population_cutoff
+        last_login_time__gte=population_cutoff
     ).count()
 
     # Ensure P is at least 1 to avoid division by zero

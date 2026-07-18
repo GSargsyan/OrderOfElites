@@ -46,9 +46,14 @@ class BlackMarketController:
             player_drug_state__user=self.user
         ).count()
 
-    def _get_or_create_state(self, drug_type):
-        """Get or create the PlayerDrugState for this user/drug/city."""
-        state, _ = PlayerDrugState.objects.get_or_create(
+    def _get_or_create_state(self, drug_type, lock=False):
+        """Get or create the PlayerDrugState for this user/drug/city.
+        lock=True row-locks the state (requires an atomic block) so concurrent
+        requests can't double-sell or double-spend."""
+        qs = PlayerDrugState.objects
+        if lock:
+            qs = qs.select_for_update()
+        state, _ = qs.get_or_create(
             user=self.user,
             drug_type=drug_type,
             city=self.user.city,
@@ -288,7 +293,7 @@ class BlackMarketController:
         if self.user.money_cash < price:
             raise OOEException('Not enough money')
 
-        state = self._get_or_create_state(drug_type)
+        state = self._get_or_create_state(drug_type, lock=True)
         state = self.lazy_update_state(state) # Update to now
 
         User.objects.filter(id=self.user.id).update(
@@ -373,7 +378,7 @@ class BlackMarketController:
         if drug_type not in DRUG_TYPES:
             raise OOEException('Invalid drug type')
 
-        state = self._get_or_create_state(drug_type)
+        state = self._get_or_create_state(drug_type, lock=True)
         state = self.lazy_update_state(state)
 
         if state.stash_qty <= 0:

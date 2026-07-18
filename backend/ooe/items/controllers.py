@@ -76,7 +76,7 @@ class ItemsController:
         if not user.houses.filter(house=house_name, city=user.city).exists():
             raise OOEException('Does not own this house in the current city')
 
-        user.money_cash = F('money_cash') + HOUSES[house_name]['price'] * HOUSE_SELL_PERCENT
+        user.money_cash = F('money_cash') + int(HOUSES[house_name]['price'] * HOUSE_SELL_PERCENT)
         user.save()
 
         user.houses.filter(house=house_name, city=user.city).delete()
@@ -219,7 +219,7 @@ class ItemsController:
         if not user.airplanes.filter(airplane=airplane_name).exists():
             raise OOEException('Does not own this airplane')
 
-        user.money_cash = F('money_cash') + AIRPLANES[airplane_name]['price'] * AIRPLANE_SELL_PERCENT
+        user.money_cash = F('money_cash') + int(AIRPLANES[airplane_name]['price'] * AIRPLANE_SELL_PERCENT)
         user.save()
 
         user.airplanes.filter(airplane=airplane_name).delete()

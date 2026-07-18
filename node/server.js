@@ -5,7 +5,7 @@ const cors = require('cors');
 const redis = require('redis');
 
 const { sequelize, ChatRoom } = require('./modules/models.js');
-const { setupChatRoom } = require('./modules/chatHandler.js');
+const { setupChatRoom, authConnection } = require('./modules/chatHandler.js');
 const { setupNotifications } = require('./modules/dmHandler.js');
 
 const app = express();
@@ -65,16 +65,19 @@ let notifNamespace;
 const bmNamespace = io.of('/black-market');
 bmNamespace.on('connection', async (socket) => {
     const token = socket.handshake.query.token;
-    const userId = socket.handshake.query.user_id;
 
-    if (userId) {
-        socket.join(`user_${userId}`);
-        console.log(`User ${userId} joined their market channel`);
-    } else {
-        console.log('No user_id provided for black market connection');
+    // Verify the token with the backend — never trust a client-supplied user_id,
+    // or anyone could subscribe to another player's market updates.
+    const authData = await authConnection(token, null);
+
+    if (!authData || !authData.user_id) {
+        console.log('Black market connection rejected — invalid token');
         socket.disconnect();
         return;
     }
+
+    socket.join(`user_${authData.user_id}`);
+    console.log(`User ${authData.user_id} joined their market channel`);
 
     socket.on('disconnect', () => {
         console.log('user disconnected from black market');
