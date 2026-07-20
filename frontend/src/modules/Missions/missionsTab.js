@@ -24,28 +24,28 @@ function MissionsTab() {
             'url': 'missions/get_missions_tab_data',
             'method': 'POST',
         })
-        .then(response => {
-            console.log('missions/get_missions_tab_data')
-            setMissionsData(response.data)
+            .then(response => {
+                console.log('missions/get_missions_tab_data')
+                setMissionsData(response.data)
 
-            setIsStakeoutAllowed(response.data.stakeout.allowed)
-            setIsReconOpAllowed(response.data.recon_op.allowed)
+                setIsStakeoutAllowed(response.data.stakeout.allowed)
+                setIsReconOpAllowed(response.data.recon_op.allowed)
 
-            setStakeoutCdRemaining(secondsRemaining(response.data.stakeout.cd_remaining))
-            setReconOpCdRemaining(secondsRemaining(response.data.recon_op.cd_remaining))
+                setStakeoutCdRemaining(secondsRemaining(response.data.stakeout.cd_remaining))
+                setReconOpCdRemaining(secondsRemaining(response.data.recon_op.cd_remaining))
 
-            setIsStakeoutAvailable(response.data.stakeout.allowed &&
-                secondsRemaining(response.data.stakeout.cd_remaining) <= 0)
+                setIsStakeoutAvailable(response.data.stakeout.allowed &&
+                    secondsRemaining(response.data.stakeout.cd_remaining) <= 0)
 
-            setIsReconOpAvailable(response.data.recon_op.allowed &&
-                secondsRemaining(response.data.recon_op.cd_remaining) <= 0)
+                setIsReconOpAvailable(response.data.recon_op.allowed &&
+                    secondsRemaining(response.data.recon_op.cd_remaining) <= 0)
 
-            setExtractionData(response.data.extraction)
-            setExtractionCdRemaining(secondsRemaining(response.data.extraction.cd_remaining))
-        })
-        .catch(error => {
-            console.error("Error getting missions tab data: ", error)
-        })
+                setExtractionData(response.data.extraction)
+                setExtractionCdRemaining(secondsRemaining(response.data.extraction.cd_remaining))
+            })
+            .catch(error => {
+                console.error("Error getting missions tab data: ", error)
+            })
     }
 
     useEffect(() => {
@@ -85,20 +85,20 @@ function MissionsTab() {
             'url': `missions/start/${missionType}`,
             'method': 'POST',
         })
-        .then(response => {
-            updateUserPreviewData()
+            .then(response => {
+                updateUserPreviewData()
 
-            if (missionType === 'stakeout') {
-                setIsStakeoutAvailable(false)
-                setStakeoutCdRemaining(secondsRemaining(response.data.cd_remaining))
-            } else if (missionType === 'recon_op') {
-                setIsReconOpAvailable(false)
-                setReconOpCdRemaining(secondsRemaining(response.data.cd_remaining))
-            }
-        })
-        .catch(error => {
-            console.error("Error starting mission:", error)
-        })
+                if (missionType === 'stakeout') {
+                    setIsStakeoutAvailable(false)
+                    setStakeoutCdRemaining(secondsRemaining(response.data.cd_remaining))
+                } else if (missionType === 'recon_op') {
+                    setIsReconOpAvailable(false)
+                    setReconOpCdRemaining(secondsRemaining(response.data.cd_remaining))
+                }
+            })
+            .catch(error => {
+                console.error("Error starting mission:", error)
+            })
     }
 
     const extractionAction = (action, payload = {}) => {
@@ -108,22 +108,22 @@ function MissionsTab() {
             'method': 'POST',
             'data': payload,
         })
-        .then(response => {
-            if (action === 'start') {
-                alert(`Extraction complete! You earned $${response.data.reward.toLocaleString('en-US')} ` +
-                    `and ${response.data.exp_reward} EXP.`)
-                updateUserPreviewData()
-            }
-            setSelectedCar('')
-            loadMissionsData()
-        })
-        .catch(error => {
-            console.error("Error on extraction action:", error)
-            const message = (error.response && error.response.data && error.response.data.message)
-                || 'Something went wrong'
-            alert(message)
-            loadMissionsData()
-        })
+            .then(response => {
+                if (action === 'start') {
+                    alert(`Extraction complete! You earned $${response.data.reward.toLocaleString('en-US')} ` +
+                        `and ${response.data.exp_reward} EXP.`)
+                    updateUserPreviewData()
+                }
+                setSelectedCar('')
+                loadMissionsData()
+            })
+            .catch(error => {
+                console.error("Error on extraction action:", error)
+                const message = (error.response && error.response.data && error.response.data.message)
+                    || 'Something went wrong'
+                alert(message)
+                loadMissionsData()
+            })
     }
 
     const sendInvite = () => {
@@ -152,7 +152,8 @@ function MissionsTab() {
                         <input
                             className="extraction-input"
                             type="text"
-                            placeholder="Driver's username"
+                            placeholder="Driver's name"
+                            autoComplete="new-password"
                             value={inviteUsername}
                             onChange={e => setInviteUsername(e.target.value)}
                             onKeyDown={e => { if (e.key === 'Enter') sendInvite() }}
